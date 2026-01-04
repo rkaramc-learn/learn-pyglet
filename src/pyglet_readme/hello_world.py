@@ -16,6 +16,9 @@ def run_hello_world():
     image = pyglet.resource.image('kitten.png')
     image.width = image.width // 10
     image.height = image.height // 10
+    
+    # Load sound
+    meow_sound = pyglet.resource.media('meow.wav', streaming=False)
 
     image_x = window.width // 2
     image_y = window.height // 2
@@ -24,6 +27,7 @@ def run_hello_world():
     target_x = image_x
     target_y = image_y
     is_moving_to_target = False
+    was_moving = False
 
     # Key handler for continuous input
     keys = key.KeyStateHandler()
@@ -48,7 +52,7 @@ def run_hello_world():
     window.push_handlers(on_key_press=on_key_press, on_mouse_press=on_mouse_press)
 
     def update(dt: float):
-        nonlocal image_x, image_y, is_moving_to_target
+        nonlocal image_x, image_y, is_moving_to_target, was_moving
         
         # Move with step_size (pixels per second)
         move_distance = step_size * dt
@@ -102,6 +106,13 @@ def run_hello_world():
                 
                 if distance <= move_distance:
                     is_moving_to_target = False
+        
+        # Check if we stopped moving
+        is_moving = key_active or is_moving_to_target
+        if was_moving and not is_moving:
+            meow_sound.play() # pyright: ignore[reportUnusedCallResult]
+        
+        was_moving = is_moving
 
     pyglet.clock.schedule_interval(update, 1/60.0) # pyright: ignore[reportUnknownMemberType]
 
