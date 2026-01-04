@@ -1,8 +1,9 @@
 import pyglet
 import os
+import math
 
 def run_hello_world():
-    from pyglet.window import key
+    from pyglet.window import key, mouse
 
     # Add the current directory to the resource path
     script_dir = os.path.dirname(__file__)
@@ -20,6 +21,10 @@ def run_hello_world():
     image_y = window.height // 2
     step_size = 100.0  # Pixels per second
 
+    target_x = image_x
+    target_y = image_y
+    is_moving_to_target = False
+
     # Key handler for continuous input
     keys = key.KeyStateHandler()
     window.push_handlers(keys)
@@ -32,38 +37,71 @@ def run_hello_world():
             step_size = max(0, step_size - 50)
         elif symbol == key.Q:
             window.close()
+            
+    def on_mouse_press(x: int, y: int, button: int, _modifiers: int):
+        nonlocal target_x, target_y, is_moving_to_target
+        if button == mouse.LEFT:
+            target_x = x
+            target_y = y
+            is_moving_to_target = True
 
-    window.push_handlers(on_key_press=on_key_press)
+    window.push_handlers(on_key_press=on_key_press, on_mouse_press=on_mouse_press)
 
     def update(dt: float):
-        nonlocal image_x, image_y
+        nonlocal image_x, image_y, is_moving_to_target
         
         # Move with step_size (pixels per second)
         move_distance = step_size * dt
         
+        # Check for keyboard movement
+        key_active = False
+
         # Cardinal movement (HJKL and Arrows)
         if keys[key.J] or keys[key.UP]:
             image_y += move_distance
+            key_active = True
         if keys[key.K] or keys[key.DOWN]:
             image_y -= move_distance
+            key_active = True
         if keys[key.H] or keys[key.LEFT]:
             image_x -= move_distance
+            key_active = True
         if keys[key.L] or keys[key.RIGHT]:
             image_x += move_distance
+            key_active = True
 
         # Diagonal movement
         if keys[key.HOME]: # Up-Left
             image_y += move_distance
             image_x -= move_distance
+            key_active = True
         if keys[key.PAGEUP]: # Up-Right
             image_y += move_distance
             image_x += move_distance
+            key_active = True
         if keys[key.END]: # Down-Left
             image_y -= move_distance
             image_x -= move_distance
+            key_active = True
         if keys[key.PAGEDOWN]: # Down-Right
             image_y -= move_distance
             image_x += move_distance
+            key_active = True
+            
+        if key_active:
+            is_moving_to_target = False
+        elif is_moving_to_target:
+            dx = target_x - image_x
+            dy = target_y - image_y
+            distance = math.sqrt(dx*dx + dy*dy)
+            
+            if distance > 0:
+                travel = min(distance, move_distance)
+                image_x += (dx / distance) * travel
+                image_y += (dy / distance) * travel
+                
+                if distance <= move_distance:
+                    is_moving_to_target = False
 
     pyglet.clock.schedule_interval(update, 1/60.0) # pyright: ignore[reportUnknownMemberType]
 
