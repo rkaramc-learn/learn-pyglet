@@ -14,23 +14,33 @@ def run_hello_world():
     image.width = image.width // 10
     image.height = image.height // 10
 
+    image_x = 0
+    image_y = 0
+    step_size = 10
+
     @window.event  # pyright: ignore[reportUnknownMemberType]
     def on_draw(): # pyright: ignore[reportUnusedFunction]
         window.clear()
         label.draw()
-        image.blit(0, 0)
-
-    step_size = 10
+        image.blit(image_x, image_y)
     
-    @window.event
-    def on_key_press(symbol, modifiers):
-        # move image...
-        # if key is j - up by step_size pixels
-        # if key is k - down by step_size pixels
-        # if key is h - left by step_size pixels
-        # if key is l - right by step_size pixels
-        # if key is w - increase step size by 10 pixels
-        # if key is s - decrease step size by 10 pixels
+    @window.event # pyright: ignore[reportUnknownMemberType]
+    def on_key_press(symbol: int, _modifiers: int): # pyright: ignore[reportUnusedFunction]
+        nonlocal image_x, image_y, step_size
+        from pyglet.window import key
+
+        if symbol == key.J:
+            image_y += step_size
+        elif symbol == key.K:
+            image_y -= step_size
+        elif symbol == key.H:
+            image_x -= step_size
+        elif symbol == key.L:
+            image_x += step_size
+        elif symbol == key.W:
+            step_size += 10
+        elif symbol == key.S:
+            step_size = max(0, step_size - 10)
 
     pyglet.app.run()
 
