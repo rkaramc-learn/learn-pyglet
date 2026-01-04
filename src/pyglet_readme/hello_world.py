@@ -13,20 +13,44 @@ def run_hello_world():
     window = pyglet.window.Window()
 
     label = pyglet.text.Label('Hello, world!', font_size=36, x=window.width // 2, y = window.height // 2, anchor_x = 'center', anchor_y = 'center')
+    
+    # Kitten Setup
     image = pyglet.resource.image('kitten.png')
     image.width = image.width // 10
     image.height = image.height // 10
-    
-    # Load sound
-    meow_sound = pyglet.resource.media('meow.wav', streaming=False)
-
     image_x = window.width // 2
     image_y = window.height // 2
     step_size = 100.0  # Pixels per second
+    
+    # Mouse Setup
+    mouse_sheet = pyglet.resource.image('mouse_sheet.png')
+    mouse_grid = pyglet.image.ImageGrid(mouse_sheet, 10, 10)
+    mouse_anim = pyglet.image.Animation.from_image_sequence(mouse_grid, 1/12.0) # pyright: ignore[reportPrivateImportUsage]
+    mouse_sprite = pyglet.sprite.Sprite(mouse_anim)
+    mouse_sprite.scale = 0.25
+    # Start at top-left
+    mouse_sprite.x = 0
+    mouse_sprite.y = window.height - mouse_sprite.height
 
-    target_x = image_x
-    target_y = image_y
-    is_moving_to_target = False
+    # Mouse Movement State
+    mouse_start_x = mouse_sprite.x
+    mouse_start_y = mouse_sprite.y
+    mouse_target_x = mouse_sprite.x
+    mouse_target_y = mouse_sprite.y
+    mouse_move_time = 0.0
+    mouse_move_duration = 3.0
+    mouse_is_moving = False
+    
+    # Load sound
+    meow_sound = pyglet.resource.media('meow.wav', streaming=False)
+    
+    # Load and play background music
+    ambience_sound = pyglet.resource.media('ambience.wav')
+    music_player = pyglet.media.Player()
+    music_player.queue(ambience_sound)
+    music_player.loop = True
+    music_player.play()
+
     was_moving = False
 
     # Key handler for continuous input
@@ -43,23 +67,42 @@ def run_hello_world():
             window.close()
             
     def on_mouse_press(x: int, y: int, button: int, _modifiers: int):
-        nonlocal target_x, target_y, is_moving_to_target
+        nonlocal mouse_target_x, mouse_target_y, mouse_start_x, mouse_start_y
+        nonlocal mouse_move_time, mouse_is_moving
+        
         if button == mouse.LEFT:
-            target_x = x
-            target_y = y
-            is_moving_to_target = True
+            # Setup mouse movement
+            mouse_target_x = float(x)
+            mouse_target_y = float(y)
+            mouse_start_x = mouse_sprite.x
+            mouse_start_y = mouse_sprite.y
+            mouse_move_time = 0.0
+            mouse_is_moving = True
 
     window.push_handlers(on_key_press=on_key_press, on_mouse_press=on_mouse_press)
 
     def update(dt: float):
-        nonlocal image_x, image_y, is_moving_to_target, was_moving
+        nonlocal image_x, image_y, was_moving
+        nonlocal mouse_move_time, mouse_is_moving
         
-        # Move with step_size (pixels per second)
+        # --- Mouse Movement (Tweening) ---
+        if mouse_is_moving:
+            mouse_move_time += dt
+            t = mouse_move_time / mouse_move_duration
+            
+            if t >= 1.0:
+                t = 1.0
+                mouse_is_moving = False
+            
+            # Linear Interpolation (Lerp)
+            mouse_sprite.x = mouse_start_x + (mouse_target_x - mouse_start_x) * t
+            mouse_sprite.y = mouse_start_y + (mouse_target_y - mouse_start_y) * t
+
+        # --- Kitten Movement ---
         move_distance = step_size * dt
-        
-        # Check for keyboard movement
         key_active = False
 
+        # 1. Keyboard override
         # Cardinal movement (HJKL and Arrows)
         if keys[key.J] or keys[key.UP]:
             image_y += move_distance
@@ -92,23 +135,24 @@ def run_hello_world():
             image_x += move_distance
             key_active = True
             
-        if key_active:
-            is_moving_to_target = False
-        elif is_moving_to_target:
-            dx = target_x - image_x
-            dy = target_y - image_y
+        # 2. Chase the mouse if not controlled by keyboard
+        is_moving = key_active
+        if not key_active:
+            # Target center of mouse sprite
+            tx = mouse_sprite.x + (mouse_sprite.width / 2) - (image.width / 2)
+            ty = mouse_sprite.y + (mouse_sprite.height / 2) - (image.height / 2)
+            
+            dx = tx - image_x
+            dy = ty - image_y
             distance = math.sqrt(dx*dx + dy*dy)
             
-            if distance > 0:
+            if distance > 2.0: # Threshold to prevent jitter
                 travel = min(distance, move_distance)
                 image_x += (dx / distance) * travel
                 image_y += (dy / distance) * travel
-                
-                if distance <= move_distance:
-                    is_moving_to_target = False
-        
-        # Check if we stopped moving
-        is_moving = key_active or is_moving_to_target
+                is_moving = True
+
+        # Check if kitten stopped moving
         if was_moving and not is_moving:
             meow_sound.play() # pyright: ignore[reportUnusedCallResult]
         
@@ -121,6 +165,7 @@ def run_hello_world():
         window.clear()
         label.draw()
         image.blit(int(image_x), int(image_y))
+        mouse_sprite.draw()
 
     pyglet.app.run()
 
