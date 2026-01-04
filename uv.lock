@@ -1,0 +1,23 @@
+version = 1
+revision = 3
+requires-python = ">=3.13"
+
+[[package]]
+name = "pyglet"
+version = "2.1.11"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e3/6b/84c397a74cd33eb377168c682e9e3d6b90c1c10c661e11ea5b397ac8497c/pyglet-2.1.11.tar.gz", hash = "sha256:8285d0af7d0ab443232a81df4d941e0d5c48c18a23ec770b3e5c59a222f5d56e", size = 6594448, upload-time = "2025-11-07T04:29:52.092Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/77/a2/2b09fbff0eedbe44fbf164b321439a38f7c5568d8b754aa197ee45886431/pyglet-2.1.11-py3-none-any.whl", hash = "sha256:fa0f4fdf366cfc5040aeb462416910b0db2fa374b7d620b7a432178ca3fa8af1", size = 1032213, upload-time = "2025-11-07T04:29:46.06Z" },
+]
+
+[[package]]
+name = "pyglet-readme"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "pyglet" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "pyglet", specifier = ">=2.1.11" }]

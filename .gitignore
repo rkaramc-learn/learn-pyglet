@@ -1,0 +1,15 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Large Media Files
+src/pyglet_readme/mouse.mp4
+src/pyglet_readme/ambience.wav
+src/pyglet_readme/mouse_sheet.png
