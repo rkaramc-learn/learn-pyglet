@@ -2,6 +2,8 @@ import pyglet
 import os
 
 def run_hello_world():
+    from pyglet.window import key
+
     # Add the current directory to the resource path
     script_dir = os.path.dirname(__file__)
     pyglet.resource.path = [script_dir]
@@ -18,6 +20,25 @@ def run_hello_world():
     image_y = 0
     step_size = 10
 
+    # Key handler for continuous input
+    keys = key.KeyStateHandler()
+    window.push_handlers(keys)
+
+    def update(dt: float): # pyright: ignore[reportUnusedParameter]
+        nonlocal image_x, image_y
+        
+        # Move with step_size (treated as pixels per frame here for smooth response)
+        if keys[key.J]:
+            image_y += step_size
+        if keys[key.K]:
+            image_y -= step_size
+        if keys[key.H]:
+            image_x -= step_size
+        if keys[key.L]:
+            image_x += step_size
+
+    pyglet.clock.schedule_interval(update, 1/60.0) # pyright: ignore[reportUnknownMemberType]
+
     @window.event  # pyright: ignore[reportUnknownMemberType]
     def on_draw(): # pyright: ignore[reportUnusedFunction]
         window.clear()
@@ -26,18 +47,9 @@ def run_hello_world():
     
     @window.event # pyright: ignore[reportUnknownMemberType]
     def on_key_press(symbol: int, _modifiers: int): # pyright: ignore[reportUnusedFunction]
-        nonlocal image_x, image_y, step_size
-        from pyglet.window import key
+        nonlocal step_size
 
-        if symbol == key.J:
-            image_y += step_size
-        elif symbol == key.K:
-            image_y -= step_size
-        elif symbol == key.H:
-            image_x -= step_size
-        elif symbol == key.L:
-            image_x += step_size
-        elif symbol == key.W:
+        if symbol == key.W:
             step_size += 10
         elif symbol == key.S:
             step_size = max(0, step_size - 10)
