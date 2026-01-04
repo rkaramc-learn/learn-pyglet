@@ -41,13 +41,28 @@ def run_hello_world():
         # Move with step_size (pixels per second)
         move_distance = step_size * dt
         
-        if keys[key.J]:
+        # Cardinal movement (HJKL and Arrows)
+        if keys[key.J] or keys[key.UP]:
             image_y += move_distance
-        if keys[key.K]:
+        if keys[key.K] or keys[key.DOWN]:
             image_y -= move_distance
-        if keys[key.H]:
+        if keys[key.H] or keys[key.LEFT]:
             image_x -= move_distance
-        if keys[key.L]:
+        if keys[key.L] or keys[key.RIGHT]:
+            image_x += move_distance
+
+        # Diagonal movement
+        if keys[key.HOME]: # Up-Left
+            image_y += move_distance
+            image_x -= move_distance
+        if keys[key.PAGEUP]: # Up-Right
+            image_y += move_distance
+            image_x += move_distance
+        if keys[key.END]: # Down-Left
+            image_y -= move_distance
+            image_x -= move_distance
+        if keys[key.PAGEDOWN]: # Down-Right
+            image_y -= move_distance
             image_x += move_distance
 
     pyglet.clock.schedule_interval(update, 1/60.0) # pyright: ignore[reportUnknownMemberType]
