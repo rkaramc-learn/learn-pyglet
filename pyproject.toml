@@ -19,3 +19,14 @@ build-backend = "uv_build"
 dev = [
     "basedpyright>=1.37.0",
 ]
+
+[tool.basedpyright]
+typeCheckingMode = "basic"
+reportMissingImports = "error"
+reportMissingTypeStubs = false
+exclude = ["**/node_modules", "**/__pycache__"]
+include = ["src/pyglet_readme", "tests"]
+executionEnvironments = [
+    { root = "src/pyglet_readme" },
+    { root = "tests", reportPrivateUsage = false },
+]
