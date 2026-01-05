@@ -13,9 +13,16 @@ class AssetLoader:
     """Manages loading of game assets (images and sounds) with error handling."""
 
     def __init__(self) -> None:
-        """Initialize the asset loader with the script directory."""
+        """Initialize the asset loader with the assets directory."""
         self.script_dir = os.path.dirname(__file__)
-        pyglet.resource.path = [self.script_dir]
+        self.assets_dir = os.path.join(self.script_dir, "assets")
+        self.images_dir = os.path.join(self.assets_dir, "images")
+        self.sprites_dir = os.path.join(self.assets_dir, "sprites")
+        self.sfx_dir = os.path.join(self.assets_dir, "audio", "sfx")
+        self.music_dir = os.path.join(self.assets_dir, "audio", "music")
+        self.source_dir = os.path.join(self.assets_dir, "source")
+        
+        pyglet.resource.path = [self.script_dir, self.assets_dir]
         pyglet.resource.reindex()
 
     def load_image(self, filename: str) -> pyglet.image.AbstractImage:

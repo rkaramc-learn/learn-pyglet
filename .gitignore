@@ -9,10 +9,17 @@ wheels/
 # Virtual environments
 .venv
 
-# Large Media Files
-src/pyglet_readme/mouse.mp4
-src/pyglet_readme/ambience.wav
-src/pyglet_readme/mouse_sheet.png
+# Large Media Files - Source Assets
+src/pyglet_readme/assets/source/mouse.mp4
+
+# Sprite Sheets (generated)
+src/pyglet_readme/assets/sprites/*.png
+!src/pyglet_readme/assets/sprites/.gitkeep
+
+# Music Files (large, ignored to save space)
+src/pyglet_readme/assets/audio/music/*.wav
+src/pyglet_readme/assets/audio/music/*.mp3
+!src/pyglet_readme/assets/audio/music/.gitkeep
 
 # Local binaries and DBs
 bin/
