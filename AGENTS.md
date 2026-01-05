@@ -45,8 +45,7 @@ The application follows a standard single-window 2D game loop architecture:
 
 ## Development Workflow
 1.  **Version Control:** The project uses `jj` (Jujutsu).
-    *   Create revisions: `jj new`
-    *   Commit changes: `jj commit -m "message"`
+    *   **Save Work:** Use `jj commit -m "message"` as the primary way to save changes. It is more efficient than `jj describe` followed by `jj new` as it performs both in one tool call.
     *   **Untracking Files:** Use `jj file untrack <path>` to stop tracking a file without deleting it.
     *   **Listing Files:** Use `jj file list` (add `--no-pager` for full output in non-interactive shells).
     *   **Note:** Large binary files (>1MB) are strictly ignored via `.gitignore`.
@@ -85,10 +84,15 @@ The application follows a standard single-window 2D game loop architecture:
 *   **Tool Usage & Constraints:**
     *   **Atomicity:** `run_shell_command` rejects chained commands (e.g., `&&`, `|`, `;`). Execute exactly **one** command per tool call.
     *   **Paging:** Always use the `--no-pager` flag for tools like `jj` and `bd` to ensure full output is captured.
+    *   **Efficiency:** Use `jj commit -m "message"` to save work in a single tool call instead of separate `jj describe` and `jj new` calls.
     *   **Discovery:** Use `search_file_content` for code discovery and `read_file` to verify file content before editing.
     *   **Verification:** Always verify changes with `uv run basedpyright`.
 *   **Safety:**
     *   Explain any file deletion or shell commands that modify the system state outside the project directory.
+*   **Commit Protocol:**
+    *   **Post-Task:** Commit changes after completing a request/task.
+    *   **Small Tasks:** Ask for user confirmation before committing minor changes.
+    *   **No Changes:** Do **not** commit if the task involved no changes to tracked files.
 
 ## Landing the Plane (Session Completion)
 
