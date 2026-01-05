@@ -22,10 +22,8 @@ def run_hello_world():
     image_y = window.height // 2
     
     # Speed is relative to window size (e.g., cross width in 4 seconds)
-    base_speed_x = window.width / 4.0
-    base_speed_y = window.height / 4.0
-    current_speed_x = base_speed_x
-    current_speed_y = base_speed_y
+    base_speed = window.width / 4.0
+    current_speed = base_speed
     
     # Mouse Setup
     mouse_sheet = pyglet.resource.image('mouse_sheet.png')
@@ -67,7 +65,7 @@ def run_hello_world():
     window.push_handlers(keys)
     
     def on_key_press(symbol: int, _modifiers: int):
-        nonlocal current_speed_x, current_speed_y, image_x, image_y, was_moving
+        nonlocal current_speed, image_x, image_y, was_moving
         nonlocal mouse_is_moving, mouse_target_x, mouse_target_y
         nonlocal mouse_vx, mouse_vy
         
@@ -75,8 +73,7 @@ def run_hello_world():
             window.close()
         elif symbol == key.R:
             # Reset Game State
-            current_speed_x = base_speed_x
-            current_speed_y = base_speed_y
+            current_speed = base_speed
             image_x = window.width // 2
             image_y = window.height // 2
             
@@ -93,31 +90,33 @@ def run_hello_world():
         
         # Manual Movement Control (Sets Velocity)
         manual_key = True
+        diag_factor = 0.7071 # 1/sqrt(2) to normalize diagonal speed
+        
         if symbol == key.UP:
             mouse_vx = 0.0
-            mouse_vy = current_speed_y
+            mouse_vy = current_speed
         elif symbol == key.DOWN:
             mouse_vx = 0.0
-            mouse_vy = -current_speed_y
+            mouse_vy = -current_speed
         elif symbol == key.LEFT:
-            mouse_vx = -current_speed_x
+            mouse_vx = -current_speed
             mouse_vy = 0.0
         elif symbol == key.RIGHT:
-            mouse_vx = current_speed_x
+            mouse_vx = current_speed
             mouse_vy = 0.0
         # Diagonals
         elif symbol == key.HOME: # Up-Left
-            mouse_vx = -current_speed_x
-            mouse_vy = current_speed_y
+            mouse_vx = -current_speed * diag_factor
+            mouse_vy = current_speed * diag_factor
         elif symbol == key.PAGEUP: # Up-Right
-            mouse_vx = current_speed_x
-            mouse_vy = current_speed_y
+            mouse_vx = current_speed * diag_factor
+            mouse_vy = current_speed * diag_factor
         elif symbol == key.END: # Down-Left
-            mouse_vx = -current_speed_x
-            mouse_vy = -current_speed_y
+            mouse_vx = -current_speed * diag_factor
+            mouse_vy = -current_speed * diag_factor
         elif symbol == key.PAGEDOWN: # Down-Right
-            mouse_vx = current_speed_x
-            mouse_vy = -current_speed_y
+            mouse_vx = current_speed * diag_factor
+            mouse_vy = -current_speed * diag_factor
         elif symbol == key.SPACE: # Stop
             mouse_vx = 0.0
             mouse_vy = 0.0
@@ -154,7 +153,6 @@ def run_hello_world():
         nonlocal mouse_move_time, mouse_is_moving
         
         # --- Mouse Movement ---
-        
         if mouse_is_moving:
             # Tweening (Click)
             mouse_move_time += dt
@@ -173,7 +171,6 @@ def run_hello_world():
             mouse_sprite.y += mouse_vy * dt
 
         # --- Kitten Movement (AI Only) ---
-
         # Kitten always chases mouse now
         
         # Target center of mouse sprite
@@ -186,9 +183,7 @@ def run_hello_world():
         
         is_moving = False
         if distance > 2.0: # Threshold to prevent jitter
-            # Kitten uses average speed for chase logic to keep it simple but relative
-            avg_speed = (current_speed_x + current_speed_y) / 2.0
-            travel = min(distance, avg_speed * dt)
+            travel = min(distance, current_speed * dt)
             
             image_x += (dx / distance) * travel
             image_y += (dy / distance) * travel
