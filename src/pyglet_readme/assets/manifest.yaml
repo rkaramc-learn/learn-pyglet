@@ -1,0 +1,84 @@
+# Asset Manifest
+# Documents all game assets with metadata for reference and validation
+
+version: "1.0"
+created: "2026-01-06"
+description: "Complete asset inventory for pyglet-readme game"
+
+images:
+  kitten:
+    path: "images/kitten.png"
+    type: "sprite"
+    dimensions: [1040, 1040]  # Original dimensions (pixels)
+    scale_factor: 0.1  # Scaled to 104x104 in-game
+    scaled_dimensions: [104, 104]
+    format: "PNG"
+    tracked: true
+    description: "Player-controlled kitten sprite"
+
+  mouse_sheet:
+    path: "sprites/mouse_sheet.png"
+    type: "sprite_sheet"
+    dimensions: [1000, 1000]  # 10x10 grid
+    grid: [10, 10]
+    cell_size: [100, 100]
+    scale_factor: 0.25
+    scaled_dimensions: [25, 25]
+    format: "PNG"
+    tracked: false
+    description: "Animated sprite sheet for mouse (generated from mouse.mp4)"
+    frame_duration: 0.0833  # 1/12 seconds per frame
+
+audio:
+  meow:
+    path: "audio/sfx/meow.wav"
+    type: "sound_effect"
+    duration_seconds: 0.5  # Approximate
+    sample_rate_hz: 44100
+    format: "WAV"
+    tracked: true
+    description: "Sound effect played when kitten stops moving"
+    usage: "on_kitten_idle"
+
+  ambience:
+    path: "audio/music/ambience.wav"
+    type: "background_music"
+    duration_seconds: 30  # Looped
+    sample_rate_hz: 44100
+    format: "WAV"
+    tracked: false
+    streaming: true
+    looped: true
+    description: "Background music loop for game"
+    usage: "continuous_background"
+
+source:
+  mouse_video:
+    path: "source/mouse.mp4"
+    type: "video_source"
+    dimensions: [1920, 1080]
+    duration_seconds: 10
+    format: "MP4"
+    tracked: false
+    description: "Source video used to generate mouse_sheet.png sprite sheet"
+    generated_from: "mouse.mp4"
+    generation_method: "ffmpeg frame extraction"
+
+metadata:
+  total_assets: 5
+  tracked_assets: 3
+  ignored_assets: 2
+  total_size_mb: 11.6
+  breakdown:
+    images_mb: 0.85
+    sprites_mb: 0.95
+    audio_sfx_mb: 0.15
+    audio_music_mb: 8.5
+    source_mb: 1.2
+
+notes: |
+  - Ignored assets are stored locally but not committed to reduce repo size
+  - Sprite sheets are generated from source videos using ffmpeg
+  - Audio files larger than 1MB are ignored (.gitignore)
+  - All images use PNG format for quality and compatibility
+  - Audio uses WAV format for simplicity
