@@ -13,3 +13,6 @@ wheels/
 src/pyglet_readme/mouse.mp4
 src/pyglet_readme/ambience.wav
 src/pyglet_readme/mouse_sheet.png
+
+# Local binaries and DBs
+bin/
