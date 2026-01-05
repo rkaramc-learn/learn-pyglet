@@ -46,6 +46,10 @@ def run_hello_world():
     mouse_move_duration = 3.0
     mouse_is_moving = False
     
+    # Manual Velocity (Press-to-move)
+    mouse_vx = 0.0
+    mouse_vy = 0.0
+    
     # Load sound
     meow_sound = pyglet.resource.media('meow.wav', streaming=False)
     
@@ -65,6 +69,7 @@ def run_hello_world():
     def on_key_press(symbol: int, _modifiers: int):
         nonlocal current_speed_x, current_speed_y, image_x, image_y, was_moving
         nonlocal mouse_is_moving, mouse_target_x, mouse_target_y
+        nonlocal mouse_vx, mouse_vy
         
         if symbol == key.Q:
             window.close()
@@ -82,11 +87,53 @@ def run_hello_world():
             mouse_is_moving = False
             mouse_target_x = mouse_sprite.x
             mouse_target_y = mouse_sprite.y
+            mouse_vx = 0.0
+            mouse_vy = 0.0
             was_moving = False
+        
+        # Manual Movement Control (Sets Velocity)
+        manual_key = True
+        if symbol == key.UP:
+            mouse_vx = 0.0
+            mouse_vy = current_speed_y
+        elif symbol == key.DOWN:
+            mouse_vx = 0.0
+            mouse_vy = -current_speed_y
+        elif symbol == key.LEFT:
+            mouse_vx = -current_speed_x
+            mouse_vy = 0.0
+        elif symbol == key.RIGHT:
+            mouse_vx = current_speed_x
+            mouse_vy = 0.0
+        # Diagonals
+        elif symbol == key.HOME: # Up-Left
+            mouse_vx = -current_speed_x
+            mouse_vy = current_speed_y
+        elif symbol == key.PAGEUP: # Up-Right
+            mouse_vx = current_speed_x
+            mouse_vy = current_speed_y
+        elif symbol == key.END: # Down-Left
+            mouse_vx = -current_speed_x
+            mouse_vy = -current_speed_y
+        elif symbol == key.PAGEDOWN: # Down-Right
+            mouse_vx = current_speed_x
+            mouse_vy = -current_speed_y
+        elif symbol == key.SPACE: # Stop
+            mouse_vx = 0.0
+            mouse_vy = 0.0
+        else:
+            manual_key = False
+            
+        if manual_key:
+            # Stop any active click-tweening
+            mouse_is_moving = False
+            mouse_target_x = mouse_sprite.x
+            mouse_target_y = mouse_sprite.y
             
     def on_mouse_press(x: int, y: int, button: int, _modifiers: int):
         nonlocal mouse_target_x, mouse_target_y, mouse_start_x, mouse_start_y
         nonlocal mouse_move_time, mouse_is_moving
+        nonlocal mouse_vx, mouse_vy
         
         if button == mouse.LEFT:
             # Setup mouse movement
@@ -96,6 +143,9 @@ def run_hello_world():
             mouse_start_y = mouse_sprite.y
             mouse_move_time = 0.0
             mouse_is_moving = True
+            # Stop manual velocity
+            mouse_vx = 0.0
+            mouse_vy = 0.0
 
     window.push_handlers(on_key_press=on_key_press, on_mouse_press=on_mouse_press)
 
@@ -103,53 +153,10 @@ def run_hello_world():
         nonlocal image_x, image_y, was_moving
         nonlocal mouse_move_time, mouse_is_moving
         
-        # --- Mouse Movement (Tweening vs Manual) ---
-        move_dist_x = current_speed_x * dt
-        move_dist_y = current_speed_y * dt
-        mouse_manual_move = False
-
-        # 1. Keyboard Control (Moves Mouse Sprite)
-        # Cardinal movement (Arrows)
-        if keys[key.UP]:
-            mouse_sprite.y += move_dist_y
-            mouse_manual_move = True
-        if keys[key.DOWN]:
-            mouse_sprite.y -= move_dist_y
-            mouse_manual_move = True
-        if keys[key.LEFT]:
-            mouse_sprite.x -= move_dist_x
-            mouse_manual_move = True
-        if keys[key.RIGHT]:
-            mouse_sprite.x += move_dist_x
-            mouse_manual_move = True
-
-        # Diagonal movement
-        if keys[key.HOME]: # Up-Left
-            mouse_sprite.y += move_dist_y
-            mouse_sprite.x -= move_dist_x
-            mouse_manual_move = True
-        if keys[key.PAGEUP]: # Up-Right
-            mouse_sprite.y += move_dist_y
-            mouse_sprite.x += move_dist_x
-            mouse_manual_move = True
-        if keys[key.END]: # Down-Left
-            mouse_sprite.y -= move_dist_y
-            mouse_sprite.x -= move_dist_x
-            mouse_manual_move = True
-        if keys[key.PAGEDOWN]: # Down-Right
-            mouse_sprite.y -= move_dist_y
-            mouse_sprite.x += move_dist_x
-            mouse_manual_move = True
-            
-        if mouse_manual_move:
-            # Cancel any active tweening
-            mouse_is_moving = False
-            # Sync target to current position so it doesn't snap back later
-            mouse_target_x = mouse_sprite.x
-            mouse_target_y = mouse_sprite.y
-            
-        elif mouse_is_moving:
-            # Handle tweening only if not manually driving
+        # --- Mouse Movement ---
+        
+        if mouse_is_moving:
+            # Tweening (Click)
             mouse_move_time += dt
             t = mouse_move_time / mouse_move_duration
             
@@ -160,8 +167,13 @@ def run_hello_world():
             # Linear Interpolation (Lerp)
             mouse_sprite.x = mouse_start_x + (mouse_target_x - mouse_start_x) * t
             mouse_sprite.y = mouse_start_y + (mouse_target_y - mouse_start_y) * t
+        else:
+            # Manual Velocity
+            mouse_sprite.x += mouse_vx * dt
+            mouse_sprite.y += mouse_vy * dt
 
         # --- Kitten Movement (AI Only) ---
+
         # Kitten always chases mouse now
         
         # Target center of mouse sprite
