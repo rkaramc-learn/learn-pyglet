@@ -1,16 +1,24 @@
 import math
-import os
 
 import pyglet
+
+from .assets import get_loader
 
 
 def run_hello_world():
     from pyglet.window import key, mouse
 
-    # Add the current directory to the resource path
-    script_dir = os.path.dirname(__file__)
-    pyglet.resource.path = [script_dir]
-    pyglet.resource.reindex()
+    # Initialize asset loader
+    loader = get_loader()
+
+    # Verify required assets
+    required_assets = {
+        "kitten.png": "image",
+        "mouse_sheet.png": "image",
+        "meow.wav": "sound",
+        "ambience.wav": "sound",
+    }
+    loader.verify_assets(required_assets)
 
     window = pyglet.window.Window()
 
@@ -24,7 +32,7 @@ def run_hello_world():
     )
 
     # Kitten Setup
-    image = pyglet.resource.image("kitten.png")
+    image = loader.load_image("kitten.png")
     image.width = image.width // 10
     image.height = image.height // 10
     image_x = window.width // 2
@@ -46,7 +54,7 @@ def run_hello_world():
     game_over = False
 
     # Mouse Setup
-    mouse_sheet = pyglet.resource.image("mouse_sheet.png")
+    mouse_sheet = loader.load_image("mouse_sheet.png")
     mouse_grid = pyglet.image.ImageGrid(mouse_sheet, 10, 10)
     mouse_anim = pyglet.image.Animation.from_image_sequence(mouse_grid, 1 / 12.0)  # pyright: ignore[reportPrivateImportUsage]
     mouse_sprite = pyglet.sprite.Sprite(mouse_anim)
@@ -75,10 +83,10 @@ def run_hello_world():
     kitten_bar_fg = pyglet.shapes.Rectangle(0, 0, bar_width, bar_height, color=(0, 255, 0))
 
     # Load sound
-    meow_sound = pyglet.resource.media("meow.wav", streaming=False)
+    meow_sound = loader.load_sound("meow.wav", streaming=False)
 
     # Load and play background music
-    ambience_sound = pyglet.resource.media("ambience.wav")
+    ambience_sound = loader.load_sound("ambience.wav")
     music_player = pyglet.media.Player()
     music_player.queue(ambience_sound)
     music_player.loop = True
