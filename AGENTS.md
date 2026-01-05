@@ -53,8 +53,9 @@ The application follows a standard single-window 2D game loop architecture:
 
 ## Development Workflow
 
-1. **Version Control:** The project uses `jj` (Jujutsu).
+1. **Version Control:** The project uses `jj` (Jujutsu) backed by Git.
    - **Save Work:** Use `jj commit -m "message"` as the primary way to save changes. It is more efficient than `jj describe` followed by `jj new` as it performs both in one tool call.
+   - **Export to Git:** Use `jj git export` to write jj commits to the underlying Git repository (needed for beads sync).
    - **Untracking Files:** Use `jj file untrack <path>` to stop tracking a file without deleting it.
    - **Listing Files:** Use `jj file list` (add `--no-pager` for full output in non-interactive shells).
    - **Note:** Large binary files (>1MB) are strictly ignored via `.gitignore`.
@@ -140,29 +141,57 @@ For full workflow details: `bd prime`
 
 ## Landing the Plane (Session Completion)
 
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
+**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `jj git push` succeeds.
 
-**MANDATORY WORKFLOW:**
+**MANDATORY WORKFLOW (Jujutsu + Beads):**
 
 1. **File issues for remaining work** - Create issues for anything that needs follow-up
-2. **Run quality gates** (if code changed) - Tests, linters, builds
-3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY: //**TODO**: Use `jj` instead.//
-
    ```bash
-   git pull --rebase
-   bd sync
-   git push
-   git status  # MUST show "up to date with origin"
+   bd create "Title" --type task --priority 2
    ```
 
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
+2. **Run quality gates** (if code changed) - Tests, linters, builds
+   ```bash
+   uv run basedpyright
+   uv run pytest
+   ```
+
+3. **Commit work** (if not already done)
+   ```bash
+   jj commit -m "type(scope): description"
+   ```
+
+4. **Export jj changes to Git** (required for external tools like beads)
+   ```bash
+   jj git export
+   ```
+
+5. **Update issue status** - Close finished work
+   ```bash
+   bd close <issue-id>
+   ```
+
+6. **Sync beads to remote**
+   ```bash
+   bd sync
+   ```
+
+7. **Update bookmark and push** - Point main to latest work and push
+   ```bash
+   jj bookmark set main -r @-    # @- is the committed change (not empty working copy)
+   jj git push
+   ```
+
+8. **Verify** - Confirm all changes are pushed
+   ```bash
+   git status  # MUST show "On branch main, up to date with origin/main"
+   ```
 
 **CRITICAL RULES:**
 
-- Work is NOT complete until `git push` succeeds
+- Work is NOT complete until `jj git push` succeeds
+- Always use `jj git export` before `bd sync` to ensure Git state is current
+- Always update bookmark with `jj bookmark set main -r @-` (the committed work) before pushing
 - NEVER stop before pushing - that leaves work stranded locally
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
