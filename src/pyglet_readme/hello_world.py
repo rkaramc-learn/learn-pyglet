@@ -11,7 +11,7 @@ def run_hello_world():
     # Initialize asset loader
     loader = get_loader()
 
-    # Verify required assets
+    # Verify required assets (warn on missing, but don't fail)
     required_assets = {
         "assets/images/kitten.png": "image",
         "assets/sprites/mouse_sheet.png": "image",
@@ -53,11 +53,18 @@ def run_hello_world():
     kitten_stamina = MAX_STAMINA
     game_over = False
 
-    # Mouse Setup
-    mouse_sheet = loader.load_image("assets/sprites/mouse_sheet.png")
-    mouse_grid = pyglet.image.ImageGrid(mouse_sheet, 10, 10)
-    mouse_anim = pyglet.image.Animation.from_image_sequence(mouse_grid, 1 / 12.0)  # pyright: ignore[reportPrivateImportUsage]
-    mouse_sprite = pyglet.sprite.Sprite(mouse_anim)
+    # Mouse Setup - with fallback for missing sprite sheet
+    try:
+        mouse_sheet = loader.load_image("assets/sprites/mouse_sheet.png")
+        mouse_grid = pyglet.image.ImageGrid(mouse_sheet, 10, 10)
+        mouse_anim = pyglet.image.Animation.from_image_sequence(mouse_grid, 1 / 12.0)  # pyright: ignore[reportPrivateImportUsage]
+        mouse_sprite = pyglet.sprite.Sprite(mouse_anim)
+    except FileNotFoundError:
+        print("Warning: mouse_sheet.png not found, using fallback sprite")
+        # Create a simple colored rectangle as fallback
+        fallback_image = pyglet.image.SolidColorImagePattern((0, 100, 200, 255)).create_image(50, 50)
+        mouse_sprite = pyglet.sprite.Sprite(fallback_image)
+    
     mouse_sprite.scale = 0.25
     # Start at top-left
     mouse_sprite.x = 0
@@ -82,15 +89,22 @@ def run_hello_world():
     kitten_bar_bg = pyglet.shapes.Rectangle(0, 0, bar_width, bar_height, color=(50, 50, 50))
     kitten_bar_fg = pyglet.shapes.Rectangle(0, 0, bar_width, bar_height, color=(0, 255, 0))
 
-    # Load sound
-    meow_sound = loader.load_sound("assets/audio/sfx/meow.wav", streaming=False)
+    # Load sound - with fallback
+    try:
+        meow_sound = loader.load_sound("assets/audio/sfx/meow.wav", streaming=False)
+    except FileNotFoundError:
+        print("Warning: meow.wav not found, sound effects disabled")
+        meow_sound = None
 
-    # Load and play background music
-    ambience_sound = loader.load_sound("assets/audio/music/ambience.wav")
+    # Load and play background music - with fallback
     music_player = pyglet.media.Player()
-    music_player.queue(ambience_sound)
-    music_player.loop = True
-    music_player.play()
+    try:
+        ambience_sound = loader.load_sound("assets/audio/music/ambience.wav")
+        music_player.queue(ambience_sound)
+        music_player.loop = True
+        music_player.play()
+    except FileNotFoundError:
+        print("Warning: ambience.wav not found, background music disabled")
 
     was_moving = False
 
@@ -226,7 +240,7 @@ def run_hello_world():
         image_y = max(0, min(window.height - image.height, image_y))
 
         # Check if kitten stopped moving
-        if was_moving and not is_moving:
+        if was_moving and not is_moving and meow_sound:
             meow_sound.play()  # pyright: ignore[reportUnusedCallResult]
 
         was_moving = is_moving
