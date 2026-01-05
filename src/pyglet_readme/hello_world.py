@@ -36,15 +36,6 @@ def run_hello_world():
     mouse_sprite.x = 0
     mouse_sprite.y = window.height - mouse_sprite.height
 
-    # Mouse Movement State
-    mouse_start_x = mouse_sprite.x
-    mouse_start_y = mouse_sprite.y
-    mouse_target_x = mouse_sprite.x
-    mouse_target_y = mouse_sprite.y
-    mouse_move_time = 0.0
-    mouse_move_duration = 3.0
-    mouse_is_moving = False
-    
     # Manual Velocity (Press-to-move)
     mouse_vx = 0.0
     mouse_vy = 0.0
@@ -67,7 +58,6 @@ def run_hello_world():
     
     def on_key_press(symbol: int, _modifiers: int):
         nonlocal mouse_speed, image_x, image_y, was_moving
-        nonlocal mouse_is_moving, mouse_target_x, mouse_target_y
         nonlocal mouse_vx, mouse_vy
         
         if symbol == key.Q:
@@ -82,15 +72,11 @@ def run_hello_world():
             mouse_sprite.y = window.height - mouse_sprite.height
             
             # Reset mouse movement state
-            mouse_is_moving = False
-            mouse_target_x = mouse_sprite.x
-            mouse_target_y = mouse_sprite.y
             mouse_vx = 0.0
             mouse_vy = 0.0
             was_moving = False
         
         # Manual Movement Control (Sets Velocity)
-        manual_key = True
         diag_factor = 0.7071 # 1/sqrt(2) to normalize diagonal speed
         
         if symbol == key.UP:
@@ -121,55 +107,38 @@ def run_hello_world():
         elif symbol == key.SPACE: # Stop
             mouse_vx = 0.0
             mouse_vy = 0.0
-        else:
-            manual_key = False
-            
-        if manual_key:
-            # Stop any active click-tweening
-            mouse_is_moving = False
-            mouse_target_x = mouse_sprite.x
-            mouse_target_y = mouse_sprite.y
             
     def on_mouse_press(x: int, y: int, button: int, _modifiers: int):
-        nonlocal mouse_target_x, mouse_target_y, mouse_start_x, mouse_start_y
-        nonlocal mouse_move_time, mouse_is_moving
         nonlocal mouse_vx, mouse_vy
         
         if button == mouse.LEFT:
-            # Setup mouse movement
-            mouse_target_x = float(x)
-            mouse_target_y = float(y)
-            mouse_start_x = mouse_sprite.x
-            mouse_start_y = mouse_sprite.y
-            mouse_move_time = 0.0
-            mouse_is_moving = True
-            # Stop manual velocity
-            mouse_vx = 0.0
-            mouse_vy = 0.0
+            # Set direction towards click
+            # Target center of mouse sprite for vector calculation
+            current_x = mouse_sprite.x + (mouse_sprite.width / 2)
+            current_y = mouse_sprite.y + (mouse_sprite.height / 2)
+            
+            dx = float(x) - current_x
+            dy = float(y) - current_y
+            
+            length = math.sqrt(dx*dx + dy*dy)
+            
+            if length > 0:
+                # Normalize and apply speed
+                mouse_vx = (dx / length) * mouse_speed
+                mouse_vy = (dy / length) * mouse_speed
+            else:
+                mouse_vx = 0.0
+                mouse_vy = 0.0
 
     window.push_handlers(on_key_press=on_key_press, on_mouse_press=on_mouse_press)
 
     def update(dt: float):
         nonlocal image_x, image_y, was_moving
-        nonlocal mouse_move_time, mouse_is_moving
         
         # --- Mouse Movement ---
-        if mouse_is_moving:
-            # Tweening (Click)
-            mouse_move_time += dt
-            t = mouse_move_time / mouse_move_duration
-            
-            if t >= 1.0:
-                t = 1.0
-                mouse_is_moving = False
-            
-            # Linear Interpolation (Lerp)
-            mouse_sprite.x = mouse_start_x + (mouse_target_x - mouse_start_x) * t
-            mouse_sprite.y = mouse_start_y + (mouse_target_y - mouse_start_y) * t
-        else:
-            # Manual Velocity
-            mouse_sprite.x += mouse_vx * dt
-            mouse_sprite.y += mouse_vy * dt
+        # Manual Velocity
+        mouse_sprite.x += mouse_vx * dt
+        mouse_sprite.y += mouse_vy * dt
 
         # --- Kitten Movement (AI Only) ---
         # Kitten always chases mouse now
