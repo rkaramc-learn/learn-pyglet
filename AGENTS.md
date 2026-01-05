@@ -105,9 +105,24 @@ The application follows a standard single-window 2D game loop architecture:
 - **Safety:**
   - Explain any file deletion or shell commands that modify the system state outside the project directory.
 - **Commit Protocol:**
+
   - **Post-Task:** Commit changes after completing a request/task.
   - **Small Tasks:** Ask for user confirmation before committing minor changes.
   - **No Changes:** Do **not** commit if the task involved no changes to tracked files.
+  - **Ignore Bead Files:** Do not mention `.beads/issues.jsonl` in commit messages—it is auto-managed by `bd`.
+  - **Message Format:** Use [Conventional Commits](https://www.conventionalcommits.org/):
+
+    - `type(scope): short description` (50 chars max for subject)
+    - Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`
+    - Add blank line + bullet points for detailed changes
+    - Example:
+
+      ```text
+      feat(entities): add Character base class
+
+      - Add Entity dataclass with position, velocity, state
+      - Implement clamp_to_bounds for window collision
+      ```
 
 ## Issue Tracking
 
