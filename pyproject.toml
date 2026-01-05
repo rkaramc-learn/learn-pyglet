@@ -19,6 +19,7 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "basedpyright>=1.37.0",
+    "pytest>=8.0.0",
 ]
 
 [tool.basedpyright]
