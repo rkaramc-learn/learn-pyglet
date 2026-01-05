@@ -26,6 +26,16 @@ def run_hello_world():
     mouse_speed = base_speed
     kitten_speed = base_speed / 1.5
     
+    # Health & Stamina System
+    MAX_HEALTH = 100.0
+    MAX_STAMINA = 100.0
+    BASE_DRAIN_RATE = 20.0 # HP per second at max proximity
+    PASSIVE_STAMINA_DRAIN = 2.0 # Energy per second
+    
+    mouse_health = MAX_HEALTH
+    kitten_stamina = MAX_STAMINA
+    game_over = False
+    
     # Mouse Setup
     mouse_sheet = pyglet.resource.image('mouse_sheet.png')
     mouse_grid = pyglet.image.ImageGrid(mouse_sheet, 10, 10)
@@ -36,10 +46,25 @@ def run_hello_world():
     mouse_sprite.x = 0
     mouse_sprite.y = window.height - mouse_sprite.height
 
+    # Calculate catch range (average of max dimensions)
+    kitten_max_dim = max(image.width, image.height)
+    mouse_max_dim = max(mouse_sprite.width, mouse_sprite.height)
+    catch_range = (kitten_max_dim + mouse_max_dim) / 2.0
+
     # Manual Velocity (Press-to-move)
     mouse_vx = 0.0
     mouse_vy = 0.0
     
+    # UI Setup (Shapes)
+    bar_width = 50
+    bar_height = 5
+    bar_offset = 20
+    
+    mouse_bar_bg = pyglet.shapes.Rectangle(0, 0, bar_width, bar_height, color=(50, 50, 50))
+    mouse_bar_fg = pyglet.shapes.Rectangle(0, 0, bar_width, bar_height, color=(0, 255, 0))
+    kitten_bar_bg = pyglet.shapes.Rectangle(0, 0, bar_width, bar_height, color=(50, 50, 50))
+    kitten_bar_fg = pyglet.shapes.Rectangle(0, 0, bar_width, bar_height, color=(0, 255, 0))
+
     # Load sound
     meow_sound = pyglet.resource.media('meow.wav', streaming=False)
     
@@ -59,6 +84,7 @@ def run_hello_world():
     def on_key_press(symbol: int, _modifiers: int):
         nonlocal mouse_speed, image_x, image_y, was_moving
         nonlocal mouse_vx, mouse_vy
+        nonlocal mouse_health, kitten_stamina, game_over
         
         if symbol == key.Q:
             window.close()
@@ -71,11 +97,17 @@ def run_hello_world():
             mouse_sprite.x = 0
             mouse_sprite.y = window.height - mouse_sprite.height
             
-            # Reset mouse movement state
+            # Reset Physics & Stats
             mouse_vx = 0.0
             mouse_vy = 0.0
+            mouse_health = MAX_HEALTH
+            kitten_stamina = MAX_STAMINA
+            game_over = False
+            label.text = 'Hello, world!'
             was_moving = False
         
+        if game_over: return
+
         # Manual Movement Control (Sets Velocity)
         diag_factor = 0.7071 # 1/sqrt(2) to normalize diagonal speed
         
@@ -111,6 +143,8 @@ def run_hello_world():
     def on_mouse_press(x: int, y: int, button: int, _modifiers: int):
         nonlocal mouse_vx, mouse_vy
         
+        if game_over: return
+
         if button == mouse.LEFT:
             # Set direction towards click
             # Target center of mouse sprite for vector calculation
@@ -134,11 +168,19 @@ def run_hello_world():
 
     def update(dt: float):
         nonlocal image_x, image_y, was_moving
+        nonlocal mouse_health, kitten_stamina, game_over
+        nonlocal mouse_vx, mouse_vy
         
+        if game_over: return
+
         # --- Mouse Movement ---
         # Manual Velocity
         mouse_sprite.x += mouse_vx * dt
         mouse_sprite.y += mouse_vy * dt
+        
+        # Clamp mouse to window bounds
+        mouse_sprite.x = max(0, min(window.width - mouse_sprite.width, mouse_sprite.x))
+        mouse_sprite.y = max(0, min(window.height - mouse_sprite.height, mouse_sprite.y))
 
         # --- Kitten Movement (AI Only) ---
         # Kitten always chases mouse now
@@ -158,12 +200,64 @@ def run_hello_world():
             image_x += (dx / distance) * travel
             image_y += (dy / distance) * travel
             is_moving = True
+        
+        # Clamp kitten to window bounds
+        image_x = max(0, min(window.width - image.width, image_x))
+        image_y = max(0, min(window.height - image.height, image_y))
 
         # Check if kitten stopped moving
         if was_moving and not is_moving:
             meow_sound.play() # pyright: ignore[reportUnusedCallResult]
         
         was_moving = is_moving
+        
+        # --- Health & Stamina Logic ---
+        # Drain/Regen if within range
+        if distance < catch_range:
+            proximity_factor = 1.0 - (distance / catch_range)
+            proximity_factor = max(0.0, min(1.0, proximity_factor))
+            
+            transfer_amount = (BASE_DRAIN_RATE * proximity_factor) * dt
+            
+            mouse_health -= transfer_amount
+            kitten_stamina += transfer_amount
+            
+        # Passive Stamina Drain
+        kitten_stamina -= PASSIVE_STAMINA_DRAIN * dt
+        
+        # Clamp values
+        mouse_health = max(0.0, min(MAX_HEALTH, mouse_health))
+        kitten_stamina = max(0.0, min(MAX_STAMINA, kitten_stamina))
+        
+        # Win/Loss Conditions
+        if mouse_health <= 0:
+            game_over = True
+            label.text = "Caught! (Press R to Reset)"
+            mouse_vx = 0.0
+            mouse_vy = 0.0
+            
+        elif kitten_stamina <= 0:
+            game_over = True
+            label.text = "You Win!! (Press R to Reset)"
+            mouse_vx = 0.0
+            mouse_vy = 0.0
+
+        # --- UI Updates ---
+        # Mouse Bar
+        mouse_bar_bg.x = mouse_sprite.x + (mouse_sprite.width / 2) - (bar_width / 2)
+        mouse_bar_bg.y = mouse_sprite.y + mouse_sprite.height + bar_offset
+        mouse_bar_fg.x = mouse_bar_bg.x
+        mouse_bar_fg.y = mouse_bar_bg.y
+        mouse_bar_fg.width = bar_width * (mouse_health / MAX_HEALTH)
+        mouse_bar_fg.color = (0, 255, 0) if mouse_health > 30 else (255, 0, 0)
+
+        # Kitten Bar
+        kitten_bar_bg.x = image_x + (image.width / 2) - (bar_width / 2)
+        kitten_bar_bg.y = image_y + image.height + bar_offset
+        kitten_bar_fg.x = kitten_bar_bg.x
+        kitten_bar_fg.y = kitten_bar_bg.y
+        kitten_bar_fg.width = bar_width * (kitten_stamina / MAX_STAMINA)
+        kitten_bar_fg.color = (0, 255, 0) if kitten_stamina > 30 else (255, 0, 0)
 
     pyglet.clock.schedule_interval(update, 1/60.0) # pyright: ignore[reportUnknownMemberType]
 
@@ -173,6 +267,12 @@ def run_hello_world():
         label.draw()
         image.blit(int(image_x), int(image_y))
         mouse_sprite.draw()
+        
+        # Draw UI
+        mouse_bar_bg.draw()
+        mouse_bar_fg.draw()
+        kitten_bar_bg.draw()
+        kitten_bar_fg.draw()
 
     pyglet.app.run()
 
