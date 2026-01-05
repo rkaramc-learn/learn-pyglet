@@ -23,7 +23,8 @@ def run_hello_world():
     
     # Speed is relative to window size (e.g., cross width in 10 seconds)
     base_speed = window.width / 10.0
-    current_speed = base_speed
+    mouse_speed = base_speed
+    kitten_speed = base_speed / 1.5
     
     # Mouse Setup
     mouse_sheet = pyglet.resource.image('mouse_sheet.png')
@@ -65,7 +66,7 @@ def run_hello_world():
     window.push_handlers(keys)
     
     def on_key_press(symbol: int, _modifiers: int):
-        nonlocal current_speed, image_x, image_y, was_moving
+        nonlocal mouse_speed, image_x, image_y, was_moving
         nonlocal mouse_is_moving, mouse_target_x, mouse_target_y
         nonlocal mouse_vx, mouse_vy
         
@@ -73,7 +74,7 @@ def run_hello_world():
             window.close()
         elif symbol == key.R:
             # Reset Game State
-            current_speed = base_speed
+            mouse_speed = base_speed
             image_x = window.width // 2
             image_y = window.height // 2
             
@@ -94,29 +95,29 @@ def run_hello_world():
         
         if symbol == key.UP:
             mouse_vx = 0.0
-            mouse_vy = current_speed
+            mouse_vy = mouse_speed
         elif symbol == key.DOWN:
             mouse_vx = 0.0
-            mouse_vy = -current_speed
+            mouse_vy = -mouse_speed
         elif symbol == key.LEFT:
-            mouse_vx = -current_speed
+            mouse_vx = -mouse_speed
             mouse_vy = 0.0
         elif symbol == key.RIGHT:
-            mouse_vx = current_speed
+            mouse_vx = mouse_speed
             mouse_vy = 0.0
         # Diagonals
         elif symbol == key.HOME: # Up-Left
-            mouse_vx = -current_speed * diag_factor
-            mouse_vy = current_speed * diag_factor
+            mouse_vx = -mouse_speed * diag_factor
+            mouse_vy = mouse_speed * diag_factor
         elif symbol == key.PAGEUP: # Up-Right
-            mouse_vx = current_speed * diag_factor
-            mouse_vy = current_speed * diag_factor
+            mouse_vx = mouse_speed * diag_factor
+            mouse_vy = mouse_speed * diag_factor
         elif symbol == key.END: # Down-Left
-            mouse_vx = -current_speed * diag_factor
-            mouse_vy = -current_speed * diag_factor
+            mouse_vx = -mouse_speed * diag_factor
+            mouse_vy = -mouse_speed * diag_factor
         elif symbol == key.PAGEDOWN: # Down-Right
-            mouse_vx = current_speed * diag_factor
-            mouse_vy = -current_speed * diag_factor
+            mouse_vx = mouse_speed * diag_factor
+            mouse_vy = -mouse_speed * diag_factor
         elif symbol == key.SPACE: # Stop
             mouse_vx = 0.0
             mouse_vy = 0.0
@@ -183,7 +184,7 @@ def run_hello_world():
         
         is_moving = False
         if distance > 2.0: # Threshold to prevent jitter
-            travel = min(distance, current_speed * dt)
+            travel = min(distance, kitten_speed * dt)
             
             image_x += (dx / distance) * travel
             image_y += (dy / distance) * travel
