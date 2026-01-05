@@ -30,3 +30,9 @@ executionEnvironments = [
     { root = "src/pyglet_readme" },
     { root = "tests", reportPrivateUsage = false },
 ]
+
+[tool.ruff]
+line-length = 102
+lint.select = ["E", "F", "I", "W", "B"]
+lint.ignore = ["E501", "F541"]
+src = ["src/pyglet_readme", "tests"]

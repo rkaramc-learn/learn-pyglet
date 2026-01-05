@@ -1,6 +1,8 @@
-import pyglet
-import os
 import math
+import os
+
+import pyglet
+
 
 def run_hello_world():
     from pyglet.window import key, mouse
@@ -12,34 +14,41 @@ def run_hello_world():
 
     window = pyglet.window.Window()
 
-    label = pyglet.text.Label('Hello, world!', font_size=36, x=window.width // 2, y = window.height // 2, anchor_x = 'center', anchor_y = 'center')
-    
+    label = pyglet.text.Label(
+        "Hello, world!",
+        font_size=36,
+        x=window.width // 2,
+        y=window.height // 2,
+        anchor_x="center",
+        anchor_y="center",
+    )
+
     # Kitten Setup
-    image = pyglet.resource.image('kitten.png')
+    image = pyglet.resource.image("kitten.png")
     image.width = image.width // 10
     image.height = image.height // 10
     image_x = window.width // 2
     image_y = window.height // 2
-    
+
     # Speed is relative to window size (e.g., cross width in 10 seconds)
     base_speed = window.width / 10.0
     mouse_speed = base_speed
     kitten_speed = base_speed / 1.5
-    
+
     # Health & Stamina System
     MAX_HEALTH = 100.0
     MAX_STAMINA = 100.0
-    BASE_DRAIN_RATE = 20.0 # HP per second at max proximity
-    PASSIVE_STAMINA_DRAIN = 2.0 # Energy per second
-    
+    BASE_DRAIN_RATE = 20.0  # HP per second at max proximity
+    PASSIVE_STAMINA_DRAIN = 2.0  # Energy per second
+
     mouse_health = MAX_HEALTH
     kitten_stamina = MAX_STAMINA
     game_over = False
-    
+
     # Mouse Setup
-    mouse_sheet = pyglet.resource.image('mouse_sheet.png')
+    mouse_sheet = pyglet.resource.image("mouse_sheet.png")
     mouse_grid = pyglet.image.ImageGrid(mouse_sheet, 10, 10)
-    mouse_anim = pyglet.image.Animation.from_image_sequence(mouse_grid, 1/12.0) # pyright: ignore[reportPrivateImportUsage]
+    mouse_anim = pyglet.image.Animation.from_image_sequence(mouse_grid, 1 / 12.0)  # pyright: ignore[reportPrivateImportUsage]
     mouse_sprite = pyglet.sprite.Sprite(mouse_anim)
     mouse_sprite.scale = 0.25
     # Start at top-left
@@ -54,22 +63,22 @@ def run_hello_world():
     # Manual Velocity (Press-to-move)
     mouse_vx = 0.0
     mouse_vy = 0.0
-    
+
     # UI Setup (Shapes)
     bar_width = 50
     bar_height = 5
     bar_offset = 20
-    
+
     mouse_bar_bg = pyglet.shapes.Rectangle(0, 0, bar_width, bar_height, color=(50, 50, 50))
     mouse_bar_fg = pyglet.shapes.Rectangle(0, 0, bar_width, bar_height, color=(0, 255, 0))
     kitten_bar_bg = pyglet.shapes.Rectangle(0, 0, bar_width, bar_height, color=(50, 50, 50))
     kitten_bar_fg = pyglet.shapes.Rectangle(0, 0, bar_width, bar_height, color=(0, 255, 0))
 
     # Load sound
-    meow_sound = pyglet.resource.media('meow.wav', streaming=False)
-    
+    meow_sound = pyglet.resource.media("meow.wav", streaming=False)
+
     # Load and play background music
-    ambience_sound = pyglet.resource.media('ambience.wav')
+    ambience_sound = pyglet.resource.media("ambience.wav")
     music_player = pyglet.media.Player()
     music_player.queue(ambience_sound)
     music_player.loop = True
@@ -80,12 +89,12 @@ def run_hello_world():
     # Key handler for continuous input
     keys = key.KeyStateHandler()
     window.push_handlers(keys)
-    
+
     def on_key_press(symbol: int, _modifiers: int):
         nonlocal mouse_speed, image_x, image_y, was_moving
         nonlocal mouse_vx, mouse_vy
         nonlocal mouse_health, kitten_stamina, game_over
-        
+
         if symbol == key.Q:
             window.close()
         elif symbol == key.R:
@@ -93,24 +102,25 @@ def run_hello_world():
             mouse_speed = base_speed
             image_x = window.width // 2
             image_y = window.height // 2
-            
+
             mouse_sprite.x = 0
             mouse_sprite.y = window.height - mouse_sprite.height
-            
+
             # Reset Physics & Stats
             mouse_vx = 0.0
             mouse_vy = 0.0
             mouse_health = MAX_HEALTH
             kitten_stamina = MAX_STAMINA
             game_over = False
-            label.text = 'Hello, world!'
+            label.text = "Hello, world!"
             was_moving = False
-        
-        if game_over: return
+
+        if game_over:
+            return
 
         # Manual Movement Control (Sets Velocity)
-        diag_factor = 0.7071 # 1/sqrt(2) to normalize diagonal speed
-        
+        diag_factor = 0.7071  # 1/sqrt(2) to normalize diagonal speed
+
         if symbol == key.UP:
             mouse_vx = 0.0
             mouse_vy = mouse_speed
@@ -124,38 +134,39 @@ def run_hello_world():
             mouse_vx = mouse_speed
             mouse_vy = 0.0
         # Diagonals
-        elif symbol == key.HOME: # Up-Left
+        elif symbol == key.HOME:  # Up-Left
             mouse_vx = -mouse_speed * diag_factor
             mouse_vy = mouse_speed * diag_factor
-        elif symbol == key.PAGEUP: # Up-Right
+        elif symbol == key.PAGEUP:  # Up-Right
             mouse_vx = mouse_speed * diag_factor
             mouse_vy = mouse_speed * diag_factor
-        elif symbol == key.END: # Down-Left
+        elif symbol == key.END:  # Down-Left
             mouse_vx = -mouse_speed * diag_factor
             mouse_vy = -mouse_speed * diag_factor
-        elif symbol == key.PAGEDOWN: # Down-Right
+        elif symbol == key.PAGEDOWN:  # Down-Right
             mouse_vx = mouse_speed * diag_factor
             mouse_vy = -mouse_speed * diag_factor
-        elif symbol == key.SPACE: # Stop
+        elif symbol == key.SPACE:  # Stop
             mouse_vx = 0.0
             mouse_vy = 0.0
-            
+
     def on_mouse_press(x: int, y: int, button: int, _modifiers: int):
         nonlocal mouse_vx, mouse_vy
-        
-        if game_over: return
+
+        if game_over:
+            return
 
         if button == mouse.LEFT:
             # Set direction towards click
             # Target center of mouse sprite for vector calculation
             current_x = mouse_sprite.x + (mouse_sprite.width / 2)
             current_y = mouse_sprite.y + (mouse_sprite.height / 2)
-            
+
             dx = float(x) - current_x
             dy = float(y) - current_y
-            
-            length = math.sqrt(dx*dx + dy*dy)
-            
+
+            length = math.sqrt(dx * dx + dy * dy)
+
             if length > 0:
                 # Normalize and apply speed
                 mouse_vx = (dx / length) * mouse_speed
@@ -170,72 +181,73 @@ def run_hello_world():
         nonlocal image_x, image_y, was_moving
         nonlocal mouse_health, kitten_stamina, game_over
         nonlocal mouse_vx, mouse_vy
-        
-        if game_over: return
+
+        if game_over:
+            return
 
         # --- Mouse Movement ---
         # Manual Velocity
         mouse_sprite.x += mouse_vx * dt
         mouse_sprite.y += mouse_vy * dt
-        
+
         # Clamp mouse to window bounds
         mouse_sprite.x = max(0, min(window.width - mouse_sprite.width, mouse_sprite.x))
         mouse_sprite.y = max(0, min(window.height - mouse_sprite.height, mouse_sprite.y))
 
         # --- Kitten Movement (AI Only) ---
         # Kitten always chases mouse now
-        
+
         # Target center of mouse sprite
         tx = mouse_sprite.x + (mouse_sprite.width / 2) - (image.width / 2)
         ty = mouse_sprite.y + (mouse_sprite.height / 2) - (image.height / 2)
-        
+
         dx = tx - image_x
         dy = ty - image_y
-        distance = math.sqrt(dx*dx + dy*dy)
-        
+        distance = math.sqrt(dx * dx + dy * dy)
+
         is_moving = False
-        if distance > 2.0: # Threshold to prevent jitter
+        if distance > 2.0:  # Threshold to prevent jitter
             travel = min(distance, kitten_speed * dt)
-            
+
             image_x += (dx / distance) * travel
             image_y += (dy / distance) * travel
             is_moving = True
-        
+
         # Clamp kitten to window bounds
         image_x = max(0, min(window.width - image.width, image_x))
         image_y = max(0, min(window.height - image.height, image_y))
 
         # Check if kitten stopped moving
         if was_moving and not is_moving:
-            meow_sound.play() # pyright: ignore[reportUnusedCallResult]
-        
+            meow_sound.play()  # pyright: ignore[reportUnusedCallResult]
+
         was_moving = is_moving
-        
+
         # --- Health & Stamina Logic ---
         # Drain/Regen if within range
         if distance < catch_range:
             proximity_factor = 1.0 - (distance / catch_range)
             proximity_factor = max(0.0, min(1.0, proximity_factor))
-            
+
             transfer_amount = (BASE_DRAIN_RATE * proximity_factor) * dt
-            
+
             mouse_health -= transfer_amount
             kitten_stamina += transfer_amount
-            
+
         # Passive Stamina Drain
         kitten_stamina -= PASSIVE_STAMINA_DRAIN * dt
-        
+
         # Clamp values
         mouse_health = max(0.0, min(MAX_HEALTH, mouse_health))
         kitten_stamina = max(0.0, min(MAX_STAMINA, kitten_stamina))
-        
+
         # Win/Loss Conditions
         if mouse_health <= 0:
             game_over = True
             label.text = "Caught! (Press R to Reset)"
             mouse_vx = 0.0
             mouse_vy = 0.0
-            
+
         elif kitten_stamina <= 0:
             game_over = True
             label.text = "You Win!! (Press R to Reset)"
@@ -259,15 +271,15 @@ def run_hello_world():
         kitten_bar_fg.width = bar_width * (kitten_stamina / MAX_STAMINA)
         kitten_bar_fg.color = (0, 255, 0) if kitten_stamina > 30 else (255, 0, 0)
 
-    pyglet.clock.schedule_interval(update, 1/60.0) # pyright: ignore[reportUnknownMemberType]
+    pyglet.clock.schedule_interval(update, 1 / 60.0)  # pyright: ignore[reportUnknownMemberType]
 
-    @window.event # pyright: ignore[reportUnknownMemberType]
-    def on_draw(): # pyright: ignore[reportUnusedFunction]
+    @window.event  # pyright: ignore[reportUnknownMemberType]
+    def on_draw():  # pyright: ignore[reportUnusedFunction]
         window.clear()
         label.draw()
         image.blit(int(image_x), int(image_y))
         mouse_sprite.draw()
-        
+
         # Draw UI
         mouse_bar_bg.draw()
         mouse_bar_fg.draw()
@@ -275,6 +287,7 @@ def run_hello_world():
         kitten_bar_fg.draw()
 
     pyglet.app.run()
+
 
 if __name__ == "__main__":
     run_hello_world()
