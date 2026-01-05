@@ -21,8 +21,8 @@ def run_hello_world():
     image_x = window.width // 2
     image_y = window.height // 2
     
-    # Speed is relative to window size (e.g., cross width in 4 seconds)
-    base_speed = window.width / 4.0
+    # Speed is relative to window size (e.g., cross width in 10 seconds)
+    base_speed = window.width / 10.0
     current_speed = base_speed
     
     # Mouse Setup
