@@ -20,7 +20,12 @@ def run_hello_world():
     image.height = image.height // 10
     image_x = window.width // 2
     image_y = window.height // 2
-    step_size = 100.0  # Pixels per second
+    
+    # Speed is relative to window size (e.g., cross width in 4 seconds)
+    base_speed_x = window.width / 4.0
+    base_speed_y = window.height / 4.0
+    current_speed_x = base_speed_x
+    current_speed_y = base_speed_y
     
     # Mouse Setup
     mouse_sheet = pyglet.resource.image('mouse_sheet.png')
@@ -58,13 +63,26 @@ def run_hello_world():
     window.push_handlers(keys)
     
     def on_key_press(symbol: int, _modifiers: int):
-        nonlocal step_size
-        if symbol == key.W:
-            step_size += 50
-        elif symbol == key.S:
-            step_size = max(0, step_size - 50)
-        elif symbol == key.Q:
+        nonlocal current_speed_x, current_speed_y, image_x, image_y, was_moving
+        nonlocal mouse_is_moving, mouse_target_x, mouse_target_y
+        
+        if symbol == key.Q:
             window.close()
+        elif symbol == key.R:
+            # Reset Game State
+            current_speed_x = base_speed_x
+            current_speed_y = base_speed_y
+            image_x = window.width // 2
+            image_y = window.height // 2
+            
+            mouse_sprite.x = 0
+            mouse_sprite.y = window.height - mouse_sprite.height
+            
+            # Reset mouse movement state
+            mouse_is_moving = False
+            mouse_target_x = mouse_sprite.x
+            mouse_target_y = mouse_sprite.y
+            was_moving = False
             
     def on_mouse_press(x: int, y: int, button: int, _modifiers: int):
         nonlocal mouse_target_x, mouse_target_y, mouse_start_x, mouse_start_y
@@ -85,8 +103,53 @@ def run_hello_world():
         nonlocal image_x, image_y, was_moving
         nonlocal mouse_move_time, mouse_is_moving
         
-        # --- Mouse Movement (Tweening) ---
-        if mouse_is_moving:
+        # --- Mouse Movement (Tweening vs Manual) ---
+        move_dist_x = current_speed_x * dt
+        move_dist_y = current_speed_y * dt
+        mouse_manual_move = False
+
+        # 1. Keyboard Control (Moves Mouse Sprite)
+        # Cardinal movement (Arrows)
+        if keys[key.UP]:
+            mouse_sprite.y += move_dist_y
+            mouse_manual_move = True
+        if keys[key.DOWN]:
+            mouse_sprite.y -= move_dist_y
+            mouse_manual_move = True
+        if keys[key.LEFT]:
+            mouse_sprite.x -= move_dist_x
+            mouse_manual_move = True
+        if keys[key.RIGHT]:
+            mouse_sprite.x += move_dist_x
+            mouse_manual_move = True
+
+        # Diagonal movement
+        if keys[key.HOME]: # Up-Left
+            mouse_sprite.y += move_dist_y
+            mouse_sprite.x -= move_dist_x
+            mouse_manual_move = True
+        if keys[key.PAGEUP]: # Up-Right
+            mouse_sprite.y += move_dist_y
+            mouse_sprite.x += move_dist_x
+            mouse_manual_move = True
+        if keys[key.END]: # Down-Left
+            mouse_sprite.y -= move_dist_y
+            mouse_sprite.x -= move_dist_x
+            mouse_manual_move = True
+        if keys[key.PAGEDOWN]: # Down-Right
+            mouse_sprite.y -= move_dist_y
+            mouse_sprite.x += move_dist_x
+            mouse_manual_move = True
+            
+        if mouse_manual_move:
+            # Cancel any active tweening
+            mouse_is_moving = False
+            # Sync target to current position so it doesn't snap back later
+            mouse_target_x = mouse_sprite.x
+            mouse_target_y = mouse_sprite.y
+            
+        elif mouse_is_moving:
+            # Handle tweening only if not manually driving
             mouse_move_time += dt
             t = mouse_move_time / mouse_move_duration
             
@@ -98,59 +161,26 @@ def run_hello_world():
             mouse_sprite.x = mouse_start_x + (mouse_target_x - mouse_start_x) * t
             mouse_sprite.y = mouse_start_y + (mouse_target_y - mouse_start_y) * t
 
-        # --- Kitten Movement ---
-        move_distance = step_size * dt
-        key_active = False
-
-        # 1. Keyboard override
-        # Cardinal movement (HJKL and Arrows)
-        if keys[key.J] or keys[key.UP]:
-            image_y += move_distance
-            key_active = True
-        if keys[key.K] or keys[key.DOWN]:
-            image_y -= move_distance
-            key_active = True
-        if keys[key.H] or keys[key.LEFT]:
-            image_x -= move_distance
-            key_active = True
-        if keys[key.L] or keys[key.RIGHT]:
-            image_x += move_distance
-            key_active = True
-
-        # Diagonal movement
-        if keys[key.HOME]: # Up-Left
-            image_y += move_distance
-            image_x -= move_distance
-            key_active = True
-        if keys[key.PAGEUP]: # Up-Right
-            image_y += move_distance
-            image_x += move_distance
-            key_active = True
-        if keys[key.END]: # Down-Left
-            image_y -= move_distance
-            image_x -= move_distance
-            key_active = True
-        if keys[key.PAGEDOWN]: # Down-Right
-            image_y -= move_distance
-            image_x += move_distance
-            key_active = True
+        # --- Kitten Movement (AI Only) ---
+        # Kitten always chases mouse now
+        
+        # Target center of mouse sprite
+        tx = mouse_sprite.x + (mouse_sprite.width / 2) - (image.width / 2)
+        ty = mouse_sprite.y + (mouse_sprite.height / 2) - (image.height / 2)
+        
+        dx = tx - image_x
+        dy = ty - image_y
+        distance = math.sqrt(dx*dx + dy*dy)
+        
+        is_moving = False
+        if distance > 2.0: # Threshold to prevent jitter
+            # Kitten uses average speed for chase logic to keep it simple but relative
+            avg_speed = (current_speed_x + current_speed_y) / 2.0
+            travel = min(distance, avg_speed * dt)
             
-        # 2. Chase the mouse if not controlled by keyboard
-        is_moving = key_active
-        if not key_active:
-            # Target center of mouse sprite
-            tx = mouse_sprite.x + (mouse_sprite.width / 2) - (image.width / 2)
-            ty = mouse_sprite.y + (mouse_sprite.height / 2) - (image.height / 2)
-            
-            dx = tx - image_x
-            dy = ty - image_y
-            distance = math.sqrt(dx*dx + dy*dy)
-            
-            if distance > 2.0: # Threshold to prevent jitter
-                travel = min(distance, move_distance)
-                image_x += (dx / distance) * travel
-                image_y += (dy / distance) * travel
-                is_moving = True
+            image_x += (dx / distance) * travel
+            image_y += (dy / distance) * travel
+            is_moving = True
 
         # Check if kitten stopped moving
         if was_moving and not is_moving:
