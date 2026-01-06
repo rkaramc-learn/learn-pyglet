@@ -50,9 +50,9 @@ class SpriteSheetGenerator:
         output.parent.mkdir(parents=True, exist_ok=True)
 
         total_frames = grid_width * grid_height
-        fps_filter = f"fps=n={total_frames}"
+        fps_filter = "fps=10"  # Reasonable default FPS for sprite extraction
         scale_filter = f"scale={frame_width}:{frame_height}"
-        tile_filter = f"tile={grid_width}:{grid_height}"
+        tile_filter = f"tile=layout={grid_width}x{grid_height}"
 
         cmd = [
             self.ffmpeg,
@@ -60,6 +60,10 @@ class SpriteSheetGenerator:
             str(video),
             "-vf",
             f"{fps_filter},{scale_filter},{tile_filter}",
+            "-frames:v",
+            "1",
+            "-update",
+            "1",
             "-y",
             str(output),
         ]
