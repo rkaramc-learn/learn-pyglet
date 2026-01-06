@@ -3,10 +3,9 @@
 Generates sprite sheets from video sources using ffmpeg.
 """
 
-import subprocess
 import shutil
+import subprocess
 from pathlib import Path
-from typing import Optional
 
 
 class SpriteSheetGenerator:

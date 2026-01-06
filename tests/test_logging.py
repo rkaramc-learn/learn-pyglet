@@ -14,11 +14,9 @@ from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-import pytest
-
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pyglet_readme.logging_config import LogConfig, get_logger, init_logging, close_logging
+from pyglet_readme.logging_config import LogConfig, close_logging, get_logger, init_logging
 
 
 class TestLogConfig:

@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 from .hello_world import run_hello_world
-from .logging_config import init_logging, TRACE_LEVEL
+from .logging_config import TRACE_LEVEL, init_logging
 
 
 def main() -> None:

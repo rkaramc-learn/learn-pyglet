@@ -1,15 +1,12 @@
 """End-to-end tests for full game startup with new asset system."""
 
 import os
-import sys
 import unittest
-from unittest.mock import patch, MagicMock, call
-from io import StringIO
+from unittest.mock import MagicMock, patch
 
 import pyglet
-
-from pyglet_readme.assets import get_loader
 from pyglet_readme.asset_manifest import AssetManifest
+from pyglet_readme.assets import get_loader
 
 
 class TestGameStartup(unittest.TestCase):
@@ -38,7 +35,6 @@ class TestGameStartup(unittest.TestCase):
         mock_window_class.return_value = mock_window
 
         # Import the game module
-        from pyglet_readme.hello_world import run_hello_world
 
         # The actual run_hello_world will fail because we're not mocking everything,
         # but we can test that the imports work and asset loader is accessible
@@ -124,7 +120,7 @@ class TestGameStartup(unittest.TestCase):
             "audio/music/ambience.wav": loader.music_dir,
         }
 
-        for asset_name, asset_dir in game_assets.items():
+        for _asset_name, asset_dir in game_assets.items():
             self.assertTrue(
                 os.path.isdir(asset_dir),
                 f"Asset directory not accessible: {asset_dir}",
@@ -239,7 +235,7 @@ class TestGameStartup(unittest.TestCase):
 
     def test_pyglet_resource_path_includes_assets(self) -> None:
         """Test that pyglet.resource.path is configured to find assets."""
-        loader = get_loader()
+        get_loader()
 
         # After loader initialization, pyglet.resource.path should be set
         self.assertIsNotNone(pyglet.resource.path)

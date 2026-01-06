@@ -11,8 +11,8 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pyglet_readme.logging_config import init_logging, close_logging, get_logger
 from pyglet_readme.assets import get_loader
+from pyglet_readme.logging_config import close_logging, get_logger, init_logging
 
 
 def run_demo(level: int, level_name: str) -> None:
@@ -44,7 +44,7 @@ def run_demo(level: int, level_name: str) -> None:
     loader.verify_assets(required_assets)
 
     logger.info("Loading kitten sprite")
-    kitten = loader.load_image("assets/images/kitten.png")
+    loader.load_image("assets/images/kitten.png")
 
     # Cleanup
     close_logging()

@@ -18,7 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from pyglet_readme.assets import get_loader
-from pyglet_readme.logging_config import init_logging, get_logger
+from pyglet_readme.logging_config import get_logger, init_logging
 
 logger = get_logger(__name__)
 
@@ -56,8 +56,8 @@ def test_game_startup() -> bool:
 
     try:
         # Import and initialize
-        from pyglet_readme.hello_world import run_hello_world
         import pyglet
+        from pyglet_readme.hello_world import run_hello_world
 
         # Mock the run to prevent actual window creation
         original_run = pyglet.app.run

@@ -15,8 +15,8 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pyglet_readme.logging_config import init_logging, close_logging, get_logger, TRACE_LEVEL
 from pyglet_readme.assets import get_loader
+from pyglet_readme.logging_config import TRACE_LEVEL, close_logging, get_logger, init_logging
 
 
 def show_level(level: int, level_name: str) -> None:
@@ -47,7 +47,7 @@ def show_level(level: int, level_name: str) -> None:
     logger.warning("Loading asset...")
     try:
         loader = get_loader()
-        kitten = loader.load_image("assets/images/kitten.png")
+        loader.load_image("assets/images/kitten.png")
     except Exception as e:
         logger.error(f"Failed to load: {e}")
 

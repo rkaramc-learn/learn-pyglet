@@ -6,7 +6,6 @@ import unittest
 from pathlib import Path
 
 import yaml
-
 from pyglet_readme.asset_manifest import AssetManifest
 
 

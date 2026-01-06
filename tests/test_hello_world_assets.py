@@ -1,14 +1,12 @@
 """Integration tests for asset loading in hello_world.py."""
 
 import os
-import sys
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pyglet
-
-from pyglet_readme.assets import get_loader
 from pyglet_readme.asset_manifest import AssetManifest
+from pyglet_readme.assets import get_loader
 
 
 class TestHelloWorldAssetLoading(unittest.TestCase):
@@ -107,7 +105,7 @@ class TestHelloWorldAssetLoading(unittest.TestCase):
         for asset_path, expected_dir in hello_world_assets.items():
             # Extract filename from path
             filename = asset_path.split("/")[-1]
-            expected_path = os.path.join(expected_dir, filename)
+            os.path.join(expected_dir, filename)
 
             # Asset directory should exist
             self.assertTrue(
@@ -117,7 +115,7 @@ class TestHelloWorldAssetLoading(unittest.TestCase):
 
     def test_pyglet_resource_path_configuration(self) -> None:
         """Test that pyglet.resource is configured correctly."""
-        loader = get_loader()
+        get_loader()
 
         # pyglet.resource.path should be configured
         self.assertIsNotNone(pyglet.resource.path)
@@ -156,7 +154,7 @@ class TestHelloWorldAssetLoading(unittest.TestCase):
             ("assets/audio/music/ambience.wav", "sound"),
         ]
 
-        for asset_path, asset_type in assets_to_load:
+        for asset_path, _asset_type in assets_to_load:
             full_path = os.path.join(loader.script_dir, asset_path)
             self.assertTrue(
                 os.path.isfile(full_path),
@@ -202,7 +200,7 @@ class TestAssetIntegrationWithManifest(unittest.TestCase):
     def test_tracked_assets_loadable(self) -> None:
         """Test that all tracked assets are loadable via asset loader."""
         manifest = AssetManifest(self.manifest_path)
-        loader = get_loader()
+        get_loader()
 
         tracked_assets = manifest.get_tracked_assets()
 

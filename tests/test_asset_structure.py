@@ -2,7 +2,6 @@
 
 import os
 import unittest
-from pathlib import Path
 
 from pyglet_readme.asset_manifest import AssetManifest
 
@@ -203,7 +202,7 @@ class TestAssetDirectoryStructure(unittest.TestCase):
         tracked_asset_extensions = {".png", ".wav"}
         actual_files = set()
 
-        for root, dirs, files in os.walk(self.assets_root):
+        for root, _dirs, files in os.walk(self.assets_root):
             # Skip ignored directories
             if ".gitkeep" in root or root == os.path.join(self.assets_root, "source"):
                 continue
