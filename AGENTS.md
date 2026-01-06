@@ -154,6 +154,8 @@ For full workflow details: `bd prime`
    ```bash
    uv run basedpyright
    uv run pytest
+   uv run ruff lint --fix
+   uv run ruff format --fix
    ```
 
 3. **Commit work** (if not already done)
@@ -178,23 +180,38 @@ For full workflow details: `bd prime`
 
 7. **Verify** - Confirm all changes are pushed
    ```bash
-   git status  # MUST show "On branch main, ..."
-               # MAY show "...up to date with origin/main" if pushed to remote
+   jj status  # MUST show "The working copy has no changes."
    ```
 
 ## Push the changes to remote
 
 **When the user requests to push changes to remote**, you MUST complete ALL steps below.
-7. **Update bookmark** - Confirm with user before updating bookmark to main
-   ```bash
-   jj bookmark set main -r @-    # @- is the committed change (not empty working copy)
-   ```
 
-8. **Push to remote** - Confirm with user before pushing to remote
+1. **Fetch from remote**
    ```bash
    jj git fetch
-   # Rebase local changes
-   jj new main @-   # Merge commit local changes on main branch
+   ```
+
+2. **Update bookmark**
+   ```bash
+   jj new main @-    # Merge current change with main
+   ```
+
+3. **Resolve merge conflicts** - If there are any merge conflicts, request user to resolve and commit
+
+4. **Continue with Push to Remote**
+   ```bash
+   jj status  # MUST NOT show "(conflict)" or "Warning: There are unresolved conflicts..."
+   ```
+   If conflicts remain, alert user and stop.
+
+5. **Update bookmark** - Move `main` to current change
+   ```bash
+   jj bookmark move main --to @-
+   ```
+
+6. **Push to remote**
+   ```bash
    jj git push
    ```
 
