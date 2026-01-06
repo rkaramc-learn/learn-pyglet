@@ -1,15 +1,21 @@
+import logging
 import math
 
 import pyglet
 
 from .assets import get_loader
 
+logger = logging.getLogger(__name__)
+
 
 def run_hello_world():
     from pyglet.window import key, mouse
 
+    logger.info("Starting game initialization")
+
     # Initialize asset loader
     loader = get_loader()
+    logger.debug("Asset loader initialized")
 
     # Verify required assets (warn on missing, but don't fail)
     required_assets = {
@@ -20,7 +26,9 @@ def run_hello_world():
     }
     loader.verify_assets(required_assets)
 
+    logger.info("Creating game window")
     window = pyglet.window.Window()
+    logger.info(f"Window created: {window.width}x{window.height}")
 
     label = pyglet.text.Label(
         "Hello, world!",
@@ -32,16 +40,21 @@ def run_hello_world():
     )
 
     # Kitten Setup
+    logger.debug("Loading kitten sprite")
     image = loader.load_image("assets/images/kitten.png")
     image.width = image.width // 10
     image.height = image.height // 10
     image_x = window.width // 2
     image_y = window.height // 2
+    logger.debug(
+        f"Kitten sprite loaded: {image.width}x{image.height}, position: ({image_x}, {image_y})"
+    )
 
     # Speed is relative to window size (e.g., cross width in 10 seconds)
     base_speed = window.width / 10.0
     mouse_speed = base_speed
     kitten_speed = base_speed / 1.5
+    logger.debug(f"Movement speeds - mouse: {mouse_speed:.1f}, kitten: {kitten_speed:.1f}")
 
     # Health & Stamina System
     MAX_HEALTH = 100.0
@@ -54,17 +67,19 @@ def run_hello_world():
     game_over = False
 
     # Mouse Setup - with fallback for missing sprite sheet
+    logger.debug("Loading mouse sprite")
     try:
         mouse_sheet = loader.load_image("assets/sprites/mouse_sheet.png")
         mouse_grid = pyglet.image.ImageGrid(mouse_sheet, 10, 10)
         mouse_anim = pyglet.image.Animation.from_image_sequence(mouse_grid, 1 / 12.0)  # pyright: ignore[reportPrivateImportUsage]
         mouse_sprite = pyglet.sprite.Sprite(mouse_anim)
+        logger.info("Mouse sprite loaded from sprite sheet")
     except FileNotFoundError:
-        print("Warning: mouse_sheet.png not found, using fallback sprite")
+        logger.warning("mouse_sheet.png not found, using fallback sprite")
         # Create a simple colored rectangle as fallback
         fallback_image = pyglet.image.SolidColorImagePattern((0, 100, 200, 255)).create_image(50, 50)
         mouse_sprite = pyglet.sprite.Sprite(fallback_image)
-    
+
     mouse_sprite.scale = 0.25
     # Start at top-left
     mouse_sprite.x = 0
@@ -90,21 +105,25 @@ def run_hello_world():
     kitten_bar_fg = pyglet.shapes.Rectangle(0, 0, bar_width, bar_height, color=(0, 255, 0))
 
     # Load sound - with fallback
+    logger.debug("Loading sound effects")
     try:
         meow_sound = loader.load_sound("assets/audio/sfx/meow.wav", streaming=False)
+        logger.info("Sound effects loaded")
     except FileNotFoundError:
-        print("Warning: meow.wav not found, sound effects disabled")
+        logger.warning("meow.wav not found, sound effects disabled")
         meow_sound = None
 
     # Load and play background music - with fallback
+    logger.debug("Loading background music")
     music_player = pyglet.media.Player()
     try:
         ambience_sound = loader.load_sound("assets/audio/music/ambience.wav")
         music_player.queue(ambience_sound)
         music_player.loop = True
         music_player.play()
+        logger.info("Background music loaded and playing")
     except FileNotFoundError:
-        print("Warning: ambience.wav not found, background music disabled")
+        logger.warning("ambience.wav not found, background music disabled")
 
     was_moving = False
 
@@ -118,9 +137,11 @@ def run_hello_world():
         nonlocal mouse_health, kitten_stamina, game_over
 
         if symbol == key.Q:
+            logger.info("Quitting game")
             window.close()
         elif symbol == key.R:
             # Reset Game State
+            logger.info("Resetting game")
             mouse_speed = base_speed
             image_x = window.width // 2
             image_y = window.height // 2
@@ -136,6 +157,7 @@ def run_hello_world():
             game_over = False
             label.text = "Hello, world!"
             was_moving = False
+            logger.debug("Game state reset complete")
 
         if game_over:
             return
@@ -269,12 +291,14 @@ def run_hello_world():
             label.text = "Caught! (Press R to Reset)"
             mouse_vx = 0.0
             mouse_vy = 0.0
+            logger.info("Game Over: Mouse caught by kitten")
 
         elif kitten_stamina <= 0:
             game_over = True
             label.text = "You Win!! (Press R to Reset)"
             mouse_vx = 0.0
             mouse_vy = 0.0
+            logger.info("Game Over: Kitten exhausted, player wins")
 
         # --- UI Updates ---
         # Mouse Bar
@@ -293,6 +317,7 @@ def run_hello_world():
         kitten_bar_fg.width = bar_width * (kitten_stamina / MAX_STAMINA)
         kitten_bar_fg.color = (0, 255, 0) if kitten_stamina > 30 else (255, 0, 0)
 
+    logger.info("Game initialization complete, starting game loop")
     pyglet.clock.schedule_interval(update, 1 / 60.0)  # pyright: ignore[reportUnknownMemberType]
 
     @window.event  # pyright: ignore[reportUnknownMemberType]
@@ -308,7 +333,9 @@ def run_hello_world():
         kitten_bar_bg.draw()
         kitten_bar_fg.draw()
 
+    logger.info("Starting game application")
     pyglet.app.run()
+    logger.info("Game application closed")
 
 
 if __name__ == "__main__":
