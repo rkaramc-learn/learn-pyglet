@@ -141,7 +141,7 @@ For full workflow details: `bd prime`
 
 ## Landing the Plane (Session Completion)
 
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `jj git push` succeeds.
+**When ending a work session**, you MUST complete ALL steps below.
 
 **MANDATORY WORKFLOW (Jujutsu + Beads):**
 
@@ -176,20 +176,32 @@ For full workflow details: `bd prime`
    bd sync
    ```
 
-7. **Update bookmark and push** - Point main to latest work and push
+7. **Verify** - Confirm all changes are pushed
+   ```bash
+   git status  # MUST show "On branch main, ..."
+               # MAY show "...up to date with origin/main" if pushed to remote
+   ```
+
+## Push the changes to remote
+
+**When the user requests to push changes to remote**, you MUST complete ALL steps below.
+7. **Update bookmark** - Confirm with user before updating bookmark to main
    ```bash
    jj bookmark set main -r @-    # @- is the committed change (not empty working copy)
+   ```
+
+8. **Push to remote** - Confirm with user before pushing to remote
+   ```bash
+   jj git fetch
+   # Rebase local changes
+   jj new main @-   # Merge commit local changes on main branch
    jj git push
    ```
 
-8. **Verify** - Confirm all changes are pushed
-   ```bash
-   git status  # MUST show "On branch main, up to date with origin/main"
-   ```
 
 **CRITICAL RULES:**
 
-- Work is NOT complete until `jj git push` succeeds
+- Work is NOT complete until `jj bookmark set main -r @-` succeeds
 - Always use `jj git export` before `bd sync` to ensure Git state is current
 - Always update bookmark with `jj bookmark set main -r @-` (the committed work) before pushing
 - NEVER stop before pushing - that leaves work stranded locally

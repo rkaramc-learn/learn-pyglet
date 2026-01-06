@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 from .hello_world import run_hello_world
-from .logging_config import init_logging
+from .logging_config import init_logging, TRACE_LEVEL
 
 
 def main() -> None:
@@ -15,8 +15,9 @@ def main() -> None:
     parser.add_argument(
         "-v",
         "--verbose",
-        action="store_true",
-        help="Enable debug-level logging output",
+        action="count",
+        default=0,
+        help="Increase verbosity: -v (INFO), -vv (DEBUG), -vvv (TRACE)",
     )
     parser.add_argument(
         "--log-file",
@@ -27,17 +28,32 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    # Setup logging
-    log_level = logging.DEBUG if args.verbose else logging.INFO
+    # Determine log level based on verbosity count
+    # -v: INFO, -vv: DEBUG, -vvv: TRACE
+    if args.verbose == 0:
+        log_level = logging.WARNING  # Default
+    elif args.verbose == 1:
+        log_level = logging.INFO
+    elif args.verbose == 2:
+        log_level = logging.DEBUG
+    else:  # 3 or more
+        log_level = TRACE_LEVEL
+
     log_file = Path(args.log_file) if args.log_file else None
     init_logging(level=log_level, log_file=log_file)
 
     logger = logging.getLogger(__name__)
-    logger.info("Starting pyglet-readme application")
-    if args.verbose:
-        logger.debug("Verbose mode enabled")
+    logger.warning("Starting pyglet-readme application")
+
+    if args.verbose == 1:
+        logger.info("Verbose mode (INFO level)")
+    elif args.verbose == 2:
+        logger.info("Very verbose mode (DEBUG level)")
+    elif args.verbose >= 3:
+        logger.info("Ultra verbose mode (TRACE level)")
+
     if log_file:
-        logger.info(f"Logging to file: {log_file}")
+        logger.warning(f"Logging to file: {log_file}")
 
     try:
         run_hello_world()

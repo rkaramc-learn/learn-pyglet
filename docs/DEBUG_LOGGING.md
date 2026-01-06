@@ -1,23 +1,37 @@
 # Debug Logging Guide
 
-The game now includes comprehensive logging with multiple log levels and flexible output options.
+The game now includes comprehensive logging with multiple verbosity levels and flexible output options.
 
-## Log Levels
+## Verbosity Levels
 
-### INFO (Default)
-Shows key events and state changes. Good for understanding game flow.
+### WARN (Default)
+Only warnings and errors. Minimal output.
 
 ```bash
 uv run pyglet-readme
 ```
 
-### DEBUG (Verbose Mode)
+### INFO (-v)
+Shows key events and state changes. Good for understanding game flow.
+
+```bash
+uv run pyglet-readme -v
+# or
+uv run pyglet-readme --verbose
+```
+
+### DEBUG (-vv)
 Shows detailed information about asset loading, paths, performance metrics, and more.
 
 ```bash
-uv run pyglet-readme --verbose
-# or
-uv run pyglet-readme -v
+uv run pyglet-readme -vv
+```
+
+### TRACE (-vvv)
+Ultra-detailed system information. Everything gets logged.
+
+```bash
+uv run pyglet-readme -vvv
 ```
 
 ## File Logging
@@ -28,10 +42,12 @@ Write logs to a file for later analysis:
 uv run pyglet-readme --log-file=game.log
 ```
 
-Combine with verbose mode:
+Combine with verbosity levels:
 
 ```bash
-uv run pyglet-readme --verbose --log-file=debug.log
+uv run pyglet-readme -v --log-file=info.log      # INFO level to file
+uv run pyglet-readme -vv --log-file=debug.log    # DEBUG level to file
+uv run pyglet-readme -vvv --log-file=trace.log   # TRACE level to file
 ```
 
 ## What Gets Logged
@@ -55,34 +71,43 @@ uv run pyglet-readme --verbose --log-file=debug.log
 
 ## Example Output
 
-### INFO Level (Default)
+### WARN Level (Default)
+Only errors and warnings:
 ```
-INFO     | __main__ | Starting pyglet-readme application
+WARNING  | __main__ | Starting pyglet-readme application
+```
+
+### INFO Level (-v)
+Key milestones:
+```
+WARNING  | __main__ | Starting pyglet-readme application
 INFO     | pyglet_readme.hello_world | Starting game initialization
 INFO     | pyglet_readme.hello_world | Creating game window
 INFO     | pyglet_readme.hello_world | Window created: 1280x720
 INFO     | pyglet_readme.hello_world | Game initialization complete, starting game loop
 ```
 
-### DEBUG Level (--verbose)
+### DEBUG Level (-vv)
+Detailed flow and asset information:
 ```
-INFO     | __main__ | Starting pyglet-readme application
-DEBUG    | __main__ | Verbose mode enabled
+WARNING  | __main__ | Starting pyglet-readme application
+INFO     | pyglet_readme.hello_world | Starting game initialization
 DEBUG    | pyglet_readme.assets | Initializing AssetLoader
 DEBUG    | pyglet_readme.assets | Assets directory: src/pyglet_readme/assets
-DEBUG    | pyglet_readme.assets | Images directory: src/pyglet_readme/assets/images
-DEBUG    | pyglet_readme.assets | Sprites directory: src/pyglet_readme/assets/sprites
-DEBUG    | pyglet_readme.assets | SFX directory: src/pyglet_readme/assets/audio/sfx
-DEBUG    | pyglet_readme.assets | Music directory: src/pyglet_readme/assets/audio/music
-INFO     | pyglet_readme.assets | AssetLoader initialized successfully
-INFO     | pyglet_readme.hello_world | Starting game initialization
-DEBUG    | pyglet_readme.hello_world | Asset loader initialized
-DEBUG    | pyglet_readme.hello_world | Loading kitten sprite
 DEBUG    | pyglet_readme.assets | Loading image: assets/images/kitten.png
 DEBUG    | pyglet_readme.assets | Image loaded successfully in 0.039s: assets/images/kitten.png (1024x1024)
 DEBUG    | pyglet_readme.hello_world | Kitten sprite loaded: 1024x1024, position: (640, 360)
 INFO     | pyglet_readme.hello_world | Creating game window
 INFO     | pyglet_readme.hello_world | Window created: 1280x720
+```
+
+### TRACE Level (-vvv)
+Ultra-detailed system information:
+```
+WARNING  | __main__ | Starting pyglet-readme application
+TRACE    | pyglet_readme.assets | Asset paths and system details
+DEBUG    | pyglet_readme.assets | All debug messages
+... (everything)
 ```
 
 ## Log Format

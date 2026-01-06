@@ -68,9 +68,7 @@ class TestGameStartup(unittest.TestCase):
 
         mock_image.return_value = MagicMock(width=100, height=100)
         mock_media.return_value = MagicMock()
-        mock_sprite.return_value = MagicMock(
-            width=25, height=25, x=0, y=600, scale=0.25
-        )
+        mock_sprite.return_value = MagicMock(width=25, height=25, x=0, y=600, scale=0.25)
 
         # Verify that we can set up the loader
         loader = get_loader()
@@ -267,6 +265,7 @@ class TestGameStartup(unittest.TestCase):
         """Test that game module can be imported without errors."""
         try:
             from pyglet_readme import hello_world
+
             self.assertIsNotNone(hello_world)
             self.assertTrue(hasattr(hello_world, "run_hello_world"))
         except ImportError as e:

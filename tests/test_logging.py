@@ -25,9 +25,9 @@ class TestLogConfig:
     """Test LogConfig class."""
 
     def test_init_default_level(self):
-        """Test default logging level is INFO."""
+        """Test default logging level is WARNING."""
         config = LogConfig()
-        assert config.DEFAULT_LEVEL == logging.INFO
+        assert config.DEFAULT_LEVEL == logging.WARNING
 
     def test_setup_console_handler(self):
         """Test that setup creates console handler."""
@@ -38,10 +38,7 @@ class TestLogConfig:
         assert len(root_logger.handlers) >= 1
 
         # Find console handler
-        console_handlers = [
-            h for h in root_logger.handlers
-            if isinstance(h, logging.StreamHandler)
-        ]
+        console_handlers = [h for h in root_logger.handlers if isinstance(h, logging.StreamHandler)]
         assert len(console_handlers) >= 1
 
     def test_setup_debug_level(self):
@@ -77,7 +74,7 @@ class TestLogConfig:
             content = log_file.read_text()
             assert "Test message" in content
             assert "test" in content  # Logger name
-            
+
             # Clean up handlers before temp dir cleanup
             config.close()
 
@@ -90,7 +87,7 @@ class TestLogConfig:
             config.setup(level=logging.INFO, log_file=log_file)
 
             assert log_file.parent.exists()
-            
+
             # Clean up handlers before temp dir cleanup
             config.close()
 
@@ -132,7 +129,7 @@ class TestGlobalLogging:
         init_logging()
 
         root_logger = logging.getLogger()
-        assert root_logger.level == logging.INFO
+        assert root_logger.level == logging.WARNING
 
     def test_init_logging_debug(self):
         """Test init_logging with DEBUG level."""
@@ -156,7 +153,7 @@ class TestGlobalLogging:
 
         assert isinstance(logger, logging.Logger)
         root_logger = logging.getLogger()
-        assert root_logger.level >= logging.DEBUG  # Should be initialized
+        assert root_logger.level >= logging.WARNING  # Should be initialized to WARNING
 
     def test_logging_with_console_output(self):
         """Test logging outputs to console."""
@@ -227,11 +224,13 @@ class TestLoggingIntegration:
             init_logging(level=logging.INFO)
             logger = get_logger("test")
 
+            logger.warning("Warning message")
             logger.debug("Debug message")
             logger.info("Info message")
 
             output = sys.stdout.getvalue()
             assert "Debug message" not in output
             assert "Info message" in output
+            assert "Warning message" in output
         finally:
             sys.stdout = old_stdout

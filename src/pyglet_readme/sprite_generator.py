@@ -16,9 +16,7 @@ class SpriteSheetGenerator:
         """Initialize the generator and check ffmpeg availability."""
         self.ffmpeg = shutil.which("ffmpeg")
         if not self.ffmpeg:
-            raise FileNotFoundError(
-                "ffmpeg not found. Install from https://ffmpeg.org/download.html"
-            )
+            raise FileNotFoundError("ffmpeg not found. Install from https://ffmpeg.org/download.html")
 
     def generate(
         self,
@@ -68,9 +66,7 @@ class SpriteSheetGenerator:
         ]
 
         try:
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, check=False
-            )
+            result = subprocess.run(cmd, capture_output=True, text=True, check=False)
             return result.returncode == 0
         except Exception as e:
             print(f"Error running ffmpeg: {e}")
@@ -124,9 +120,7 @@ class SpriteSheetGenerator:
                 "default=noprint_wrappers=1:nokey=1",
                 str(video),
             ]
-            fps_result = subprocess.run(
-                fps_cmd, capture_output=True, text=True, check=False
-            )
+            fps_result = subprocess.run(fps_cmd, capture_output=True, text=True, check=False)
             fps_str = fps_result.stdout.strip()
             # Handle fractional fps (e.g., "30000/1001")
             if "/" in fps_str:

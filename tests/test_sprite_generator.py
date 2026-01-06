@@ -52,9 +52,7 @@ class TestSpriteSheetGeneratorGenerate(unittest.TestCase):
 
     @patch("shutil.which")
     @patch("subprocess.run")
-    def test_generate_success(
-        self, mock_run: MagicMock, mock_which: MagicMock
-    ) -> None:
+    def test_generate_success(self, mock_run: MagicMock, mock_which: MagicMock) -> None:
         """Test successful sprite sheet generation."""
         mock_which.return_value = "ffmpeg"
         mock_run.return_value = MagicMock(returncode=0)
@@ -150,9 +148,7 @@ class TestSpriteSheetGeneratorGenerate(unittest.TestCase):
 
     @patch("shutil.which")
     @patch("subprocess.run")
-    def test_generate_subprocess_exception(
-        self, mock_run: MagicMock, mock_which: MagicMock
-    ) -> None:
+    def test_generate_subprocess_exception(self, mock_run: MagicMock, mock_which: MagicMock) -> None:
         """Test handling of subprocess exceptions."""
         mock_which.return_value = "ffmpeg"
         mock_run.side_effect = Exception("Subprocess error")
@@ -178,13 +174,9 @@ class TestSpriteSheetGeneratorVideoInfo(unittest.TestCase):
 
     @patch("shutil.which")
     @patch("subprocess.run")
-    def test_get_video_info_success(
-        self, mock_run: MagicMock, mock_which: MagicMock
-    ) -> None:
+    def test_get_video_info_success(self, mock_run: MagicMock, mock_which: MagicMock) -> None:
         """Test successful video info extraction."""
-        mock_which.side_effect = lambda cmd: (
-            "ffprobe" if cmd == "ffprobe" else None
-        )
+        mock_which.side_effect = lambda cmd: ("ffprobe" if cmd == "ffprobe" else None)
 
         call_count = [0]
 
@@ -230,9 +222,7 @@ class TestSpriteSheetGeneratorVideoInfo(unittest.TestCase):
 
     @patch("shutil.which")
     @patch("subprocess.run")
-    def test_get_video_info_fractional_fps(
-        self, mock_run: MagicMock, mock_which: MagicMock
-    ) -> None:
+    def test_get_video_info_fractional_fps(self, mock_run: MagicMock, mock_which: MagicMock) -> None:
         """Test video info with fractional fps (e.g., 30000/1001)."""
         mock_which.return_value = "ffprobe"
 

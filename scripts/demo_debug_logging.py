@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 # Add src to path
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from pyglet_readme.logging_config import init_logging, get_logger
 from pyglet_readme.assets import get_loader

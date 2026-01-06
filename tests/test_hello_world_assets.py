@@ -51,9 +51,7 @@ class TestHelloWorldAssetLoading(unittest.TestCase):
 
     @patch("pyglet.window.Window")
     @patch("pyglet.app.run")
-    def test_asset_loading_sequence(
-        self, mock_run: MagicMock, mock_window: MagicMock
-    ) -> None:
+    def test_asset_loading_sequence(self, mock_run: MagicMock, mock_window: MagicMock) -> None:
         """Test the sequence of asset loading in hello_world."""
         # Mock the window and app
         mock_window_instance = MagicMock()

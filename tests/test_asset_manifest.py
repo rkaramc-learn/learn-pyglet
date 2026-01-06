@@ -118,9 +118,7 @@ class TestAssetManifest(unittest.TestCase):
         os.makedirs(os.path.join(self.temp_dir.name, "assets/images"), exist_ok=True)
         os.makedirs(os.path.join(self.temp_dir.name, "assets/audio/sfx"), exist_ok=True)
 
-        Path(
-            os.path.join(self.temp_dir.name, "assets/images/kitten.png")
-        ).touch()
+        Path(os.path.join(self.temp_dir.name, "assets/images/kitten.png")).touch()
         Path(os.path.join(self.temp_dir.name, "assets/audio/sfx/meow.wav")).touch()
 
         manifest = AssetManifest(self.manifest_path)

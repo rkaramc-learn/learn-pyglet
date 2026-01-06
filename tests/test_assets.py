@@ -54,9 +54,7 @@ class TestAssetLoader(unittest.TestCase):
     def test_load_image_not_found(self, mock_image: MagicMock) -> None:
         """Test image loading with missing file."""
         loader = AssetLoader()
-        mock_image.side_effect = pyglet.resource.ResourceNotFoundException(
-            "kitten.png"
-        )
+        mock_image.side_effect = pyglet.resource.ResourceNotFoundException("kitten.png")
 
         with self.assertRaises(FileNotFoundError) as context:
             loader.load_image("kitten.png")
@@ -83,17 +81,13 @@ class TestAssetLoader(unittest.TestCase):
         result = loader.load_sound("assets/audio/music/ambience.wav", streaming=True)
 
         self.assertIsNotNone(result)
-        mock_media.assert_called_once_with(
-            "assets/audio/music/ambience.wav", streaming=True
-        )
+        mock_media.assert_called_once_with("assets/audio/music/ambience.wav", streaming=True)
 
     @patch("pyglet.resource.media")
     def test_load_sound_not_found(self, mock_media: MagicMock) -> None:
         """Test sound loading with missing file."""
         loader = AssetLoader()
-        mock_media.side_effect = pyglet.resource.ResourceNotFoundException(
-            "meow.wav"
-        )
+        mock_media.side_effect = pyglet.resource.ResourceNotFoundException("meow.wav")
 
         with self.assertRaises(FileNotFoundError) as context:
             loader.load_sound("meow.wav")

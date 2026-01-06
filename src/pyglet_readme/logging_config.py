@@ -1,7 +1,7 @@
 """Logging configuration module for pyglet-readme.
 
 Provides centralized logging setup with support for:
-- Multiple log levels (DEBUG, INFO, WARNING, ERROR)
+- Multiple log levels (TRACE, DEBUG, INFO, WARNING, ERROR)
 - Console and optional file output
 - Structured formatting
 - Module-specific loggers
@@ -13,18 +13,22 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+# Define TRACE level (between DEBUG and NOTSET)
+TRACE_LEVEL = 5
+logging.addLevelName(TRACE_LEVEL, "TRACE")
+
 
 class LogConfig:
     """Centralized logging configuration."""
 
     # Log format for console output
     CONSOLE_FORMAT = "%(levelname)-8s | %(name)s | %(message)s"
-    
+
     # Log format for file output (includes timestamp)
     FILE_FORMAT = "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
-    
+
     # Default log level
-    DEFAULT_LEVEL = logging.INFO
+    DEFAULT_LEVEL = logging.WARNING
 
     def __init__(self) -> None:
         """Initialize logging configuration."""
