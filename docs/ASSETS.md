@@ -9,12 +9,12 @@ This document details all game assets, their sources, generation strategies, and
 | **kitten**      | `images/kitten.png`        | Sprite (PNG)           | 0.85 MB | ✅ Yes | Committed directly         | ✅ Checked in |
 | **meow**        | `audio/sfx/meow.wav`       | SFX (WAV)              | 0.15 MB | ✅ Yes | Committed directly         | ✅ Checked in |
 | **mouse_sheet** | `sprites/mouse_sheet.png`  | Sprite Sheet (PNG)     | 0.95 MB | ❌ No  | Generated from `mouse.mp4` | !!TODO Check in to repository!!            |
-| **ambience**    | `audio/music/ambience.wav` | Background Music (WAV) | 8.5 MB  | ❌ No  | External source            | !!TODO Check in to repository with Git-LFS |
+| **ambience**    | `audio/music/ambience.wav` | Background Music (WAV) | 8.5 MB  | ✅ Yes | External source            | ✅ Git-LFS configured (awaiting file) |
 | **mouse.mp4**   | `source/mouse.mp4`         | Source Video (MP4)     | 1.2 MB  | ❌ No  | External source            | ⚠️ Ignored                             |
 
 **Total Size:** 11.6 MB
-**Tracked:** 3 assets (1.0 MB)
-**Ignored:** 2 assets (10.6 MB)
+**Tracked:** 4 assets (9.5 MB with Git-LFS)
+**Ignored:** 1 asset (1.2 MB)
 
 ## Asset Manifest
 
@@ -59,12 +59,13 @@ These assets are excluded from version control to reduce repo size:
 
 **ambience.wav** (8.5 MB)
 
-!!TODO: Configure Git-LFS and check in to repository!!
+✅ **Git-LFS Configured**
 
 - WAV background music loop (~30 seconds)
-- **Why ignored:** Large media file, external source
+- **Why tracked with Git-LFS:** Core game asset needed for full functionality; large file requires LFS instead of direct commit
 - **Storage:** `src/pyglet_readme/assets/audio/music/ambience.wav`
-- **Git Rule:** Listed in `.gitignore` line 21
+- **Git Rule:** Tracked via Git-LFS (`.gitattributes` line 3)
+- **Status:** Awaiting source file (see Restoration section)
 
 **mouse.mp4** (1.2 MB)
 
@@ -180,7 +181,7 @@ When cloning the repository, ignored assets must be restored to run the game wit
 **Partially Automated:**
 
 - ✅ `mouse_sheet.png` can be generated if `mouse.mp4` is present
-- ❌ `ambience.wav` sourcing not automated
+- ⏳ `ambience.wav` Git-LFS configured; sourcing still pending
 - ❌ `mouse.mp4` sourcing not automated
 
 ### TODO: Asset Restoration Script
@@ -250,7 +251,7 @@ src/pyglet_readme/assets/
 │   │   └── meow.wav        [TRACKED]
 │   └── music/
 │       ├── .gitkeep
-│       └── ambience.wav    [IGNORED - external]
+│       └── ambience.wav    [TRACKED via Git-LFS - external]
 ├── source/
 │   ├── .gitkeep
 │   └── mouse.mp4           [IGNORED - source]

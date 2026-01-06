@@ -41,16 +41,17 @@ audio:
     usage: "on_kitten_idle"
 
   ambience:
-    path: "audio/music/ambience.wav"
-    type: "background_music"
-    duration_seconds: 30  # Looped
-    sample_rate_hz: 44100
-    format: "WAV"
-    tracked: false
-    streaming: true
-    looped: true
-    description: "Background music loop for game"
-    usage: "continuous_background"
+     path: "audio/music/ambience.wav"
+     type: "background_music"
+     duration_seconds: 30  # Looped
+     sample_rate_hz: 44100
+     format: "WAV"
+     tracked: true
+     storage: "git-lfs"
+     streaming: true
+     looped: true
+     description: "Background music loop for game"
+     usage: "continuous_background"
 
 source:
   mouse_video:
@@ -65,9 +66,9 @@ source:
     generation_method: "ffmpeg frame extraction"
 
 metadata:
-  total_assets: 5
-  tracked_assets: 3
-  ignored_assets: 2
+   total_assets: 5
+   tracked_assets: 4
+   ignored_assets: 1
   total_size_mb: 11.6
   breakdown:
     images_mb: 0.85

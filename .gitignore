@@ -17,8 +17,8 @@ src/pyglet_readme/assets/source/mouse.mp4
 src/pyglet_readme/assets/sprites/*.png
 !src/pyglet_readme/assets/sprites/.gitkeep
 
-# Music Files (large, ignored to save space)
-src/pyglet_readme/assets/audio/music/*.wav
+# Music Files (tracked via Git-LFS)
+# src/pyglet_readme/assets/audio/music/*.wav  (now tracked via Git-LFS)
 src/pyglet_readme/assets/audio/music/*.mp3
 !src/pyglet_readme/assets/audio/music/.gitkeep
 
