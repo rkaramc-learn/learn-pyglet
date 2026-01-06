@@ -23,7 +23,7 @@ from pyglet_readme.logging_config import get_logger, init_logging
 logger = get_logger(__name__)
 
 
-def test_asset_system() -> bool:
+def test_asset_system() -> None:
     """Test asset loader initialization and asset verification."""
     logger.info("Testing asset system...")
     loader = get_loader()
@@ -43,45 +43,37 @@ def test_asset_system() -> bool:
     try:
         kitten = loader.load_image("assets/images/kitten.png")
         logger.info(f"Kitten image loaded: {kitten.width}x{kitten.height}")
+        assert kitten.width > 0 and kitten.height > 0
     except FileNotFoundError as e:
         logger.error(f"Failed to load kitten image: {e}")
-        return False
-
-    return True
+        raise AssertionError(f"Failed to load kitten image: {e}") from e
 
 
-def test_game_startup() -> bool:
+def test_game_startup() -> None:
     """Test that game can initialize and start without crashing."""
     logger.info("Testing game startup...")
 
+    import pyglet
+    from pyglet_readme.hello_world import run_hello_world
+
+    # Mock the run to prevent actual window creation
+    original_run = pyglet.app.run
+
+    def mock_run():
+        """Immediately close instead of running."""
+        logger.debug("Game window would start (mocked for testing)")
+
+    pyglet.app.run = mock_run  # type: ignore[method-assign]
+
     try:
-        # Import and initialize
-        import pyglet
-        from pyglet_readme.hello_world import run_hello_world
-
-        # Mock the run to prevent actual window creation
-        original_run = pyglet.app.run
-
-        def mock_run():
-            """Immediately close instead of running."""
-            logger.debug("Game window would start (mocked for testing)")
-
-        pyglet.app.run = mock_run  # type: ignore[method-assign]
-
         # Call the startup - should not raise exceptions
-        try:
-            run_hello_world()
-            logger.info("Game initialization successful")
-            return True
-        except Exception as e:
-            logger.error(f"Game initialization failed: {e}")
-            return False
-        finally:
-            pyglet.app.run = original_run
-
+        run_hello_world()
+        logger.info("Game initialization successful")
     except Exception as e:
-        logger.error(f"Error during game startup test: {e}")
-        return False
+        logger.error(f"Game initialization failed: {e}")
+        raise AssertionError(f"Game initialization failed: {e}") from e
+    finally:
+        pyglet.app.run = original_run
 
 
 def main(verbosity: int = 0) -> int:
@@ -111,14 +103,22 @@ def main(verbosity: int = 0) -> int:
     logger.info("E2E Test: Full Game Startup with New Asset System")
     logger.info("=" * 60)
 
+    tests = [
+        ("Asset System", test_asset_system),
+        ("Game Startup", test_game_startup),
+    ]
+
+    logger.info("Running test suite...")
     results = []
 
-    # Test 1: Asset System
-    logger.info("Running test suite...")
-    results.append(("Asset System", test_asset_system()))
-
-    # Test 2: Game Startup
-    results.append(("Game Startup", test_game_startup()))
+    for name, test_func in tests:
+        try:
+            test_func()
+            logger.info(f"✓ {name} passed")
+            results.append((name, True))
+        except Exception as e:
+            logger.error(f"✗ {name} failed: {e}")
+            results.append((name, False))
 
     # Summary
     logger.info("=" * 60)
