@@ -19,15 +19,11 @@ images:
   mouse_sheet:
     path: "sprites/mouse_sheet.png"
     type: "sprite_sheet"
-    dimensions: [1000, 1000]  # 10x10 grid
-    grid: [10, 10]
-    cell_size: [100, 100]
-    scale_factor: 0.25
-    scaled_dimensions: [25, 25]
+    dimensions: [2280, 1280]  # Actual dimensions from Windows repo
     format: "PNG"
-    tracked: false
-    description: "Animated sprite sheet for mouse (generated from mouse.mp4)"
-    frame_duration: 0.0833  # 1/12 seconds per frame
+    tracked: true
+    description: "Animated sprite sheet for mouse"
+    source: "Windows repository"
 
 audio:
   meow:
@@ -69,13 +65,13 @@ metadata:
   total_assets: 5
   tracked_assets: 4
   ignored_assets: 1
-  total_size_mb: 11.6
+  total_size_mb: 9.96
   breakdown:
-    images_mb: 0.85
-    sprites_mb: 0.95
+    images_mb: 0.82
+    sprites_mb: 0.91
     audio_sfx_mb: 0.15
-    audio_music_mb: 8.5
-    source_mb: 1.2
+    audio_music_mb: 8.08
+    source_mb: 0.01
 
 notes: |
   - Ignored assets are stored locally but not committed to reduce repo size
