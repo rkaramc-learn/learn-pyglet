@@ -8,6 +8,34 @@ from .assets import get_loader
 
 logger = logging.getLogger(__name__)
 
+# Game Configuration
+KITTEN_SCALE = 0.1  # Scale factor for kitten sprite (original size / 10)
+MOUSE_SCALE = 0.25  # Scale factor for mouse sprite
+MOUSE_ANIMATION_FRAME_RATE = 1 / 12.0  # Animation frames per second
+FALLBACK_SPRITE_SIZE = 50  # Size of fallback sprite if assets missing
+WINDOW_TRAVERSAL_TIME = 10.0  # Seconds to traverse full window width at base speed
+KITTEN_SPEED_FACTOR = 1.5  # Kitten speed is 1/X of mouse speed
+
+# Health & Stamina
+MAX_HEALTH = 100.0
+MAX_STAMINA = 100.0
+BASE_DRAIN_RATE = 20.0  # Health points per second at max proximity
+PASSIVE_STAMINA_DRAIN = 2.0  # Stamina points per second
+
+# Movement
+DIAGONAL_MOVEMENT_FACTOR = 0.7071  # 1/sqrt(2) for diagonal normalization
+MOVEMENT_DISTANCE_THRESHOLD = 2.0  # Minimum distance to prevent jitter
+
+# UI Bar Configuration
+BAR_WIDTH = 50
+BAR_HEIGHT = 5
+BAR_OFFSET = 20
+
+# Colors (RGB tuples)
+COLOR_DARK_GRAY = (50, 50, 50)
+COLOR_GREEN = (0, 255, 0)
+COLOR_RED = (255, 0, 0)
+
 
 def run_hello_world():
 
@@ -42,25 +70,19 @@ def run_hello_world():
     # Kitten Setup
     logger.debug("Loading kitten sprite")
     image = loader.load_image("assets/images/kitten.png")
-    image.width = image.width // 10
-    image.height = image.height // 10
+    image.width = int(image.width * KITTEN_SCALE)
+    image.height = int(image.height * KITTEN_SCALE)
     image_x = window.width // 2
     image_y = window.height // 2
     logger.debug(
         f"Kitten sprite loaded: {image.width}x{image.height}, position: ({image_x}, {image_y})"
     )
 
-    # Speed is relative to window size (e.g., cross width in 10 seconds)
-    base_speed = window.width / 10.0
+    # Speed is relative to window size (cross window width in WINDOW_TRAVERSAL_TIME)
+    base_speed = window.width / WINDOW_TRAVERSAL_TIME
     mouse_speed = base_speed
-    kitten_speed = base_speed / 1.5
+    kitten_speed = base_speed / KITTEN_SPEED_FACTOR
     logger.debug(f"Movement speeds - mouse: {mouse_speed:.1f}, kitten: {kitten_speed:.1f}")
-
-    # Health & Stamina System
-    MAX_HEALTH = 100.0
-    MAX_STAMINA = 100.0
-    BASE_DRAIN_RATE = 20.0  # HP per second at max proximity
-    PASSIVE_STAMINA_DRAIN = 2.0  # Energy per second
 
     mouse_health = MAX_HEALTH
     kitten_stamina = MAX_STAMINA
@@ -71,16 +93,18 @@ def run_hello_world():
     try:
         mouse_sheet = loader.load_image("assets/sprites/mouse_sheet.png")
         mouse_grid = pyglet.image.ImageGrid(mouse_sheet, 10, 10)
-        mouse_anim: pyglet.image.Animation = pyglet.image.Animation.from_image_sequence(mouse_grid, 1 / 12.0)  # type: ignore[attr-defined]
+        mouse_anim: pyglet.image.Animation = pyglet.image.Animation.from_image_sequence(mouse_grid, MOUSE_ANIMATION_FRAME_RATE)  # type: ignore[attr-defined]
         mouse_sprite = pyglet.sprite.Sprite(mouse_anim)
         logger.info("Mouse sprite loaded from sprite sheet")
     except FileNotFoundError:
         logger.warning("mouse_sheet.png not found, using fallback sprite")
         # Create a simple colored rectangle as fallback
-        fallback_image = pyglet.image.SolidColorImagePattern((0, 100, 200, 255)).create_image(50, 50)
+        fallback_image = pyglet.image.SolidColorImagePattern((0, 100, 200, 255)).create_image(
+            FALLBACK_SPRITE_SIZE, FALLBACK_SPRITE_SIZE
+        )
         mouse_sprite = pyglet.sprite.Sprite(fallback_image)
 
-    mouse_sprite.scale = 0.25
+    mouse_sprite.scale = MOUSE_SCALE
     # Start at top-left
     mouse_sprite.x = 0
     mouse_sprite.y = window.height - mouse_sprite.height
@@ -95,14 +119,10 @@ def run_hello_world():
     mouse_vy = 0.0
 
     # UI Setup (Shapes)
-    bar_width = 50
-    bar_height = 5
-    bar_offset = 20
-
-    mouse_bar_bg = pyglet.shapes.Rectangle(0, 0, bar_width, bar_height, color=(50, 50, 50))
-    mouse_bar_fg = pyglet.shapes.Rectangle(0, 0, bar_width, bar_height, color=(0, 255, 0))
-    kitten_bar_bg = pyglet.shapes.Rectangle(0, 0, bar_width, bar_height, color=(50, 50, 50))
-    kitten_bar_fg = pyglet.shapes.Rectangle(0, 0, bar_width, bar_height, color=(0, 255, 0))
+    mouse_bar_bg = pyglet.shapes.Rectangle(0, 0, BAR_WIDTH, BAR_HEIGHT, color=COLOR_DARK_GRAY)
+    mouse_bar_fg = pyglet.shapes.Rectangle(0, 0, BAR_WIDTH, BAR_HEIGHT, color=COLOR_GREEN)
+    kitten_bar_bg = pyglet.shapes.Rectangle(0, 0, BAR_WIDTH, BAR_HEIGHT, color=COLOR_DARK_GRAY)
+    kitten_bar_fg = pyglet.shapes.Rectangle(0, 0, BAR_WIDTH, BAR_HEIGHT, color=COLOR_GREEN)
 
     # Load sound - with fallback
     logger.debug("Loading sound effects")
@@ -163,8 +183,6 @@ def run_hello_world():
             return
 
         # Manual Movement Control (Sets Velocity)
-        diag_factor = 0.7071  # 1/sqrt(2) to normalize diagonal speed
-
         if symbol == key.UP:
             mouse_vx = 0.0
             mouse_vy = mouse_speed
@@ -179,17 +197,17 @@ def run_hello_world():
             mouse_vy = 0.0
         # Diagonals
         elif symbol == key.HOME:  # Up-Left
-            mouse_vx = -mouse_speed * diag_factor
-            mouse_vy = mouse_speed * diag_factor
+            mouse_vx = -mouse_speed * DIAGONAL_MOVEMENT_FACTOR
+            mouse_vy = mouse_speed * DIAGONAL_MOVEMENT_FACTOR
         elif symbol == key.PAGEUP:  # Up-Right
-            mouse_vx = mouse_speed * diag_factor
-            mouse_vy = mouse_speed * diag_factor
+            mouse_vx = mouse_speed * DIAGONAL_MOVEMENT_FACTOR
+            mouse_vy = mouse_speed * DIAGONAL_MOVEMENT_FACTOR
         elif symbol == key.END:  # Down-Left
-            mouse_vx = -mouse_speed * diag_factor
-            mouse_vy = -mouse_speed * diag_factor
+            mouse_vx = -mouse_speed * DIAGONAL_MOVEMENT_FACTOR
+            mouse_vy = -mouse_speed * DIAGONAL_MOVEMENT_FACTOR
         elif symbol == key.PAGEDOWN:  # Down-Right
-            mouse_vx = mouse_speed * diag_factor
-            mouse_vy = -mouse_speed * diag_factor
+            mouse_vx = mouse_speed * DIAGONAL_MOVEMENT_FACTOR
+            mouse_vy = -mouse_speed * DIAGONAL_MOVEMENT_FACTOR
         elif symbol == key.SPACE:  # Stop
             mouse_vx = 0.0
             mouse_vy = 0.0
@@ -247,7 +265,7 @@ def run_hello_world():
         distance = math.sqrt(dx * dx + dy * dy)
 
         is_moving = False
-        if distance > 2.0:  # Threshold to prevent jitter
+        if distance > MOVEMENT_DISTANCE_THRESHOLD:
             travel = min(distance, kitten_speed * dt)
 
             image_x += (dx / distance) * travel
@@ -307,20 +325,20 @@ def run_hello_world():
     def update_ui_bars() -> None:
         """Update health and stamina bar positions and values."""
         # Mouse Bar
-        mouse_bar_bg.x = mouse_sprite.x + (mouse_sprite.width / 2) - (bar_width / 2)
-        mouse_bar_bg.y = mouse_sprite.y + mouse_sprite.height + bar_offset
+        mouse_bar_bg.x = mouse_sprite.x + (mouse_sprite.width / 2) - (BAR_WIDTH / 2)
+        mouse_bar_bg.y = mouse_sprite.y + mouse_sprite.height + BAR_OFFSET
         mouse_bar_fg.x = mouse_bar_bg.x
         mouse_bar_fg.y = mouse_bar_bg.y
-        mouse_bar_fg.width = bar_width * (mouse_health / MAX_HEALTH)
-        mouse_bar_fg.color = (0, 255, 0) if mouse_health > 30 else (255, 0, 0)
+        mouse_bar_fg.width = BAR_WIDTH * (mouse_health / MAX_HEALTH)
+        mouse_bar_fg.color = COLOR_GREEN if mouse_health > 30 else COLOR_RED
 
         # Kitten Bar
-        kitten_bar_bg.x = image_x + (image.width / 2) - (bar_width / 2)
-        kitten_bar_bg.y = image_y + image.height + bar_offset
+        kitten_bar_bg.x = image_x + (image.width / 2) - (BAR_WIDTH / 2)
+        kitten_bar_bg.y = image_y + image.height + BAR_OFFSET
         kitten_bar_fg.x = kitten_bar_bg.x
         kitten_bar_fg.y = kitten_bar_bg.y
-        kitten_bar_fg.width = bar_width * (kitten_stamina / MAX_STAMINA)
-        kitten_bar_fg.color = (0, 255, 0) if kitten_stamina > 30 else (255, 0, 0)
+        kitten_bar_fg.width = BAR_WIDTH * (kitten_stamina / MAX_STAMINA)
+        kitten_bar_fg.color = COLOR_GREEN if kitten_stamina > 30 else COLOR_RED
 
     def update(dt: float) -> None:
         """Main game update loop."""
