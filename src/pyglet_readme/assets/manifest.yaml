@@ -19,9 +19,11 @@ images:
   mouse_sheet:
     path: "sprites/mouse_sheet.png"
     type: "sprite_sheet"
+    grid: [10, 10]  # 10x10 grid of sprite frames
+    frame_duration: 0.0833333  # 1/12 second (12 FPS animation)
     dimensions: [2280, 1280]  # Actual dimensions from Windows repo
     format: "PNG"
-    tracked: true
+    tracked: false
     description: "Animated sprite sheet for mouse"
     source: "Windows repository"
 
@@ -42,7 +44,7 @@ audio:
     duration_seconds: 30  # Looped
     sample_rate_hz: 44100
     format: "WAV"
-    tracked: true
+    tracked: false
     storage: "git-lfs"
     streaming: true
     looped: true

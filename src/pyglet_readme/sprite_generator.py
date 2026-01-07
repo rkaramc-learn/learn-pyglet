@@ -53,9 +53,9 @@ class SpriteSheetGenerator:
         output.parent.mkdir(parents=True, exist_ok=True)
 
         total_frames = grid_width * grid_height
-        fps_filter = "fps=10"  # Reasonable default FPS for sprite extraction
+        fps_filter = f"fps=n={total_frames}"  # Extract exactly total_frames from video
         scale_filter = f"scale={frame_width}:{frame_height}"
-        tile_filter = f"tile=layout={grid_width}x{grid_height}"
+        tile_filter = f"tile={grid_width}:{grid_height}"
 
         cmd = [
             self.ffmpeg,
