@@ -11,6 +11,7 @@ import pyglet
 from pyglet.window import key, mouse
 
 from ..assets import get_loader
+from ..config import CONFIG
 from .base import Screen
 
 if TYPE_CHECKING:
@@ -71,8 +72,9 @@ class GameRunningScreen(Screen):
         kitten_image.width = int(kitten_image.width * KITTEN_SCALE)
         kitten_image.height = int(kitten_image.height * KITTEN_SCALE)
         self.kitten_image = kitten_image
-        self.image_x = window.width // 2
-        self.image_y = window.height // 2
+        # Start kitten at configured position (2/3 width, 1/2 height)
+        self.image_x = window.width * CONFIG.KITTEN_START_X_RATIO
+        self.image_y = window.height * CONFIG.KITTEN_START_Y_RATIO
         logger.debug(
             f"Kitten sprite loaded: {kitten_image.width}x{kitten_image.height}, "
             f"position: ({self.image_x}, {self.image_y})"
@@ -110,9 +112,9 @@ class GameRunningScreen(Screen):
             self.mouse_sprite = pyglet.sprite.Sprite(fallback_image)
 
         self.mouse_sprite.scale = MOUSE_SCALE
-        # Start at top-left
-        self.mouse_sprite.x = 0
-        self.mouse_sprite.y = window.height - self.mouse_sprite.height
+        # Start mouse at configured position (1/3 width, 1/2 height)
+        self.mouse_sprite.x = window.width * CONFIG.MOUSE_START_X_RATIO
+        self.mouse_sprite.y = window.height * CONFIG.MOUSE_START_Y_RATIO
 
         # Calculate catch range (average of max dimensions)
         kitten_max_dim = max(kitten_image.width, kitten_image.height)
@@ -177,10 +179,10 @@ class GameRunningScreen(Screen):
 
         # Reset entity positions and state
         self.mouse_speed = self.base_speed
-        self.image_x = self.window.width // 2
-        self.image_y = self.window.height // 2
-        self.mouse_sprite.x = 0
-        self.mouse_sprite.y = self.window.height - self.mouse_sprite.height
+        self.image_x = self.window.width * CONFIG.KITTEN_START_X_RATIO
+        self.image_y = self.window.height * CONFIG.KITTEN_START_Y_RATIO
+        self.mouse_sprite.x = self.window.width * CONFIG.MOUSE_START_X_RATIO
+        self.mouse_sprite.y = self.window.height * CONFIG.MOUSE_START_Y_RATIO
 
         # Reset physics and health
         self.mouse_vx = 0.0
@@ -216,28 +218,28 @@ class GameRunningScreen(Screen):
             logger.info("Quitting game")
             self.window.close()
         elif symbol == key.R:
-            # Reset Game State
-            logger.info("Resetting game")
-            self.mouse_speed = self.base_speed
-            self.image_x = self.window.width // 2
-            self.image_y = self.window.height // 2
+           # Reset Game State
+           logger.info("Resetting game")
+           self.mouse_speed = self.base_speed
+           self.image_x = self.window.width * CONFIG.KITTEN_START_X_RATIO
+           self.image_y = self.window.height * CONFIG.KITTEN_START_Y_RATIO
 
-            self.mouse_sprite.x = 0
-            self.mouse_sprite.y = self.window.height - self.mouse_sprite.height
+           self.mouse_sprite.x = self.window.width * CONFIG.MOUSE_START_X_RATIO
+           self.mouse_sprite.y = self.window.height * CONFIG.MOUSE_START_Y_RATIO
 
-            # Reset Physics & Stats
-            self.mouse_vx = 0.0
-            self.mouse_vy = 0.0
-            self.mouse_health = MAX_HEALTH
-            self.kitten_stamina = MAX_STAMINA
-            self.game_over = False
+           # Reset Physics & Stats
+           self.mouse_vx = 0.0
+           self.mouse_vy = 0.0
+           self.mouse_health = MAX_HEALTH
+           self.kitten_stamina = MAX_STAMINA
+           self.game_over = False
 
-            self.was_moving = False
+           self.was_moving = False
 
-            # Reset game statistics
-            self.elapsed_time = 0.0
-            self.total_distance = 0.0
-            logger.debug("Game state reset complete")
+           # Reset game statistics
+           self.elapsed_time = 0.0
+           self.total_distance = 0.0
+           logger.debug("Game state reset complete")
 
         if self.game_over:
             return
