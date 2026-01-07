@@ -19,9 +19,11 @@ images:
   mouse_sheet:
     path: "sprites/mouse_sheet.png"
     type: "sprite_sheet"
+    grid: [10, 10]  # 10x10 grid of sprite frames
+    frame_duration: 0.0833333  # 1/12 second (12 FPS animation)
     dimensions: [2280, 1280]  # Actual dimensions from Windows repo
     format: "PNG"
-    tracked: true
+    tracked: false
     description: "Animated sprite sheet for mouse"
     source: "Windows repository"
 
@@ -63,8 +65,8 @@ source:
 
 metadata:
   total_assets: 5
-  tracked_assets: 4
-  ignored_assets: 1
+  tracked_assets: 3
+  ignored_assets: 2
   total_size_mb: 9.96
   breakdown:
     images_mb: 0.82

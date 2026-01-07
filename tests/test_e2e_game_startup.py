@@ -208,8 +208,8 @@ class TestGameStartup(unittest.TestCase):
         # Meow is tracked (in repo)
         self.assertTrue(meow.get("tracked"))
 
-        # Ambience is ignored (large file)
-        self.assertFalse(ambience.get("tracked"))
+        # Ambience is tracked (stored via git-lfs)
+        self.assertTrue(ambience.get("tracked"))
 
         # Both should have type information
         self.assertEqual(meow.get("type"), "sound_effect")
