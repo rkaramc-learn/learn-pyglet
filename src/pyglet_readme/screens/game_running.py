@@ -111,10 +111,24 @@ class GameRunningScreen(Screen):
             ).create_image(FALLBACK_SPRITE_SIZE, FALLBACK_SPRITE_SIZE)
             self.mouse_sprite = pyglet.sprite.Sprite(fallback_image)
 
+        # Set anchor point to center of image before scaling
+        # For animations, get dimensions from first frame; for images, use directly
+        image_to_anchor = self.mouse_sprite.image
+        if hasattr(image_to_anchor, 'frames'):  # Animation
+            img = image_to_anchor.frames[0].image  # type: ignore[attr-defined]
+            img.anchor_x = img.width / 2  # type: ignore[attr-defined]
+            img.anchor_y = img.height / 2  # type: ignore[attr-defined]
+            logger.debug(
+                f"Mouse anchor set to center (animation): ({img.anchor_x}, {img.anchor_y})"  # type: ignore[attr-defined]
+            )
+        else:  # Regular image
+            image_to_anchor.anchor_x = image_to_anchor.width / 2  # type: ignore[attr-defined]
+            image_to_anchor.anchor_y = image_to_anchor.height / 2  # type: ignore[attr-defined]
+            logger.debug(
+                f"Mouse anchor set to center: ({image_to_anchor.anchor_x}, {image_to_anchor.anchor_y})"  # type: ignore[attr-defined]
+            )
+
         self.mouse_sprite.scale = MOUSE_SCALE
-        # Set anchor point to center of image for proper positioning and rotation
-        self.mouse_sprite.image_anchor_x = self.mouse_sprite.width // 2  # type: ignore[attr-defined]
-        self.mouse_sprite.image_anchor_y = self.mouse_sprite.height // 2  # type: ignore[attr-defined]
         # Start mouse at configured position (1/3 width, 1/2 height)
         self.mouse_sprite.x = window.width * CONFIG.MOUSE_START_X_RATIO
         self.mouse_sprite.y = window.height * CONFIG.MOUSE_START_Y_RATIO
