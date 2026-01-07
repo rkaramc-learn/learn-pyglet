@@ -98,13 +98,17 @@ class Mouse(Entity):
         """
         return self.health > 0
 
-    def reset(self) -> None:
+    def reset(self, window_width: float = 800.0, window_height: float = 600.0) -> None:
         """Reset mouse to initial state.
 
-        Resets position to origin, stops movement, and restores health to maximum.
+        Resets position to starting location, stops movement, and restores health to maximum.
+
+        Args:
+            window_width: Width of the game window (used for starting position).
+            window_height: Height of the game window (used for starting position).
         """
-        self.x = 0.0
-        self.y = 0.0
+        self.x = window_width * CONFIG.MOUSE_START_X_RATIO
+        self.y = window_height * CONFIG.MOUSE_START_Y_RATIO
         self.vx = 0.0
         self.vy = 0.0
         self.health = CONFIG.MAX_HEALTH

@@ -122,13 +122,17 @@ class Kitten(Entity):
         current_y = self.y + self.height / 2
         return distance(current_x, current_y, target_x, target_y)
 
-    def reset(self) -> None:
+    def reset(self, window_width: float = 800.0, window_height: float = 600.0) -> None:
         """Reset kitten to initial state.
 
-        Resets position to origin, stops movement, and restores stamina to maximum.
+        Resets position to starting location, stops movement, and restores stamina to maximum.
+
+        Args:
+            window_width: Width of the game window (used for starting position).
+            window_height: Height of the game window (used for starting position).
         """
-        self.x = 0.0
-        self.y = 0.0
+        self.x = window_width * CONFIG.KITTEN_START_X_RATIO
+        self.y = window_height * CONFIG.KITTEN_START_Y_RATIO
         self.vx = 0.0
         self.vy = 0.0
         self.stamina = CONFIG.MAX_STAMINA

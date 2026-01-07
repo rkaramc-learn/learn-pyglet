@@ -188,10 +188,12 @@ class TestMouse(unittest.TestCase):
         mouse.height = 32.0
         mouse.state = EntityState.MOVING
         
-        mouse.reset()
+        mouse.reset(window_width=800.0, window_height=600.0)
         
-        self.assertEqual(mouse.x, 0.0)
-        self.assertEqual(mouse.y, 0.0)
+        expected_x = 800.0 * CONFIG.MOUSE_START_X_RATIO
+        expected_y = 600.0 * CONFIG.MOUSE_START_Y_RATIO
+        self.assertEqual(mouse.x, expected_x)
+        self.assertEqual(mouse.y, expected_y)
         self.assertEqual(mouse.vx, 0.0)
         self.assertEqual(mouse.vy, 0.0)
         self.assertEqual(mouse.health, CONFIG.MAX_HEALTH)
@@ -203,11 +205,11 @@ class TestMouse(unittest.TestCase):
         mouse.width = 32.0
         mouse.height = 32.0
         
-        mouse.reset()
+        mouse.reset(window_width=800.0, window_height=600.0)
         
         self.assertEqual(mouse.health, CONFIG.MAX_HEALTH)
-        self.assertEqual(mouse.x, 0.0)
-        self.assertEqual(mouse.y, 0.0)
+        expected_x = 800.0 * CONFIG.MOUSE_START_X_RATIO
+        self.assertEqual(mouse.x, expected_x)
 
     def test_mouse_reset_multiple_times(self) -> None:
         """Test that mouse can be reset multiple times."""
@@ -218,15 +220,16 @@ class TestMouse(unittest.TestCase):
         # First state change and reset
         mouse.x = 100.0
         mouse.health = 50.0
-        mouse.reset()
-        self.assertEqual(mouse.x, 0.0)
+        mouse.reset(window_width=800.0, window_height=600.0)
+        expected_x = 800.0 * CONFIG.MOUSE_START_X_RATIO
+        self.assertEqual(mouse.x, expected_x)
         self.assertEqual(mouse.health, CONFIG.MAX_HEALTH)
         
         # Second state change and reset
         mouse.x = 200.0
         mouse.health = 25.0
-        mouse.reset()
-        self.assertEqual(mouse.x, 0.0)
+        mouse.reset(window_width=800.0, window_height=600.0)
+        self.assertEqual(mouse.x, expected_x)
         self.assertEqual(mouse.health, CONFIG.MAX_HEALTH)
 
 

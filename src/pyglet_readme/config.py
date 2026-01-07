@@ -30,6 +30,12 @@ class GameConfig:
     DIAGONAL_MOVEMENT_FACTOR: float = 0.7071  # 1/sqrt(2) for diagonal normalization
     MOVEMENT_DISTANCE_THRESHOLD: float = 2.0  # Minimum distance to prevent jitter
 
+    # Starting Positions (as fractions of window dimensions)
+    MOUSE_START_X_RATIO: float = 1.0 / 3.0  # Mouse starts at 1/3 of window width
+    MOUSE_START_Y_RATIO: float = 0.5  # Mouse starts at middle of window height
+    KITTEN_START_X_RATIO: float = 2.0 / 3.0  # Kitten starts at 2/3 of window width
+    KITTEN_START_Y_RATIO: float = 0.5  # Kitten starts at middle of window height
+
     # Health & Stamina
     MAX_HEALTH: float = 100.0
     MAX_STAMINA: float = 100.0

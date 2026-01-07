@@ -192,10 +192,12 @@ class TestKitten(unittest.TestCase):
         kitten.is_moving = True
         kitten.state = EntityState.CHASING
         
-        kitten.reset()
+        kitten.reset(window_width=800.0, window_height=600.0)
         
-        self.assertEqual(kitten.x, 0.0)
-        self.assertEqual(kitten.y, 0.0)
+        expected_x = 800.0 * CONFIG.KITTEN_START_X_RATIO
+        expected_y = 600.0 * CONFIG.KITTEN_START_Y_RATIO
+        self.assertEqual(kitten.x, expected_x)
+        self.assertEqual(kitten.y, expected_y)
         self.assertEqual(kitten.vx, 0.0)
         self.assertEqual(kitten.vy, 0.0)
         self.assertEqual(kitten.stamina, CONFIG.MAX_STAMINA)
@@ -208,11 +210,11 @@ class TestKitten(unittest.TestCase):
         kitten.width = 32.0
         kitten.height = 32.0
         
-        kitten.reset()
+        kitten.reset(window_width=800.0, window_height=600.0)
         
         self.assertEqual(kitten.stamina, CONFIG.MAX_STAMINA)
-        self.assertEqual(kitten.x, 0.0)
-        self.assertEqual(kitten.y, 0.0)
+        expected_x = 800.0 * CONFIG.KITTEN_START_X_RATIO
+        self.assertEqual(kitten.x, expected_x)
 
     def test_kitten_reset_multiple_times(self) -> None:
         """Test that kitten can be reset multiple times."""
@@ -223,15 +225,16 @@ class TestKitten(unittest.TestCase):
         # First state change and reset
         kitten.x = 100.0
         kitten.stamina = 50.0
-        kitten.reset()
-        self.assertEqual(kitten.x, 0.0)
+        kitten.reset(window_width=800.0, window_height=600.0)
+        expected_x = 800.0 * CONFIG.KITTEN_START_X_RATIO
+        self.assertEqual(kitten.x, expected_x)
         self.assertEqual(kitten.stamina, CONFIG.MAX_STAMINA)
         
         # Second state change and reset
         kitten.x = 200.0
         kitten.stamina = 25.0
-        kitten.reset()
-        self.assertEqual(kitten.x, 0.0)
+        kitten.reset(window_width=800.0, window_height=600.0)
+        self.assertEqual(kitten.x, expected_x)
         self.assertEqual(kitten.stamina, CONFIG.MAX_STAMINA)
 
 
