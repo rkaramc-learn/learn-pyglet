@@ -300,6 +300,10 @@ def restore_assets_cli() -> None:
 
     args = parser.parse_args()
 
+    if not args.command:
+        parser.print_help()
+        sys.exit(1)
+
     # Determine log level based on verbosity count
     if args.verbose == 0:
         log_level = logging.WARNING
@@ -311,10 +315,6 @@ def restore_assets_cli() -> None:
         log_level = TRACE_LEVEL
 
     init_logging(level=log_level, log_file=None)
-
-    if not args.command:
-        parser.print_help()
-        sys.exit(1)
 
     exit_code = args.func(args)
     sys.exit(exit_code)
