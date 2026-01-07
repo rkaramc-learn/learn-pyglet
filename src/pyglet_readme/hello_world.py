@@ -71,7 +71,7 @@ def run_hello_world():
     try:
         mouse_sheet = loader.load_image("assets/sprites/mouse_sheet.png")
         mouse_grid = pyglet.image.ImageGrid(mouse_sheet, 10, 10)
-        mouse_anim = pyglet.image.Animation.from_image_sequence(mouse_grid, 1 / 12.0)  # pyright: ignore[reportPrivateImportUsage]
+        mouse_anim: pyglet.image.Animation = pyglet.image.Animation.from_image_sequence(mouse_grid, 1 / 12.0)  # type: ignore[attr-defined]
         mouse_sprite = pyglet.sprite.Sprite(mouse_anim)
         logger.info("Mouse sprite loaded from sprite sheet")
     except FileNotFoundError:
@@ -263,7 +263,7 @@ def run_hello_world():
 
         # Check if kitten stopped moving
         if was_moving and not is_moving and meow_sound:
-            meow_sound.play()  # pyright: ignore[reportUnusedCallResult]
+            _ = meow_sound.play()  # Discard return value
 
         was_moving = is_moving
 
@@ -318,10 +318,10 @@ def run_hello_world():
         kitten_bar_fg.color = (0, 255, 0) if kitten_stamina > 30 else (255, 0, 0)
 
     logger.info("Game initialization complete, starting game loop")
-    pyglet.clock.schedule_interval(update, 1 / 60.0)  # pyright: ignore[reportUnknownMemberType]
+    pyglet.clock.schedule_interval(update, 1 / 60.0)  # type: ignore[attr-defined]
 
-    @window.event  # pyright: ignore[reportUnknownMemberType]
-    def on_draw():  # pyright: ignore[reportUnusedFunction]
+    @window.event  # type: ignore[attr-defined]
+    def on_draw() -> None:  # type: ignore[no-untyped-def]
         window.clear()
         label.draw()
         image.blit(int(image_x), int(image_y))
