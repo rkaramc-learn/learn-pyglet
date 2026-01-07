@@ -47,7 +47,7 @@ def regenerate_sprite_sheet(logger: logging.Logger, dry_run: bool = False) -> bo
     Returns:
         True if successful or dry_run, False otherwise
     """
-    from .sprite_generator import generate_sprite_sheet
+    from .sprite_generator import SpriteSheetGenerator
 
     mouse_video = get_asset_dir() / "source" / "mouse.mp4"
     mouse_sheet = get_asset_dir() / "sprites" / "mouse_sheet.png"
@@ -62,7 +62,8 @@ def regenerate_sprite_sheet(logger: logging.Logger, dry_run: bool = False) -> bo
 
     try:
         logger.info(f"Regenerating sprite sheet from {mouse_video}")
-        generate_sprite_sheet(str(mouse_video), str(mouse_sheet))
+        generator = SpriteSheetGenerator()
+        generator.generate(str(mouse_video), str(mouse_sheet))
         logger.info(f"Successfully regenerated: {mouse_sheet}")
         return True
     except Exception as e:
