@@ -65,16 +65,6 @@ class GameRunningScreen(Screen):
         # Asset loader
         self.loader = get_loader()
 
-        # Initialize sprite and UI elements
-        self.label = pyglet.text.Label(
-            "Hello, world!",
-            font_size=36,
-            x=window.width // 2,
-            y=window.height // 2,
-            anchor_x="center",
-            anchor_y="center",
-        )
-
         # Kitten Setup
         logger.debug("Loading kitten sprite")
         kitten_image = self.loader.load_image("assets/images/kitten.png")
@@ -241,7 +231,7 @@ class GameRunningScreen(Screen):
             self.mouse_health = MAX_HEALTH
             self.kitten_stamina = MAX_STAMINA
             self.game_over = False
-            self.label.text = "Hello, world!"
+
             self.was_moving = False
 
             # Reset game statistics
@@ -507,7 +497,6 @@ class GameRunningScreen(Screen):
 
     def draw(self) -> None:
         """Render game running screen content."""
-        self.label.draw()
         self.kitten_image.blit(int(self.image_x), int(self.image_y))
         self.mouse_sprite.draw()
 
