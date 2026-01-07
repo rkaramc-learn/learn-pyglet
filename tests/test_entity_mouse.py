@@ -181,6 +181,54 @@ class TestMouse(unittest.TestCase):
         self.assertEqual(mouse.x, 0.0)
         self.assertEqual(mouse.y, 0.0)
 
+    def test_mouse_reset(self) -> None:
+        """Test resetting mouse to initial state."""
+        mouse = Mouse(x=100.0, y=200.0, vx=50.0, vy=50.0, health=25.0)
+        mouse.width = 32.0
+        mouse.height = 32.0
+        mouse.state = EntityState.MOVING
+        
+        mouse.reset()
+        
+        self.assertEqual(mouse.x, 0.0)
+        self.assertEqual(mouse.y, 0.0)
+        self.assertEqual(mouse.vx, 0.0)
+        self.assertEqual(mouse.vy, 0.0)
+        self.assertEqual(mouse.health, CONFIG.MAX_HEALTH)
+        self.assertEqual(mouse.state, EntityState.IDLE)
+
+    def test_mouse_reset_damaged(self) -> None:
+        """Test that reset restores health even if severely damaged."""
+        mouse = Mouse(x=500.0, y=500.0, health=5.0)
+        mouse.width = 32.0
+        mouse.height = 32.0
+        
+        mouse.reset()
+        
+        self.assertEqual(mouse.health, CONFIG.MAX_HEALTH)
+        self.assertEqual(mouse.x, 0.0)
+        self.assertEqual(mouse.y, 0.0)
+
+    def test_mouse_reset_multiple_times(self) -> None:
+        """Test that mouse can be reset multiple times."""
+        mouse = Mouse()
+        mouse.width = 32.0
+        mouse.height = 32.0
+        
+        # First state change and reset
+        mouse.x = 100.0
+        mouse.health = 50.0
+        mouse.reset()
+        self.assertEqual(mouse.x, 0.0)
+        self.assertEqual(mouse.health, CONFIG.MAX_HEALTH)
+        
+        # Second state change and reset
+        mouse.x = 200.0
+        mouse.health = 25.0
+        mouse.reset()
+        self.assertEqual(mouse.x, 0.0)
+        self.assertEqual(mouse.health, CONFIG.MAX_HEALTH)
+
 
 if __name__ == "__main__":
     unittest.main()

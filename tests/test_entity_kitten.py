@@ -184,6 +184,56 @@ class TestKitten(unittest.TestCase):
         self.assertEqual(kitten.vx, 0.0)
         self.assertEqual(kitten.vy, 0.0)
 
+    def test_kitten_reset(self) -> None:
+        """Test resetting kitten to initial state."""
+        kitten = Kitten(x=100.0, y=200.0, vx=50.0, vy=50.0, stamina=25.0)
+        kitten.width = 32.0
+        kitten.height = 32.0
+        kitten.is_moving = True
+        kitten.state = EntityState.CHASING
+        
+        kitten.reset()
+        
+        self.assertEqual(kitten.x, 0.0)
+        self.assertEqual(kitten.y, 0.0)
+        self.assertEqual(kitten.vx, 0.0)
+        self.assertEqual(kitten.vy, 0.0)
+        self.assertEqual(kitten.stamina, CONFIG.MAX_STAMINA)
+        self.assertFalse(kitten.is_moving)
+        self.assertEqual(kitten.state, EntityState.IDLE)
+
+    def test_kitten_reset_exhausted(self) -> None:
+        """Test that reset restores stamina even if exhausted."""
+        kitten = Kitten(x=500.0, y=500.0, stamina=0.0)
+        kitten.width = 32.0
+        kitten.height = 32.0
+        
+        kitten.reset()
+        
+        self.assertEqual(kitten.stamina, CONFIG.MAX_STAMINA)
+        self.assertEqual(kitten.x, 0.0)
+        self.assertEqual(kitten.y, 0.0)
+
+    def test_kitten_reset_multiple_times(self) -> None:
+        """Test that kitten can be reset multiple times."""
+        kitten = Kitten()
+        kitten.width = 32.0
+        kitten.height = 32.0
+        
+        # First state change and reset
+        kitten.x = 100.0
+        kitten.stamina = 50.0
+        kitten.reset()
+        self.assertEqual(kitten.x, 0.0)
+        self.assertEqual(kitten.stamina, CONFIG.MAX_STAMINA)
+        
+        # Second state change and reset
+        kitten.x = 200.0
+        kitten.stamina = 25.0
+        kitten.reset()
+        self.assertEqual(kitten.x, 0.0)
+        self.assertEqual(kitten.stamina, CONFIG.MAX_STAMINA)
+
 
 if __name__ == "__main__":
     unittest.main()

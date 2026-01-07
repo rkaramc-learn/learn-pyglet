@@ -122,6 +122,19 @@ class Kitten(Entity):
         current_y = self.y + self.height / 2
         return distance(current_x, current_y, target_x, target_y)
 
+    def reset(self) -> None:
+        """Reset kitten to initial state.
+
+        Resets position to origin, stops movement, and restores stamina to maximum.
+        """
+        self.x = 0.0
+        self.y = 0.0
+        self.vx = 0.0
+        self.vy = 0.0
+        self.stamina = CONFIG.MAX_STAMINA
+        self.is_moving = False
+        self.state = EntityState.IDLE
+
     def _update_state(self) -> None:
         """Update entity state based on current velocity."""
         if self.vx == 0 and self.vy == 0:

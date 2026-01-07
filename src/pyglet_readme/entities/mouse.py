@@ -98,6 +98,18 @@ class Mouse(Entity):
         """
         return self.health > 0
 
+    def reset(self) -> None:
+        """Reset mouse to initial state.
+
+        Resets position to origin, stops movement, and restores health to maximum.
+        """
+        self.x = 0.0
+        self.y = 0.0
+        self.vx = 0.0
+        self.vy = 0.0
+        self.health = CONFIG.MAX_HEALTH
+        self.state = EntityState.IDLE
+
     def _update_state(self) -> None:
         """Update entity state based on current velocity."""
         if self.vx == 0 and self.vy == 0:
