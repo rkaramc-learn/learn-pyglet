@@ -112,14 +112,16 @@ class GameRunningScreen(Screen):
             self.mouse_sprite = pyglet.sprite.Sprite(fallback_image)
 
         # Set anchor point to center of image before scaling
-        # For animations, get dimensions from first frame; for images, use directly
+        # For animations, set anchor on all frames; for images, use directly
         image_to_anchor = self.mouse_sprite.image
         if hasattr(image_to_anchor, 'frames'):  # Animation
-            img = image_to_anchor.frames[0].image  # type: ignore[attr-defined]
-            img.anchor_x = img.width / 2  # type: ignore[attr-defined]
-            img.anchor_y = img.height / 2  # type: ignore[attr-defined]
+            # Set anchor on all animation frames
+            for frame in image_to_anchor.frames:  # type: ignore[attr-defined]
+                img = frame.image  # type: ignore[attr-defined]
+                img.anchor_x = img.width / 2  # type: ignore[attr-defined]
+                img.anchor_y = img.height / 2  # type: ignore[attr-defined]
             logger.debug(
-                f"Mouse anchor set to center (animation): ({img.anchor_x}, {img.anchor_y})"  # type: ignore[attr-defined]
+                f"Mouse anchor set to center (animation): all {len(image_to_anchor.frames)} frames"  # type: ignore[attr-defined]
             )
         else:  # Regular image
             image_to_anchor.anchor_x = image_to_anchor.width / 2  # type: ignore[attr-defined]
