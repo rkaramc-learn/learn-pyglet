@@ -11,6 +11,7 @@ dependencies = [
 
 [project.scripts]
 pyglet-readme = "pyglet_readme:main"
+restore-assets = "pyglet_readme.restore_assets:restore_assets_cli"
 
 [build-system]
 requires = ["uv_build>=0.9.10,<0.10.0"]
