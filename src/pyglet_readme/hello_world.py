@@ -221,16 +221,8 @@ def run_hello_world():
 
     window.push_handlers(on_key_press=on_key_press, on_mouse_press=on_mouse_press)
 
-    def update(dt: float):
-        nonlocal image_x, image_y, was_moving
-        nonlocal mouse_health, kitten_stamina, game_over
-        nonlocal mouse_vx, mouse_vy
-
-        if game_over:
-            return
-
-        # --- Mouse Movement ---
-        # Manual Velocity
+    def update_mouse_position(dt: float) -> None:
+        """Update mouse sprite position based on velocity."""
         mouse_sprite.x += mouse_vx * dt
         mouse_sprite.y += mouse_vy * dt
 
@@ -238,8 +230,13 @@ def run_hello_world():
         mouse_sprite.x = max(0, min(window.width - mouse_sprite.width, mouse_sprite.x))
         mouse_sprite.y = max(0, min(window.height - mouse_sprite.height, mouse_sprite.y))
 
-        # --- Kitten Movement (AI Only) ---
-        # Kitten always chases mouse now
+    def update_kitten_position(dt: float) -> float:
+        """Update kitten position chasing the mouse.
+
+        Returns:
+            Distance to mouse sprite for use in health calculations.
+        """
+        nonlocal image_x, image_y, was_moving
 
         # Target center of mouse sprite
         tx = mouse_sprite.x + (mouse_sprite.width / 2) - (image.width / 2)
@@ -266,8 +263,12 @@ def run_hello_world():
             _ = meow_sound.play()  # Discard return value
 
         was_moving = is_moving
+        return distance
 
-        # --- Health & Stamina Logic ---
+    def update_health_stamina(distance: float, dt: float) -> None:
+        """Update health and stamina based on proximity and time."""
+        nonlocal mouse_health, kitten_stamina
+
         # Drain/Regen if within range
         if distance < catch_range:
             proximity_factor = 1.0 - (distance / catch_range)
@@ -285,7 +286,10 @@ def run_hello_world():
         mouse_health = max(0.0, min(MAX_HEALTH, mouse_health))
         kitten_stamina = max(0.0, min(MAX_STAMINA, kitten_stamina))
 
-        # Win/Loss Conditions
+    def check_win_loss_conditions() -> None:
+        """Check and handle win/loss game conditions."""
+        nonlocal game_over, mouse_vx, mouse_vy
+
         if mouse_health <= 0:
             game_over = True
             label.text = "Caught! (Press R to Reset)"
@@ -300,7 +304,8 @@ def run_hello_world():
             mouse_vy = 0.0
             logger.info("Game Over: Kitten exhausted, player wins")
 
-        # --- UI Updates ---
+    def update_ui_bars() -> None:
+        """Update health and stamina bar positions and values."""
         # Mouse Bar
         mouse_bar_bg.x = mouse_sprite.x + (mouse_sprite.width / 2) - (bar_width / 2)
         mouse_bar_bg.y = mouse_sprite.y + mouse_sprite.height + bar_offset
@@ -316,6 +321,17 @@ def run_hello_world():
         kitten_bar_fg.y = kitten_bar_bg.y
         kitten_bar_fg.width = bar_width * (kitten_stamina / MAX_STAMINA)
         kitten_bar_fg.color = (0, 255, 0) if kitten_stamina > 30 else (255, 0, 0)
+
+    def update(dt: float) -> None:
+        """Main game update loop."""
+        if game_over:
+            return
+
+        update_mouse_position(dt)
+        distance = update_kitten_position(dt)
+        update_health_stamina(distance, dt)
+        check_win_loss_conditions()
+        update_ui_bars()
 
     logger.info("Game initialization complete, starting game loop")
     pyglet.clock.schedule_interval(update, 1 / 60.0)  # type: ignore[attr-defined]
