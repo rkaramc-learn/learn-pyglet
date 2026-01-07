@@ -396,17 +396,32 @@ class GameRunningScreen(Screen):
         """Check and handle win/loss game conditions."""
         if self.mouse_health <= 0:
             self.game_over = True
-            self.label.text = "Caught! (Press R to Reset)"
             self.mouse_vx = 0.0
             self.mouse_vy = 0.0
             logger.info("Game Over: Mouse caught by kitten")
+            self._transition_to_game_end(is_win=False)
 
         elif self.kitten_stamina <= 0:
             self.game_over = True
-            self.label.text = "You Win!! (Press R to Reset)"
             self.mouse_vx = 0.0
             self.mouse_vy = 0.0
             logger.info("Game Over: Kitten exhausted, player wins")
+            self._transition_to_game_end(is_win=True)
+
+    def _transition_to_game_end(self, is_win: bool) -> None:
+        """Transition to the game end screen.
+
+        Args:
+            is_win: True if player won, False if player lost.
+        """
+        from ..screen_manager import ScreenManager
+
+        manager = getattr(self.window, "_screen_manager", None)
+        if isinstance(manager, ScreenManager):
+            game_end_screen = manager.screens.get("game_end")
+            if game_end_screen:
+                game_end_screen.set_outcome(is_win)  # type: ignore[attr-defined]
+            manager.set_active_screen("game_end")
 
     def _update_ui_bars(self) -> None:
         """Update health and stamina bar positions and values."""

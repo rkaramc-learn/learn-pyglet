@@ -3,6 +3,7 @@ import logging
 import pyglet
 
 from .screen_manager import ScreenManager
+from .screens.game_end import GameEndScreen
 from .screens.game_start import GameStartScreen
 from .screens.game_running import GameRunningScreen
 from .screens.splash import SplashScreen
@@ -27,10 +28,12 @@ def run_hello_world() -> None:
     splash_screen = SplashScreen(window)
     game_start_screen = GameStartScreen(window)
     game_running_screen = GameRunningScreen(window)
+    game_end_screen = GameEndScreen(window)
 
     screen_manager.register_screen("splash", splash_screen)
     screen_manager.register_screen("game_start", game_start_screen)
     screen_manager.register_screen("game_running", game_running_screen)
+    screen_manager.register_screen("game_end", game_end_screen)
 
     # Start with splash screen
     screen_manager.set_active_screen("splash")
