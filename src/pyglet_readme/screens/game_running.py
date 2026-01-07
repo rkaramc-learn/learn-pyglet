@@ -174,12 +174,19 @@ class GameRunningScreen(Screen):
         # Key handler for continuous input
         self.keys = key.KeyStateHandler()
 
+        # Game statistics
+        self.elapsed_time = 0.0  # Time survived in seconds
+        self.total_distance = 0.0  # Total distance traveled by mouse
+
     def on_enter(self) -> None:
         """Called when game running screen becomes active."""
         logger.info("Game running screen started")
         self.window.push_handlers(self.keys)
         self.window.push_handlers(on_key_press=self._on_key_press, on_mouse_press=self._on_mouse_press)
         self.music_player.play()
+        # Reset game statistics
+        self.elapsed_time = 0.0
+        self.total_distance = 0.0
         # Schedule update
         pyglet.clock.schedule_interval(self.update, 1 / 60.0)  # type: ignore[attr-defined]
 
@@ -217,6 +224,10 @@ class GameRunningScreen(Screen):
             self.game_over = False
             self.label.text = "Hello, world!"
             self.was_moving = False
+
+            # Reset game statistics
+            self.elapsed_time = 0.0
+            self.total_distance = 0.0
             logger.debug("Game state reset complete")
 
         if self.game_over:
@@ -309,6 +320,10 @@ class GameRunningScreen(Screen):
         Args:
             dt: Time elapsed since last update in seconds.
         """
+        # Store previous position to calculate distance
+        prev_x = self.mouse_sprite.x
+        prev_y = self.mouse_sprite.y
+
         self.mouse_sprite.x += self.mouse_vx * dt
         self.mouse_sprite.y += self.mouse_vy * dt
 
@@ -319,6 +334,12 @@ class GameRunningScreen(Screen):
         self.mouse_sprite.y = max(
             0, min(self.window.height - self.mouse_sprite.height, self.mouse_sprite.y)
         )
+
+        # Update distance traveled (only if actually moved)
+        dx = self.mouse_sprite.x - prev_x
+        dy = self.mouse_sprite.y - prev_y
+        distance_moved = math.sqrt(dx * dx + dy * dy)
+        self.total_distance += distance_moved
 
     def _update_kitten_position(self, dt: float) -> float:
         """Update kitten position chasing the mouse.
@@ -420,7 +441,9 @@ class GameRunningScreen(Screen):
         if isinstance(manager, ScreenManager):
             game_end_screen = manager.screens.get("game_end")
             if game_end_screen:
-                game_end_screen.set_outcome(is_win)  # type: ignore[attr-defined]
+                game_end_screen.set_outcome(  # type: ignore[attr-defined]
+                    is_win, self.elapsed_time, self.total_distance
+                )
             manager.set_active_screen("game_end")
 
     def _update_ui_bars(self) -> None:
@@ -453,6 +476,9 @@ class GameRunningScreen(Screen):
         """
         if self.game_over:
             return
+
+        # Track elapsed time
+        self.elapsed_time += dt
 
         self._update_mouse_position(dt)
         distance = self._update_kitten_position(dt)
