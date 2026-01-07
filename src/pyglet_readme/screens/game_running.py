@@ -72,12 +72,12 @@ class GameRunningScreen(Screen):
         kitten_image.width = int(kitten_image.width * KITTEN_SCALE)
         kitten_image.height = int(kitten_image.height * KITTEN_SCALE)
         self.kitten_image = kitten_image
-        # Start kitten at configured position (2/3 width, 1/2 height)
-        self.image_x = window.width * CONFIG.KITTEN_START_X_RATIO
-        self.image_y = window.height * CONFIG.KITTEN_START_Y_RATIO
+        # Store kitten center position (we'll adjust for rendering)
+        self.kitten_center_x = window.width * CONFIG.KITTEN_START_X_RATIO
+        self.kitten_center_y = window.height * CONFIG.KITTEN_START_Y_RATIO
         logger.debug(
             f"Kitten sprite loaded: {kitten_image.width}x{kitten_image.height}, "
-            f"position: ({self.image_x}, {self.image_y})"
+            f"center position: ({self.kitten_center_x}, {self.kitten_center_y})"
         )
 
         # Speed is relative to window size (cross window width in WINDOW_TRAVERSAL_TIME)
@@ -112,6 +112,9 @@ class GameRunningScreen(Screen):
             self.mouse_sprite = pyglet.sprite.Sprite(fallback_image)
 
         self.mouse_sprite.scale = MOUSE_SCALE
+        # Set anchor point to center of image for proper positioning and rotation
+        self.mouse_sprite.image_anchor_x = self.mouse_sprite.width // 2  # type: ignore[attr-defined]
+        self.mouse_sprite.image_anchor_y = self.mouse_sprite.height // 2  # type: ignore[attr-defined]
         # Start mouse at configured position (1/3 width, 1/2 height)
         self.mouse_sprite.x = window.width * CONFIG.MOUSE_START_X_RATIO
         self.mouse_sprite.y = window.height * CONFIG.MOUSE_START_Y_RATIO
@@ -179,8 +182,8 @@ class GameRunningScreen(Screen):
 
         # Reset entity positions and state
         self.mouse_speed = self.base_speed
-        self.image_x = self.window.width * CONFIG.KITTEN_START_X_RATIO
-        self.image_y = self.window.height * CONFIG.KITTEN_START_Y_RATIO
+        self.kitten_center_x = self.window.width * CONFIG.KITTEN_START_X_RATIO
+        self.kitten_center_y = self.window.height * CONFIG.KITTEN_START_Y_RATIO
         self.mouse_sprite.x = self.window.width * CONFIG.MOUSE_START_X_RATIO
         self.mouse_sprite.y = self.window.height * CONFIG.MOUSE_START_Y_RATIO
 
@@ -221,8 +224,8 @@ class GameRunningScreen(Screen):
            # Reset Game State
            logger.info("Resetting game")
            self.mouse_speed = self.base_speed
-           self.image_x = self.window.width * CONFIG.KITTEN_START_X_RATIO
-           self.image_y = self.window.height * CONFIG.KITTEN_START_Y_RATIO
+           self.kitten_center_x = self.window.width * CONFIG.KITTEN_START_X_RATIO
+           self.kitten_center_y = self.window.height * CONFIG.KITTEN_START_Y_RATIO
 
            self.mouse_sprite.x = self.window.width * CONFIG.MOUSE_START_X_RATIO
            self.mouse_sprite.y = self.window.height * CONFIG.MOUSE_START_Y_RATIO
@@ -338,12 +341,14 @@ class GameRunningScreen(Screen):
         self.mouse_sprite.x += self.mouse_vx * dt
         self.mouse_sprite.y += self.mouse_vy * dt
 
-        # Clamp mouse to window bounds
+        # Clamp mouse to window bounds (center-based positioning)
+        half_width = self.mouse_sprite.width / 2
+        half_height = self.mouse_sprite.height / 2
         self.mouse_sprite.x = max(
-            0, min(self.window.width - self.mouse_sprite.width, self.mouse_sprite.x)
+            half_width, min(self.window.width - half_width, self.mouse_sprite.x)
         )
         self.mouse_sprite.y = max(
-            0, min(self.window.height - self.mouse_sprite.height, self.mouse_sprite.y)
+            half_height, min(self.window.height - half_height, self.mouse_sprite.y)
         )
 
         # Update distance traveled (only if actually moved)
@@ -353,52 +358,46 @@ class GameRunningScreen(Screen):
         self.total_distance += distance_moved
 
     def _update_kitten_position(self, dt: float) -> float:
-        """Update kitten position chasing the mouse.
+       """Update kitten position chasing the mouse.
 
-        Args:
-            dt: Time elapsed since last update in seconds.
+       Args:
+           dt: Time elapsed since last update in seconds.
 
-        Returns:
-            Distance to mouse sprite for use in health calculations.
-        """
-        # Target center of mouse sprite
-        tx = (
-            self.mouse_sprite.x
-            + (self.mouse_sprite.width / 2)
-            - (self.kitten_image.width / 2)
-        )
-        ty = (
-            self.mouse_sprite.y
-            + (self.mouse_sprite.height / 2)
-            - (self.kitten_image.height / 2)
-        )
+       Returns:
+           Distance to mouse sprite for use in health calculations.
+       """
+       # Target center of mouse sprite
+       tx = self.mouse_sprite.x
+       ty = self.mouse_sprite.y
 
-        dx = tx - self.image_x
-        dy = ty - self.image_y
-        distance = math.sqrt(dx * dx + dy * dy)
+       dx = tx - self.kitten_center_x
+       dy = ty - self.kitten_center_y
+       distance = math.sqrt(dx * dx + dy * dy)
 
-        is_moving = False
-        if distance > MOVEMENT_DISTANCE_THRESHOLD:
-            travel = min(distance, self.kitten_speed * dt)
+       is_moving = False
+       if distance > MOVEMENT_DISTANCE_THRESHOLD:
+           travel = min(distance, self.kitten_speed * dt)
 
-            self.image_x += (dx / distance) * travel
-            self.image_y += (dy / distance) * travel
-            is_moving = True
+           self.kitten_center_x += (dx / distance) * travel
+           self.kitten_center_y += (dy / distance) * travel
+           is_moving = True
 
-        # Clamp kitten to window bounds
-        self.image_x = max(
-            0, min(self.window.width - self.kitten_image.width, self.image_x)
-        )
-        self.image_y = max(
-            0, min(self.window.height - self.kitten_image.height, self.image_y)
-        )
+       # Clamp kitten to window bounds (center-based positioning)
+       half_width = self.kitten_image.width / 2
+       half_height = self.kitten_image.height / 2
+       self.kitten_center_x = max(
+           half_width, min(self.window.width - half_width, self.kitten_center_x)
+       )
+       self.kitten_center_y = max(
+           half_height, min(self.window.height - half_height, self.kitten_center_y)
+       )
 
-        # Check if kitten stopped moving
-        if self.was_moving and not is_moving and self.meow_sound:
-            _ = self.meow_sound.play()  # Discard return value
+       # Check if kitten stopped moving
+       if self.was_moving and not is_moving and self.meow_sound:
+           _ = self.meow_sound.play()  # Discard return value
 
-        self.was_moving = is_moving
-        return distance
+       self.was_moving = is_moving
+       return distance
 
     def _update_health_stamina(self, distance: float, dt: float) -> None:
         """Update health and stamina based on proximity and time.
@@ -459,21 +458,17 @@ class GameRunningScreen(Screen):
 
     def _update_ui_bars(self) -> None:
         """Update health and stamina bar positions and values."""
-        # Mouse Bar
-        self.mouse_bar_bg.x = (
-            self.mouse_sprite.x + (self.mouse_sprite.width / 2) - (BAR_WIDTH / 2)
-        )
-        self.mouse_bar_bg.y = self.mouse_sprite.y + self.mouse_sprite.height + BAR_OFFSET
+        # Mouse Bar (centered above sprite)
+        self.mouse_bar_bg.x = self.mouse_sprite.x - (BAR_WIDTH / 2)
+        self.mouse_bar_bg.y = self.mouse_sprite.y + (self.mouse_sprite.height / 2) + BAR_OFFSET
         self.mouse_bar_fg.x = self.mouse_bar_bg.x
         self.mouse_bar_fg.y = self.mouse_bar_bg.y
         self.mouse_bar_fg.width = BAR_WIDTH * (self.mouse_health / MAX_HEALTH)
         self.mouse_bar_fg.color = COLOR_GREEN if self.mouse_health > 30 else COLOR_RED
 
-        # Kitten Bar
-        self.kitten_bar_bg.x = (
-            self.image_x + (self.kitten_image.width / 2) - (BAR_WIDTH / 2)
-        )
-        self.kitten_bar_bg.y = self.image_y + self.kitten_image.height + BAR_OFFSET
+        # Kitten Bar (centered above sprite)
+        self.kitten_bar_bg.x = self.kitten_center_x - (BAR_WIDTH / 2)
+        self.kitten_bar_bg.y = self.kitten_center_y + (self.kitten_image.height / 2) + BAR_OFFSET
         self.kitten_bar_fg.x = self.kitten_bar_bg.x
         self.kitten_bar_fg.y = self.kitten_bar_bg.y
         self.kitten_bar_fg.width = BAR_WIDTH * (self.kitten_stamina / MAX_STAMINA)
@@ -499,7 +494,10 @@ class GameRunningScreen(Screen):
 
     def draw(self) -> None:
         """Render game running screen content."""
-        self.kitten_image.blit(int(self.image_x), int(self.image_y))
+        # Blit kitten from center position (adjust for bottom-left blit origin)
+        blit_x = int(self.kitten_center_x - self.kitten_image.width / 2)
+        blit_y = int(self.kitten_center_y - self.kitten_image.height / 2)
+        self.kitten_image.blit(blit_x, blit_y)
         self.mouse_sprite.draw()
 
         # Draw UI
