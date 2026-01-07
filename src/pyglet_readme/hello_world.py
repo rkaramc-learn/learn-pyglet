@@ -2,6 +2,7 @@ import logging
 import math
 
 import pyglet
+from pyglet.window import key, mouse
 
 from .assets import get_loader
 
@@ -9,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 def run_hello_world():
-    from pyglet.window import key, mouse
 
     logger.info("Starting game initialization")
 
