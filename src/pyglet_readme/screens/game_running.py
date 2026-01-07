@@ -111,26 +111,10 @@ class GameRunningScreen(Screen):
             ).create_image(FALLBACK_SPRITE_SIZE, FALLBACK_SPRITE_SIZE)
             self.mouse_sprite = pyglet.sprite.Sprite(fallback_image)
 
-        # Set anchor point to center of image before scaling
-        # For animations, set anchor on all frames; for images, use directly
-        image_to_anchor = self.mouse_sprite.image
-        if hasattr(image_to_anchor, 'frames'):  # Animation
-            # Set anchor on all animation frames
-            for frame in image_to_anchor.frames:  # type: ignore[attr-defined]
-                img = frame.image  # type: ignore[attr-defined]
-                img.anchor_x = img.width / 2  # type: ignore[attr-defined]
-                img.anchor_y = img.height / 2  # type: ignore[attr-defined]
-            logger.debug(
-                f"Mouse anchor set to center (animation): all {len(image_to_anchor.frames)} frames"  # type: ignore[attr-defined]
-            )
-        else:  # Regular image
-            image_to_anchor.anchor_x = image_to_anchor.width / 2  # type: ignore[attr-defined]
-            image_to_anchor.anchor_y = image_to_anchor.height / 2  # type: ignore[attr-defined]
-            logger.debug(
-                f"Mouse anchor set to center: ({image_to_anchor.anchor_x}, {image_to_anchor.anchor_y})"  # type: ignore[attr-defined]
-            )
-
         self.mouse_sprite.scale = MOUSE_SCALE
+        logger.debug(
+            f"Mouse sprite loaded and scaled: {self.mouse_sprite.width}x{self.mouse_sprite.height}"
+        )
         # Start mouse at configured position (1/3 width, 1/2 height)
         self.mouse_sprite.x = window.width * CONFIG.MOUSE_START_X_RATIO
         self.mouse_sprite.y = window.height * CONFIG.MOUSE_START_Y_RATIO
@@ -510,11 +494,23 @@ class GameRunningScreen(Screen):
 
     def draw(self) -> None:
         """Render game running screen content."""
-        # Blit kitten from center position (adjust for bottom-left blit origin)
-        blit_x = int(self.kitten_center_x - self.kitten_image.width / 2)
-        blit_y = int(self.kitten_center_y - self.kitten_image.height / 2)
-        self.kitten_image.blit(blit_x, blit_y)
+        # Draw both characters centered at their positions
+        # Blit coordinates place image at bottom-left, so offset by -width/2, -height/2 to center
+        
+        # Draw kitten centered at kitten_center_x, kitten_center_y
+        kitten_blit_x = int(self.kitten_center_x - self.kitten_image.width / 2)
+        kitten_blit_y = int(self.kitten_center_y - self.kitten_image.height / 2)
+        self.kitten_image.blit(kitten_blit_x, kitten_blit_y)
+        
+        # Draw mouse sprite centered at mouse_sprite.x, mouse_sprite.y
+        # Save original position, offset for center drawing, restore after
+        orig_x = self.mouse_sprite.x
+        orig_y = self.mouse_sprite.y
+        self.mouse_sprite.x = orig_x - self.mouse_sprite.width / 2
+        self.mouse_sprite.y = orig_y - self.mouse_sprite.height / 2
         self.mouse_sprite.draw()
+        self.mouse_sprite.x = orig_x
+        self.mouse_sprite.y = orig_y
 
         # Draw UI
         self.mouse_bar_bg.draw()
