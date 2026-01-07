@@ -3,9 +3,12 @@
 Generates sprite sheets from video sources using ffmpeg.
 """
 
+import logging
 import shutil
 import subprocess
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 class SpriteSheetGenerator:
@@ -72,7 +75,7 @@ class SpriteSheetGenerator:
             result = subprocess.run(cmd, capture_output=True, text=True, check=False)
             return result.returncode == 0
         except Exception as e:
-            print(f"Error running ffmpeg: {e}")
+            logger.error(f"Error running ffmpeg: {e}")
             return False
 
     @staticmethod
