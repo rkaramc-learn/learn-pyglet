@@ -184,9 +184,28 @@ class GameRunningScreen(Screen):
         self.window.push_handlers(self.keys)
         self.window.push_handlers(on_key_press=self._on_key_press, on_mouse_press=self._on_mouse_press)
         self.music_player.play()
+
+        # Reset entity positions and state
+        self.mouse_speed = self.base_speed
+        self.image_x = self.window.width // 2
+        self.image_y = self.window.height // 2
+        self.mouse_sprite.x = 0
+        self.mouse_sprite.y = self.window.height - self.mouse_sprite.height
+
+        # Reset physics and health
+        self.mouse_vx = 0.0
+        self.mouse_vy = 0.0
+        self.mouse_health = MAX_HEALTH
+        self.kitten_stamina = MAX_STAMINA
+        self.game_over = False
+        self.was_moving = False
+
         # Reset game statistics
         self.elapsed_time = 0.0
         self.total_distance = 0.0
+
+        logger.debug("Game state reset on screen entry")
+
         # Schedule update
         pyglet.clock.schedule_interval(self.update, 1 / 60.0)  # type: ignore[attr-defined]
 
