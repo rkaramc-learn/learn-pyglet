@@ -2,9 +2,9 @@
 
 import unittest
 
-from pyglet_readme.entities.kitten import Kitten
-from pyglet_readme.entities.mouse import Mouse
-from pyglet_readme.systems.collision import (
+from chaser_game.entities.kitten import Kitten
+from chaser_game.entities.mouse import Mouse
+from chaser_game.systems.collision import (
     check_catch_condition,
     clamp_entities_to_bounds,
 )

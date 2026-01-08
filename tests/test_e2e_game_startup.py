@@ -5,8 +5,8 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import pyglet
-from pyglet_readme.asset_manifest import AssetManifest
-from pyglet_readme.assets import get_loader
+from chaser_game.asset_manifest import AssetManifest
+from chaser_game.assets import get_loader
 
 
 class TestGameStartup(unittest.TestCase):
@@ -260,7 +260,7 @@ class TestGameStartup(unittest.TestCase):
     def test_no_import_errors_in_game_module(self) -> None:
         """Test that game module can be imported without errors."""
         try:
-            from pyglet_readme import hello_world
+            from chaser_game import hello_world
 
             self.assertIsNotNone(hello_world)
             self.assertTrue(hasattr(hello_world, "run_hello_world"))

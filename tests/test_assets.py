@@ -5,7 +5,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import pyglet
-from pyglet_readme.assets import AssetLoader
+from chaser_game.assets import AssetLoader
 
 
 class TestAssetLoader(unittest.TestCase):
@@ -119,7 +119,7 @@ class TestAssetLoader(unittest.TestCase):
 
     def test_get_loader_singleton(self) -> None:
         """Test that get_loader returns a singleton instance."""
-        from pyglet_readme.assets import get_loader
+        from chaser_game.assets import get_loader
 
         loader1 = get_loader()
         loader2 = get_loader()

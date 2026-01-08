@@ -2,10 +2,10 @@
 
 import unittest
 
-from pyglet_readme.config import CONFIG
-from pyglet_readme.entities.kitten import Kitten
-from pyglet_readme.entities.mouse import Mouse
-from pyglet_readme.systems.health import update_health_stamina
+from chaser_game.config import CONFIG
+from chaser_game.entities.kitten import Kitten
+from chaser_game.entities.mouse import Mouse
+from chaser_game.systems.health import update_health_stamina
 
 
 class TestHealthSystem(unittest.TestCase):

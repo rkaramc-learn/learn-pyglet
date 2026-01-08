@@ -2,7 +2,7 @@
 
 import unittest
 
-from pyglet_readme.game_state import GameState, GameStateManager
+from chaser_game.game_state import GameState, GameStateManager
 
 
 class TestGameState(unittest.TestCase):

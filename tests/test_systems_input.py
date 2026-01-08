@@ -5,9 +5,9 @@ from unittest.mock import MagicMock
 
 from pyglet.window import key, mouse
 
-from pyglet_readme.entities.base import EntityState
-from pyglet_readme.entities.mouse import Mouse
-from pyglet_readme.systems.input import (
+from chaser_game.entities.base import EntityState
+from chaser_game.entities.mouse import Mouse
+from chaser_game.systems.input import (
     handle_key_press,
     handle_keyboard_input,
     handle_mouse_press,

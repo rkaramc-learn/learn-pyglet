@@ -2,8 +2,8 @@
 
 import unittest
 
-from pyglet_readme.config import CONFIG
-from pyglet_readme.entities.base import Entity, EntityState
+from chaser_game.config import CONFIG
+from chaser_game.entities.base import Entity, EntityState
 
 
 class TestEntityState(unittest.TestCase):

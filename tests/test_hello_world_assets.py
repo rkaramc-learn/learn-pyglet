@@ -5,8 +5,8 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import pyglet
-from pyglet_readme.asset_manifest import AssetManifest
-from pyglet_readme.assets import get_loader
+from chaser_game.asset_manifest import AssetManifest
+from chaser_game.assets import get_loader
 
 
 class TestHelloWorldAssetLoading(unittest.TestCase):

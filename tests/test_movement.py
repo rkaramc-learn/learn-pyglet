@@ -7,7 +7,7 @@ and chase AI behavior.
 import math
 import unittest
 
-from pyglet_readme.movement import (
+from chaser_game.movement import (
     Vector2,
     apply_speed_to_direction,
     apply_travel_distance,

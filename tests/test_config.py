@@ -2,7 +2,7 @@
 
 import unittest
 
-from pyglet_readme.config import CONFIG, GameConfig
+from chaser_game.config import CONFIG, GameConfig
 
 
 class TestGameConfig(unittest.TestCase):

@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 import yaml
-from pyglet_readme.asset_manifest import AssetManifest
+from chaser_game.asset_manifest import AssetManifest
 
 
 class TestAssetManifest(unittest.TestCase):

@@ -16,7 +16,7 @@ from tempfile import TemporaryDirectory
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pyglet_readme.logging_config import LogConfig, close_logging, get_logger, init_logging
+from chaser_game.logging_config import LogConfig, close_logging, get_logger, init_logging
 
 
 class TestLogConfig:
@@ -186,7 +186,7 @@ class TestLoggingIntegration:
         """Test that assets module uses logging correctly."""
         init_logging(level=logging.DEBUG)
 
-        from pyglet_readme.assets import get_loader
+        from chaser_game.assets import get_loader
 
         loader = get_loader()
         assert loader is not None

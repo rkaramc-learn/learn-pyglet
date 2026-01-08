@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from pyglet_readme.sprite_generator import SpriteSheetGenerator
+from chaser_game.sprite_generator import SpriteSheetGenerator
 
 
 class TestSpriteSheetGeneratorInit(unittest.TestCase):

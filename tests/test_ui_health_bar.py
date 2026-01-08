@@ -3,8 +3,8 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from pyglet_readme.config import CONFIG
-from pyglet_readme.ui.health_bar import HealthBar
+from chaser_game.config import CONFIG
+from chaser_game.ui.health_bar import HealthBar
 
 
 class TestHealthBar(unittest.TestCase):

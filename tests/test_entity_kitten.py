@@ -2,9 +2,9 @@
 
 import unittest
 
-from pyglet_readme.config import CONFIG
-from pyglet_readme.entities.base import EntityState
-from pyglet_readme.entities.kitten import Kitten
+from chaser_game.config import CONFIG
+from chaser_game.entities.base import EntityState
+from chaser_game.entities.kitten import Kitten
 
 
 class TestKitten(unittest.TestCase):

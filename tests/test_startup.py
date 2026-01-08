@@ -17,8 +17,8 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pyglet_readme.assets import get_loader
-from pyglet_readme.logging_config import get_logger, init_logging
+from chaser_game.assets import get_loader
+from chaser_game.logging_config import get_logger, init_logging
 
 logger = get_logger(__name__)
 
@@ -54,7 +54,7 @@ def test_game_startup() -> None:
     logger.info("Testing game startup...")
 
     import pyglet
-    from pyglet_readme.hello_world import run_hello_world
+    from chaser_game.hello_world import run_hello_world
 
     # Mock the run to prevent actual window creation
     original_run = pyglet.app.run
@@ -85,7 +85,7 @@ def main(verbosity: int = 0) -> int:
     Returns:
         Exit code (0 for success, 1 for failure).
     """
-    from pyglet_readme.logging_config import TRACE_LEVEL
+    from chaser_game.logging_config import TRACE_LEVEL
 
     # Determine log level based on verbosity
     if verbosity == 0:
