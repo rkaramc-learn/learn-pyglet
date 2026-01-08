@@ -4,15 +4,12 @@ Shows how to play and provides a button or key press to start the game.
 """
 
 import logging
-from typing import TYPE_CHECKING
 
 import pyglet
 from pyglet.window import key
 
+from ..types import WindowProtocol
 from .base import Screen
-
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +20,7 @@ class GameStartScreen(Screen):
     Displays game title, controls, and waits for player to press SPACE or ENTER to begin.
     """
 
-    def __init__(self, window: "pyglet.window.Window") -> None:  # type: ignore[name-defined]
+    def __init__(self, window: WindowProtocol) -> None:
         """Initialize game start screen.
 
         Args:

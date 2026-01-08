@@ -4,14 +4,11 @@ Displays title/logo for a short duration then transitions to GameStart screen.
 """
 
 import logging
-from typing import TYPE_CHECKING
 
 import pyglet
 
+from ..types import WindowProtocol
 from .base import Screen
-
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +22,7 @@ class SplashScreen(Screen):
 
     DISPLAY_DURATION = 2.0  # Seconds to show splash screen
 
-    def __init__(self, window: "pyglet.window.Window") -> None:  # type: ignore[name-defined]
+    def __init__(self, window: WindowProtocol) -> None:
         """Initialize splash screen.
 
         Args:

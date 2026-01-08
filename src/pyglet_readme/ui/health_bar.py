@@ -1,13 +1,8 @@
 """Health bar UI component for entity health/stamina visualization."""
 
-from typing import TYPE_CHECKING
-
 import pyglet
 
 from ..config import CONFIG
-
-if TYPE_CHECKING:
-    pass
 
 
 class HealthBar:

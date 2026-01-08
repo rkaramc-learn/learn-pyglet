@@ -4,15 +4,12 @@ Displays final outcome, game statistics, and provides options to replay or quit 
 """
 
 import logging
-from typing import TYPE_CHECKING
 
 import pyglet
 from pyglet.window import key
 
+from ..types import WindowProtocol
 from .base import Screen
-
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +24,7 @@ class GameEndScreen(Screen):
     Shows the outcome message, game statistics, and provides options to replay or quit.
     """
 
-    def __init__(self, window: "pyglet.window.Window") -> None:  # type: ignore[name-defined]
+    def __init__(self, window: WindowProtocol) -> None:
         """Initialize game end screen.
 
         Args:

@@ -5,7 +5,7 @@ Handles sprite rendering, input, movement, health/stamina mechanics, and win/los
 
 import logging
 import math
-from typing import TYPE_CHECKING
+from typing import Any
 
 import pyglet
 from pyglet.window import key, mouse
@@ -13,10 +13,8 @@ from pyglet.window import key, mouse
 from ..assets import get_loader
 from ..config import CONFIG
 from ..entities import Kitten, Mouse
+from ..types import AudioProtocol, WindowProtocol
 from .base import Screen
-
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +26,7 @@ class GameRunningScreen(Screen):
     movement logic, and win/loss conditions.
     """
 
-    def __init__(self, window: "pyglet.window.Window") -> None:  # type: ignore[name-defined]
+    def __init__(self, window: WindowProtocol) -> None:
         """Initialize game running screen.
 
         Args:
@@ -65,7 +63,9 @@ class GameRunningScreen(Screen):
         try:
             mouse_sheet = self.loader.load_image(CONFIG.ASSET_MOUSE_SHEET)
             mouse_grid = pyglet.image.ImageGrid(mouse_sheet, 10, 10)
-            mouse_anim = pyglet.image.Animation.from_image_sequence(  # type: ignore[attr-defined]
+            # Create animation from image grid using the internal Animation API
+            # Animation.from_image_sequence creates an animation from grid images
+            mouse_anim: Any = pyglet.image.Animation.from_image_sequence(  # type: ignore[attr-defined]
                 mouse_grid, CONFIG.MOUSE_ANIMATION_FRAME_RATE
             )
             mouse_sprite = pyglet.sprite.Sprite(mouse_anim)
@@ -120,7 +120,7 @@ class GameRunningScreen(Screen):
 
         # Load and play background music - with fallback
         logger.debug("Loading background music")
-        self.music_player = pyglet.media.Player()
+        self.music_player = pyglet.media.Player()  # type: AudioProtocol
         try:
             ambience_sound = self.loader.load_sound(CONFIG.ASSET_AMBIENCE_MUSIC)
             self.music_player.queue(ambience_sound)
@@ -162,13 +162,15 @@ class GameRunningScreen(Screen):
         logger.debug("Game state reset on screen entry")
 
         # Schedule update
-        pyglet.clock.schedule_interval(self.update, 1 / CONFIG.TARGET_FPS)  # type: ignore[attr-defined]
+        # schedule_interval is available on pyglet.clock module
+        pyglet.clock.schedule_interval(self.update, 1 / CONFIG.TARGET_FPS)
 
     def on_exit(self) -> None:
         """Called when game running screen is left."""
         logger.debug("Game running screen exited")
         self.music_player.pause()
-        pyglet.clock.unschedule(self.update)  # type: ignore[attr-defined]
+        # unschedule is available on pyglet.clock module
+        pyglet.clock.unschedule(self.update)
 
     def _on_key_press(self, symbol: int, _modifiers: int) -> None:
         """Handle key press events.
@@ -335,12 +337,14 @@ class GameRunningScreen(Screen):
             is_win: True if player won, False if player lost.
         """
         from ..screen_manager import ScreenManager
+        from .game_end import GameEndScreen
 
         manager = getattr(self.window, "_screen_manager", None)
         if isinstance(manager, ScreenManager):
             game_end_screen = manager.screens.get("game_end")
-            if game_end_screen:
-                game_end_screen.set_outcome(  # type: ignore[attr-defined]
+            if isinstance(game_end_screen, GameEndScreen):
+                # Set outcome on the game end screen
+                game_end_screen.set_outcome(
                     is_win, self.elapsed_time, self.mouse.total_distance
                 )
             manager.set_active_screen("game_end")

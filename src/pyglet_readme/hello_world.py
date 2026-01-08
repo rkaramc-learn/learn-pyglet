@@ -7,6 +7,7 @@ from .screens.game_end import GameEndScreen
 from .screens.game_start import GameStartScreen
 from .screens.game_running import GameRunningScreen
 from .screens.splash import SplashScreen
+from .types import WindowProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +23,9 @@ def run_hello_world() -> None:
 
     # Initialize screen manager
     screen_manager = ScreenManager(window)
-    window._screen_manager = screen_manager  # type: ignore[attr-defined]
+    # Store screen manager on window for access from screens
+    # Use setattr to avoid type checker issues with dynamic attributes
+    setattr(window, "_screen_manager", screen_manager)
 
     # Create and register all screens
     splash_screen = SplashScreen(window)
@@ -39,24 +42,24 @@ def run_hello_world() -> None:
     screen_manager.set_active_screen("splash")
 
     # Set up event handlers to route to screen manager
-    @window.event  # type: ignore[attr-defined]
-    def on_draw() -> None:  # type: ignore[no-untyped-def]
+    @window.event
+    def on_draw() -> None:
         window.clear()
         screen_manager.draw()
 
-    @window.event  # type: ignore[attr-defined]
-    def on_key_press(symbol: int, modifiers: int) -> None:  # type: ignore[no-untyped-def]
+    @window.event
+    def on_key_press(symbol: int, modifiers: int) -> None:
         screen_manager.on_key_press(symbol, modifiers)
 
-    @window.event  # type: ignore[attr-defined]
-    def on_mouse_press(x: int, y: int, button: int, modifiers: int) -> None:  # type: ignore[no-untyped-def]
+    @window.event
+    def on_mouse_press(x: int, y: int, button: int, modifiers: int) -> None:
         screen_manager.on_mouse_press(x, y, button, modifiers)
 
     def update(dt: float) -> None:
         screen_manager.update(dt)
 
     logger.info("Game initialization complete, starting game loop")
-    pyglet.clock.schedule_interval(update, 1 / 60.0)  # type: ignore[attr-defined]
+    pyglet.clock.schedule_interval(update, 1 / 60.0)
 
     logger.info("Starting game application")
     pyglet.app.run()

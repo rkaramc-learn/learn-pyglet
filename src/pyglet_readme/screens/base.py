@@ -4,10 +4,8 @@ Each screen manages its own rendering, input handling, and state lifecycle.
 """
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    import pyglet
+from ..types import WindowProtocol
 
 
 class Screen(ABC):
@@ -17,7 +15,7 @@ class Screen(ABC):
     The screen manager calls these methods to orchestrate transitions and gameplay.
     """
 
-    def __init__(self, window: "pyglet.window.Window") -> None:  # type: ignore[name-defined]
+    def __init__(self, window: WindowProtocol) -> None:
         """Initialize screen with reference to game window.
 
         Args:
