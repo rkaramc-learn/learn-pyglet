@@ -8,12 +8,12 @@ import logging
 import pyglet
 
 from ..types import WindowProtocol
-from .base import Screen
+from .base import ScreenProtocol
 
 logger = logging.getLogger(__name__)
 
 
-class SplashScreen(Screen):
+class SplashScreen(ScreenProtocol):
     """Splash screen shown at game startup.
 
     Displays title text for a configurable duration, then automatically
@@ -62,6 +62,7 @@ class SplashScreen(Screen):
             logger.info("Splash screen duration expired, transitioning to game_start")
             # Import here to avoid circular imports
             from ..screen_manager import ScreenManager
+
             manager = getattr(self.window, "_screen_manager", None)
             if isinstance(manager, ScreenManager):
                 manager.set_active_screen("game_start")

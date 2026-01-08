@@ -9,12 +9,12 @@ import pyglet
 from pyglet.window import key
 
 from ..types import WindowProtocol
-from .base import Screen
+from .base import ScreenProtocol
 
 logger = logging.getLogger(__name__)
 
 
-class GameStartScreen(Screen):
+class GameStartScreen(ScreenProtocol):
     """Game start screen showing instructions and start prompt.
 
     Displays game title, controls, and waits for player to press SPACE or ENTER to begin.
@@ -112,6 +112,7 @@ class GameStartScreen(Screen):
             logger.info("Start game requested")
             # Import here to avoid circular imports
             from ..screen_manager import ScreenManager
+
             manager = getattr(self.window, "_screen_manager", None)
             if isinstance(manager, ScreenManager):
                 manager.set_active_screen("game_running")

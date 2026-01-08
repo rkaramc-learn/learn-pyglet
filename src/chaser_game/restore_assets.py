@@ -6,7 +6,6 @@ from remote locations. Uses asset manifest for metadata and restoration strategy
 
 import argparse
 import logging
-import subprocess
 import sys
 from pathlib import Path
 from typing import Any

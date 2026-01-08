@@ -1,17 +1,17 @@
 [project]
-name = "pyglet-readme"
+name = "chaser-game"
 version = "0.1.0"
 description = "A first application using the pyglet graphics engine."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "pyglet>=2.1.11",
-    "pyyaml>=6.0",
+    "pyyaml>=6.0.3",
 ]
 
 [project.scripts]
-pyglet-readme = "pyglet_readme:main"
-restore-assets = "pyglet_readme.restore_assets:restore_assets_cli"
+chaser = "chaser_game:main"
+restore-assets = "chaser_game.restore_assets:restore_assets_cli"
 
 [build-system]
 requires = ["uv_build>=0.9.10,<0.10.0"]
@@ -20,7 +20,8 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "basedpyright>=1.37.0",
-    "pytest>=8.0.0",
+    "pytest>=9.0.2",
+    "ruff>=0.14.10",
 ]
 
 [tool.basedpyright]
@@ -28,14 +29,14 @@ typeCheckingMode = "basic"
 reportMissingImports = "error"
 reportMissingTypeStubs = false
 exclude = ["**/node_modules", "**/__pycache__"]
-include = ["src/pyglet_readme", "tests"]
+include = ["src/chaser_game", "tests"]
 executionEnvironments = [
-    { root = "src/pyglet_readme" },
+    { root = "src/chaser_game" },
     { root = "tests", reportPrivateUsage = false },
 ]
 
 [tool.ruff]
 line-length = 102
 lint.select = ["E", "F", "I", "W", "B"]
-lint.ignore = ["E501", "F541"]
-src = ["src/pyglet_readme", "tests"]
+lint.ignore = ["E501", "F541", "W293"]
+src = ["src/chaser_game", "tests"]

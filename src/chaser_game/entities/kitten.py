@@ -4,10 +4,8 @@ from dataclasses import dataclass
 
 from ..config import CONFIG
 from ..movement import (
-    Vector2,
     apply_travel_distance,
     calculate_chase_velocity,
-    clamp_to_bounds,
     distance,
     is_moving,
 )
@@ -75,9 +73,7 @@ class Kitten(Entity):
         Args:
             dt: Time elapsed in seconds.
         """
-        travel_distance = min(
-            distance(0, 0, self.vx, self.vy) * dt, self.speed * dt
-        )
+        travel_distance = min(distance(0, 0, self.vx, self.vy) * dt, self.speed * dt)
 
         if travel_distance > 0:
             target_x = self.x + self.vx * dt

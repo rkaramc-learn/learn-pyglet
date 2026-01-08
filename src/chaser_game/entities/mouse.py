@@ -4,10 +4,8 @@ from dataclasses import dataclass
 
 from ..config import CONFIG
 from ..movement import (
-    Vector2,
     calculate_click_velocity,
     calculate_keyboard_velocity,
-    clamp_to_bounds,
     update_position,
 )
 from .base import Entity, EntityState

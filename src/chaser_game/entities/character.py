@@ -6,7 +6,7 @@ and behavior logic following center-based coordinate positioning.
 
 import logging
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING
 
@@ -88,8 +88,7 @@ class Character:
         self._prev_y = center_y
 
         logger.debug(
-            f"{self.__class__.__name__} created at ({center_x}, {center_y}), "
-            f"size: {width}x{height}"
+            f"{self.__class__.__name__} created at ({center_x}, {center_y}), size: {width}x{height}"
         )
 
     def get_data(self) -> CharacterData:
@@ -117,12 +116,8 @@ class Character:
         """
         half_width = self.width / 2
         half_height = self.height / 2
-        self.center_x = max(
-            half_width, min(window_width - half_width, self.center_x)
-        )
-        self.center_y = max(
-            half_height, min(window_height - half_height, self.center_y)
-        )
+        self.center_x = max(half_width, min(window_width - half_width, self.center_x))
+        self.center_y = max(half_height, min(window_height - half_height, self.center_y))
 
     def distance_to(self, other_x: float, other_y: float) -> float:
         """Calculate distance from this character to a point.
@@ -308,9 +303,7 @@ class Kitten(Character):
         self.image = image
         self.speed = CONFIG.WINDOW_WIDTH / CONFIG.WINDOW_TRAVERSAL_TIME / CONFIG.KITTEN_SPEED_FACTOR
         self.was_moving = False  # Track movement state for sound effects
-        logger.debug(
-            f"Kitten created at ({center_x}, {center_y}), speed: {self.speed:.1f}"
-        )
+        logger.debug(f"Kitten created at ({center_x}, {center_y}), speed: {self.speed:.1f}")
 
     def chase_target(self, target_x: float, target_y: float) -> bool:
         """Move toward target position.

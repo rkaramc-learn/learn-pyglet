@@ -4,7 +4,6 @@ Handles sprite rendering, input, movement, health/stamina mechanics, and win/los
 """
 
 import logging
-import math
 from typing import Any
 
 import pyglet
@@ -14,17 +13,19 @@ from ..assets import get_loader
 from ..config import CONFIG
 from ..entities import Kitten, Mouse
 from ..types import AudioProtocol, WindowProtocol
-from .base import Screen
+from .base import ScreenProtocol
 
 logger = logging.getLogger(__name__)
 
 
-class GameRunningScreen(Screen):
+class GameRunningScreen(ScreenProtocol):
     """Main gameplay screen.
 
     Manages sprite rendering, input handling, game state (health/stamina),
     movement logic, and win/loss conditions.
     """
+
+    music_player: AudioProtocol
 
     def __init__(self, window: WindowProtocol) -> None:
         """Initialize game running screen.
@@ -43,9 +44,7 @@ class GameRunningScreen(Screen):
         kitten_image.width = int(kitten_image.width * CONFIG.KITTEN_SCALE)
         kitten_image.height = int(kitten_image.height * CONFIG.KITTEN_SCALE)
         self.kitten_image = kitten_image
-        logger.debug(
-            f"Kitten sprite loaded: {kitten_image.width}x{kitten_image.height}"
-        )
+        logger.debug(f"Kitten sprite loaded: {kitten_image.width}x{kitten_image.height}")
 
         # Create kitten entity
         kitten_start_x = window.width * CONFIG.KITTEN_START_X_RATIO
@@ -73,15 +72,13 @@ class GameRunningScreen(Screen):
         except FileNotFoundError:
             logger.warning("mouse_sheet.png not found, using fallback sprite")
             # Create a simple colored rectangle as fallback
-            fallback_image = pyglet.image.SolidColorImagePattern(
-                (0, 100, 200, 255)
-            ).create_image(CONFIG.FALLBACK_SPRITE_SIZE, CONFIG.FALLBACK_SPRITE_SIZE)
+            fallback_image = pyglet.image.SolidColorImagePattern((0, 100, 200, 255)).create_image(
+                CONFIG.FALLBACK_SPRITE_SIZE, CONFIG.FALLBACK_SPRITE_SIZE
+            )
             mouse_sprite = pyglet.sprite.Sprite(fallback_image)
 
         mouse_sprite.scale = CONFIG.MOUSE_SCALE
-        logger.debug(
-            f"Mouse sprite loaded and scaled: {mouse_sprite.width}x{mouse_sprite.height}"
-        )
+        logger.debug(f"Mouse sprite loaded and scaled: {mouse_sprite.width}x{mouse_sprite.height}")
 
         # Create mouse entity
         mouse_start_x = window.width * CONFIG.MOUSE_START_X_RATIO
@@ -110,9 +107,7 @@ class GameRunningScreen(Screen):
         # Load sound - with fallback
         logger.debug("Loading sound effects")
         try:
-            self.meow_sound = self.loader.load_sound(
-                CONFIG.ASSET_MEOW_SOUND, streaming=False
-            )
+            self.meow_sound = self.loader.load_sound(CONFIG.ASSET_MEOW_SOUND, streaming=False)
             logger.info("Sound effects loaded")
         except FileNotFoundError:
             logger.warning("meow.wav not found, sound effects disabled")
@@ -120,7 +115,7 @@ class GameRunningScreen(Screen):
 
         # Load and play background music - with fallback
         logger.debug("Loading background music")
-        self.music_player = pyglet.media.Player()  # type: AudioProtocol
+        self.music_player = pyglet.media.Player()
         try:
             ambience_sound = self.loader.load_sound(CONFIG.ASSET_AMBIENCE_MUSIC)
             self.music_player.queue(ambience_sound)
@@ -142,7 +137,9 @@ class GameRunningScreen(Screen):
         """Called when game running screen becomes active."""
         logger.info("Game running screen started")
         self.window.push_handlers(self.keys)
-        self.window.push_handlers(on_key_press=self._on_key_press, on_mouse_press=self._on_mouse_press)
+        self.window.push_handlers(
+            on_key_press=self._on_key_press, on_mouse_press=self._on_mouse_press
+        )
         self.music_player.play()
 
         # Reset entities
@@ -291,28 +288,28 @@ class GameRunningScreen(Screen):
         return distance
 
     def _update_health_stamina(self, distance: float, dt: float) -> None:
-         """Update health and stamina based on proximity and time.
+        """Update health and stamina based on proximity and time.
 
-         Args:
-             distance: Current distance between kitten and mouse.
-             dt: Time elapsed since last update in seconds.
-         """
-         # Drain/Regen if within range
-         if distance < self.catch_range:
-             proximity_factor = 1.0 - (distance / self.catch_range)
-             proximity_factor = max(0.0, min(1.0, proximity_factor))
+        Args:
+            distance: Current distance between kitten and mouse.
+            dt: Time elapsed since last update in seconds.
+        """
+        # Drain/Regen if within range
+        if distance < self.catch_range:
+            proximity_factor = 1.0 - (distance / self.catch_range)
+            proximity_factor = max(0.0, min(1.0, proximity_factor))
 
-             transfer_amount = (CONFIG.BASE_DRAIN_RATE * proximity_factor) * dt
+            transfer_amount = (CONFIG.BASE_DRAIN_RATE * proximity_factor) * dt
 
-             self.mouse.health -= transfer_amount
-             self.kitten.stamina += transfer_amount
+            self.mouse.health -= transfer_amount
+            self.kitten.stamina += transfer_amount
 
-         # Passive Stamina Drain
-         self.kitten.stamina -= CONFIG.PASSIVE_STAMINA_DRAIN * dt
+        # Passive Stamina Drain
+        self.kitten.stamina -= CONFIG.PASSIVE_STAMINA_DRAIN * dt
 
-         # Clamp values
-         self.mouse.health = max(0.0, min(CONFIG.MAX_HEALTH, self.mouse.health))
-         self.kitten.stamina = max(0.0, min(CONFIG.MAX_STAMINA, self.kitten.stamina))
+        # Clamp values
+        self.mouse.health = max(0.0, min(CONFIG.MAX_HEALTH, self.mouse.health))
+        self.kitten.stamina = max(0.0, min(CONFIG.MAX_STAMINA, self.kitten.stamina))
 
     def _check_win_loss_conditions(self) -> None:
         """Check and handle win/loss game conditions."""
@@ -344,9 +341,7 @@ class GameRunningScreen(Screen):
             game_end_screen = manager.screens.get("game_end")
             if isinstance(game_end_screen, GameEndScreen):
                 # Set outcome on the game end screen
-                game_end_screen.set_outcome(
-                    is_win, self.elapsed_time, self.mouse.total_distance
-                )
+                game_end_screen.set_outcome(is_win, self.elapsed_time, self.mouse.total_distance)
             manager.set_active_screen("game_end")
 
     def _update_ui_bars(self) -> None:
@@ -357,7 +352,11 @@ class GameRunningScreen(Screen):
         self.mouse_bar_fg.x = self.mouse_bar_bg.x
         self.mouse_bar_fg.y = self.mouse_bar_bg.y
         self.mouse_bar_fg.width = CONFIG.BAR_WIDTH * (self.mouse.health / CONFIG.MAX_HEALTH)
-        self.mouse_bar_fg.color = CONFIG.COLOR_GREEN if self.mouse.health > CONFIG.LOW_HEALTH_THRESHOLD else CONFIG.COLOR_RED
+        self.mouse_bar_fg.color = (
+            CONFIG.COLOR_GREEN
+            if self.mouse.health > CONFIG.LOW_HEALTH_THRESHOLD
+            else CONFIG.COLOR_RED
+        )
 
         # Kitten Bar (centered above sprite)
         self.kitten_bar_bg.x = self.kitten.center_x - (CONFIG.BAR_WIDTH / 2)
@@ -365,7 +364,11 @@ class GameRunningScreen(Screen):
         self.kitten_bar_fg.x = self.kitten_bar_bg.x
         self.kitten_bar_fg.y = self.kitten_bar_bg.y
         self.kitten_bar_fg.width = CONFIG.BAR_WIDTH * (self.kitten.stamina / CONFIG.MAX_STAMINA)
-        self.kitten_bar_fg.color = CONFIG.COLOR_GREEN if self.kitten.stamina > CONFIG.LOW_HEALTH_THRESHOLD else CONFIG.COLOR_RED
+        self.kitten_bar_fg.color = (
+            CONFIG.COLOR_GREEN
+            if self.kitten.stamina > CONFIG.LOW_HEALTH_THRESHOLD
+            else CONFIG.COLOR_RED
+        )
 
     def update(self, dt: float) -> None:
         """Update game running screen state.

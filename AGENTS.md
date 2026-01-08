@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-`pyglet-readme` is a Python-based interactive desktop application built using the `pyglet` library. It demonstrates fundamental 2D game development concepts including sprite rendering, continuous movement logic (keyboard and mouse), collision handling (basic window bounds), and audio playback (sound effects and looped background music).
+`chaser-game` is a Python-based interactive desktop application built using the `pyglet` library. It demonstrates fundamental 2D game development concepts including sprite rendering, continuous movement logic (keyboard and mouse), collision handling (basic window bounds), and audio playback (sound effects and looped background music).
 
 **Recent Features:**
 
@@ -12,80 +12,62 @@
 
 ## Architecture
 
-The application follows a standard single-window 2D game loop architecture:
-
-1. **Entry Point:** `src/pyglet_readme/__init__.py` exposes the `main` entry point which calls `run_hello_world`.
-2. **Initialization:** `src/pyglet_readme/hello_world.py` sets up the `pyglet.window.Window`, loads resources (images/audio), and initializes state variables.
-3. **Input Handling:**
-   - **Keyboard:** `pyglet.window.key.KeyStateHandler` tracks key states for continuous smooth movement.
-   - **Mouse:** Event handlers (`on_mouse_press`) trigger the mouse sprite's movement to the clicked location.
-4. **Game Loop:**
-   - **Update:** A scheduled function (`update(dt)`) runs at 60Hz. It handles:
-     - Kitten movement (keyboard input OR automatic mouse-chasing behavior).
-     - Mouse sprite movement (tweening).
-   - **Render:** The `on_draw` event clears the screen and draws the label and sprites at updated coordinates.
-
-## Core Components
-
-- **`src/pyglet_readme/hello_world.py`**: Contains the bulk of the application logic.
-- **Assets**:
-  - `kitten.png`: The player sprite (Tracked).
-  - `meow.wav`: Sound effect triggered on stop (Tracked).
-  - **Ignored/Local Assets:** (Ensure these exist locally for full functionality)
-    - `ambience.wav`: Background music loop (Ignored to save space).
-    - `mouse_sheet.png`: Animated sprite sheet generated from `mouse.mp4` (Ignored).
-    - `mouse.mp4`: Source video (Ignored).
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for detailed architecture and core components.
 
 ## Dependencies
 
 - **Runtime:**
   - `pyglet >= 2.1.11`: The core multimedia library.
+  - `pyyaml >= 6.0`: YAML parsing for asset manifest.
   - `python >= 3.13`: The execution environment.
 - **Development:**
   - `basedpyright >= 1.37.0`: Static type checker (Strict).
   - `ruff >= 0.14.10`: Code formatter and linter (Strict).
+  - `pytest >= 8.3.4`: Testing framework (Strict).
 - **Package Manager:**
   - `uv`: Used for dependency resolution, environment management, and script execution.
 - **External Tools:**
   - `ffmpeg`: Used for media conversion (e.g. creating sprite sheets).
   - `bd` (Beads): Issue tracker/memory tool.
-  - `specify` (GitHub Spec Kit): Specification tool for AI agents.
+
+## Environment Setup
+
+See [docs/SETUP.md](docs/SETUP.md) for installation and execution instructions.
 
 ## Development Workflow
 
 1. **Version Control:** The project uses `jj` (Jujutsu) backed by Git.
+
+   - **Revset Alias:** If `current-branch` alias is not configured (check with `jj config list | findstr "current-branch"`), configure it:
+
+     ```bash
+     jj config set --repo revset-aliases.current-branch "heads(::@ & bookmarks())"
+     ```
+
    - **Save Work:** Use `jj commit -m "message"` as the primary way to save changes. It is more efficient than `jj describe` followed by `jj new` as it performs both in one tool call.
    - **Export to Git:** Use `jj git export` to write jj commits to the underlying Git repository (needed for beads sync).
    - **Untracking Files:** Use `jj file untrack <path>` to stop tracking a file without deleting it.
    - **Listing Files:** Use `jj file list` (add `--no-pager` for full output in non-interactive shells).
    - **Note:** Large binary files (>1MB) are strictly ignored via `.gitignore`.
+
 2. **Running:**
-   - `uv run pyglet-readme`
+   - `uv run chaser`
 3. **Testing/Verification:**
-   - Manual verification by running the app.
-   - Static analysis: `uv run basedpyright` (MUST pass before completion).
+   - **Unit Tests:** `uv run pytest` (MUST pass before completion).
+   - **Static Analysis:** `uv run basedpyright` (MUST pass before completion).
+   - **Manual:** Run the app to verify visual/audio behavior.
 
 ## Coding Standards
 
 - **Type Safety:** All code must be fully type-hinted. `basedpyright` is the authority.
-- **Style:** PEP 8 compliance.
+- **Style:** PEP 8 compliance. Enforced by `ruff`.
 - **Structure:** Follow the `src` layout pattern.
 - **Resources:** Use `pyglet.resource` for loading assets relative to the script directory.
-
-## Environment Setup
-
-1. **Prerequisites:** Install `uv` (<https://github.com/astral-sh/uv>).
-2. **Installation:**
-
-   ```powershell
-   uv sync
-   ```
-
-3. **Execution:**
-
-   ```powershell
-   uv run pyglet-readme
-   ```
+- **Docstrings:** Use Google-style docstrings for all public functions and classes.
+- **Naming:**
+  - Variables/functions: `snake_case`
+  - Classes: `PascalCase`
+  - Constants: `UPPER_SNAKE_CASE`
 
 ## Operational Guidelines for Agents
 
@@ -97,18 +79,18 @@ The application follows a standard single-window 2D game loop architecture:
     - Use `Get-ChildItem -Force` instead of `ls -a`.
     - Use `Invoke-WebRequest -Uri <url> -OutFile <path>` instead of `curl` or `wget`.
   - **Linux/macOS:** Use standard `bash`/`sh` commands (e.g., `ls -a`, `curl`).
-- **Tool Usage & Constraints:**
-  - **Atomicity:** `run_shell_command` rejects chained commands (e.g., `&&`, `|`, `;`). Execute exactly **one** command per tool call.
-  - **Paging:** Always use the `--no-pager` flag for tools like `jj` and `bd` to ensure full output is captured.
   - **Efficiency:** Use `jj commit -m "message"` to save work in a single tool call instead of separate `jj describe` and `jj new` calls.
-  - **Discovery:** Use `search_file_content` for code discovery and `read_file` to verify file content before editing.
   - **Verification:** Always verify changes with `uv run basedpyright`.
 - **Safety:**
   - Explain any file deletion or shell commands that modify the system state outside the project directory.
 - **Commit Protocol:**
 
   - **Post-Task:** Commit changes after completing a request/task.
-  - **Small Tasks:** Ask for user confirmation before committing minor changes.
+  - **Agent Discretion:** Decide whether to commit based on:
+    - **Significance:** Does the change add value or complete a logical unit of work?
+    - **Impact:** Could the change affect other parts of the codebase?
+    - **Coherence:** Is the change self-contained and well-described?
+    - **Reversibility:** Would it be harder to undo if not committed separately?
   - **No Changes:** Do **not** commit if the task involved no changes to tracked files.
   - **Ignore Bead Files:** Do not mention `.beads/issues.jsonl` in commit messages—it is auto-managed by `bd`.
   - **Message Format:** Use [Conventional Commits](https://www.conventionalcommits.org/):
@@ -125,108 +107,112 @@ The application follows a standard single-window 2D game loop architecture:
       - Implement clamp_to_bounds for window collision
       ```
 
-## Issue Tracking
+## Session Workflows
 
-This project uses **bd (beads)** for issue tracking.
-Run `bd prime` for workflow context, or install hooks (`bd hooks install`) for auto-injection.
-
-**Quick reference:**
-
-- `bd ready` - Find unblocked work
-- `bd create "Title" --type task --priority 2` - Create issue
-- `bd close <id>` - Complete work
-- `bd sync` - Sync with git (run at session end)
-
-For full workflow details: `bd prime`
-
-## Landing the Plane (Session Completion)
+### Landing the Plane (Session Completion)
 
 **When ending a work session**, you MUST complete ALL steps below.
 
 **MANDATORY WORKFLOW (Jujutsu + Beads):**
 
-1. **File issues for remaining work** - Create issues for anything that needs follow-up
+1. **File issues for remaining work** - Create linked issues for discovered work:
+
    ```bash
-   bd create "Title" --type task --priority 2
+   bd create "Issue title" --description="Details" -p 2 --deps discovered-from:<parent-id> --json
    ```
 
 2. **Run quality gates** (if code changed) - Tests, linters, builds
+
    ```bash
    uv run basedpyright
    uv run pytest
-   uv run ruff lint --fix
-   uv run ruff format --fix
+   uv run ruff check --fix
+   uv run ruff format
    ```
 
 3. **Commit work** (if not already done)
+
    ```bash
    jj commit -m "type(scope): description"
    ```
 
 4. **Export jj changes to Git** (required for external tools like beads)
+
    ```bash
    jj git export
    ```
 
-5. **Update issue status** - Close finished work
+5. **Update issue status** - Close completed issues:
+
    ```bash
-   bd close <issue-id>
+   bd close <id> --reason "Done" --json
    ```
 
-6. **Sync beads to remote**
-   ```bash
-   bd sync
-   ```
+6. **Verify** - Confirm all changes are committed
 
-7. **Verify** - Confirm all changes are pushed
    ```bash
    jj status  # MUST show "The working copy has no changes."
    ```
 
-## Push the changes to remote
+### Push to remote
 
 **When the user requests to push changes to remote**, you MUST complete ALL steps below.
 
 1. **Fetch from remote**
+
    ```bash
    jj git fetch
    ```
 
-2. **Update bookmark**
+2. **Merge current change with trailing bookmarks**
+
    ```bash
-   jj new main @-    # Merge current change with main
+   jj new "current-branch" @-
    ```
 
-3. **Resolve merge conflicts** - If there are any merge conflicts, request user to resolve and commit
+3. **Resolve merge conflicts** - If `jj status` shows conflicts:
 
-4. **Continue with Push to Remote**
+   - View conflicted files to identify conflict markers (`<<<<<<<`, `=======`, `>>>>>>>`)
+   - For simple conflicts (e.g., adjacent line changes): edit files to resolve
+   - For complex conflicts (e.g., semantic conflicts, large refactors): notify user with context and request assistance
+   - After resolution: `jj resolve --mark` to mark files as resolved
+
+4. **Verify** - Confirm no conflicts remain
+
    ```bash
    jj status  # MUST NOT show "(conflict)" or "Warning: There are unresolved conflicts..."
    ```
-   If conflicts remain, alert user and stop.
 
-5. **Update bookmark** - Move `main` to current change
+5. **Inspect bookmarks** - View bookmarks that need to be moved forward
+
    ```bash
-   jj bookmark move main --to @-
+   jj log -r "current-branch"
    ```
 
-6. **Push to remote**
+6. **Update bookmarks** - Move all bookmarks behind current change forward to @-
+
+   ```bash
+   jj bookmark move --from "current-branch" --to @-
+   ```
+
+7. **Push to remote**
+
    ```bash
    jj git push
    ```
 
-
 **CRITICAL RULES:**
 
-- Work is NOT complete until `jj bookmark set main -r @-` succeeds
+- Work is NOT complete until bookmarks are moved and pushed
+- Use `jj log -r "current-branch"` to verify which bookmark will be updated
+- Use `jj bookmark move --from "current-branch" --to @-` to move trailing bookmark
 - Always use `jj git export` before `bd sync` to ensure Git state is current
-- Always update bookmark with `jj bookmark set main -r @-` (the committed work) before pushing
 - NEVER stop before pushing - that leaves work stranded locally
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
 
-
 <!-- BEGIN BEADS INTEGRATION -->
+
 ## Issue Tracking with bd (beads)
 
 **IMPORTANT**: This project uses **bd (beads)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
@@ -297,7 +283,13 @@ bd automatically syncs with git:
 
 - Exports to `.beads/issues.jsonl` after changes (5s debounce)
 - Imports from JSONL when newer (e.g., after `git pull`)
-- No manual export/import needed!
+
+**When to run `bd sync` manually:**
+
+- Before switching contexts or running other git operations (to bypass the debounce delay)
+- When using Git worktrees (auto-sync is disabled)
+- After `git pull` to ensure local state matches remote
+- If auto-sync daemon is disabled
 
 ### Important Rules
 

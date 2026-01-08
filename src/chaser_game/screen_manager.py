@@ -4,9 +4,9 @@ Manages the active screen, routes input events, and orchestrates screen updates 
 """
 
 import logging
-from typing import Any, Optional
+from typing import Optional
 
-from .screens.base import Screen
+from .screens.base import ScreenProtocol
 from .types import WindowProtocol
 
 logger = logging.getLogger(__name__)
@@ -26,11 +26,11 @@ class ScreenManager:
             window: The pyglet game window instance.
         """
         self.window = window
-        self.screens: dict[str, Screen] = {}
-        self.active_screen: Optional[Screen] = None
+        self.screens: dict[str, ScreenProtocol] = {}
+        self.active_screen: Optional[ScreenProtocol] = None
         self.active_screen_name: Optional[str] = None
 
-    def register_screen(self, name: str, screen: Screen) -> None:
+    def register_screen(self, name: str, screen: ScreenProtocol) -> None:
         """Register a screen in the manager.
 
         Args:

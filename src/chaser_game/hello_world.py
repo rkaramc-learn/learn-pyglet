@@ -4,8 +4,8 @@ import pyglet
 
 from .screen_manager import ScreenManager
 from .screens.game_end import GameEndScreen
-from .screens.game_start import GameStartScreen
 from .screens.game_running import GameRunningScreen
+from .screens.game_start import GameStartScreen
 from .screens.splash import SplashScreen
 from .types import WindowProtocol
 
@@ -18,14 +18,14 @@ def run_hello_world() -> None:
     logger.info("Starting game initialization")
 
     logger.info("Creating game window")
-    window = pyglet.window.Window()
+    window: WindowProtocol = pyglet.window.Window()
     logger.info(f"Window created: {window.width}x{window.height}")
 
     # Initialize screen manager
     screen_manager = ScreenManager(window)
     # Store screen manager on window for access from screens
     # Use setattr to avoid type checker issues with dynamic attributes
-    setattr(window, "_screen_manager", screen_manager)
+    window._screen_manager = screen_manager  # pyright: ignore[reportAttributeAccessIssue]
 
     # Create and register all screens
     splash_screen = SplashScreen(window)

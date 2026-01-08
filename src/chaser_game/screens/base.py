@@ -3,17 +3,20 @@
 Each screen manages its own rendering, input handling, and state lifecycle.
 """
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
+from typing import Protocol
 
 from ..types import WindowProtocol
 
 
-class Screen(ABC):
+class ScreenProtocol(Protocol):
     """Abstract base class for game screens.
 
     Screens manage their own lifecycle (enter/exit), rendering, updates, and input handling.
     The screen manager calls these methods to orchestrate transitions and gameplay.
     """
+
+    window: WindowProtocol
 
     def __init__(self, window: WindowProtocol) -> None:
         """Initialize screen with reference to game window.

@@ -9,7 +9,7 @@ import pyglet
 from pyglet.window import key
 
 from ..types import WindowProtocol
-from .base import Screen
+from .base import ScreenProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ MESSAGE_WIN = "You Win!!"
 MESSAGE_LOSE = "Caught!"
 
 
-class GameEndScreen(Screen):
+class GameEndScreen(ScreenProtocol):
     """Screen displayed when the game ends (win or loss).
 
     Shows the outcome message, game statistics, and provides options to replay or quit.
@@ -119,7 +119,9 @@ class GameEndScreen(Screen):
         # Format distance (show in pixels, rounded to nearest 10)
         distance_rounded = round(self.distance_traveled / 10) * 10
 
-        stats_text = f"Time Survived: {minutes}m {seconds}s\nDistance Traveled: {distance_rounded} pixels"
+        stats_text = (
+            f"Time Survived: {minutes}m {seconds}s\nDistance Traveled: {distance_rounded} pixels"
+        )
         self.stats_label.text = stats_text
 
     def on_enter(self) -> None:
