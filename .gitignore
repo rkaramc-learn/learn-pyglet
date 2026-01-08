@@ -23,3 +23,6 @@ src/pyglet_readme/assets/audio/music/*.mp3
 
 # Local binaries and DBs
 bin/
+
+# bv (beads viewer) local config and caches
+.bv/
