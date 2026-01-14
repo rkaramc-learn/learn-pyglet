@@ -1,14 +1,15 @@
 """Collision detection and bounds checking system."""
 
-from ..config import CONFIG
-from ..entities.kitten import Kitten
-from ..entities.mouse import Mouse
+from typing import Any
+
 from ..movement import distance
+
+# TODO(pyglet-ciz.2): Update to use Protocol types for mouse/kitten entities
 
 
 def clamp_entities_to_bounds(
-    mouse: Mouse,
-    kitten: Kitten,
+    mouse: Any,
+    kitten: Any,
     window_width: float,
     window_height: float,
 ) -> None:
@@ -24,7 +25,7 @@ def clamp_entities_to_bounds(
     kitten.clamp_to_bounds(window_width, window_height, kitten.width, kitten.height)
 
 
-def check_catch_condition(mouse: Mouse, kitten: Kitten, catch_range: float) -> bool:
+def check_catch_condition(mouse: Any, kitten: Any, catch_range: float) -> bool:
     """Check if kitten has caught the mouse.
 
     Args:

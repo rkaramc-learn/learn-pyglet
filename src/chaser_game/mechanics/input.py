@@ -4,10 +4,10 @@ from typing import Any
 
 from pyglet.window import key, mouse
 
-from ..entities.mouse import Mouse
+# TODO(pyglet-ciz.2): Update to use Protocol types for mouse entity
 
 
-def handle_keyboard_input(entity: Mouse, keys: Any) -> None:
+def handle_keyboard_input(entity: Any, keys: Any) -> None:
     """Handle continuous keyboard input for the mouse entity.
 
     Args:
@@ -26,7 +26,7 @@ def handle_keyboard_input(entity: Mouse, keys: Any) -> None:
         pass
 
 
-def handle_key_press(entity: Mouse, symbol: int) -> None:
+def handle_key_press(entity: Any, symbol: int) -> None:
     """Handle discrete key press events.
 
     Maps special keys to movement commands.
@@ -48,7 +48,7 @@ def handle_key_press(entity: Mouse, symbol: int) -> None:
         entity.stop()
 
 
-def handle_mouse_press(entity: Mouse, x: float, y: float, button: int) -> None:
+def handle_mouse_press(entity: Any, x: float, y: float, button: int) -> None:
     """Handle mouse click input.
 
     Args:

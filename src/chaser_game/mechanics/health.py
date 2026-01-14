@@ -1,14 +1,16 @@
 """Health and stamina management system."""
 
+from typing import Any
+
 from ..config import CONFIG
-from ..entities.kitten import Kitten
-from ..entities.mouse import Mouse
 from ..movement import distance
+
+# TODO(pyglet-ciz.2): Update to use Protocol types for mouse/kitten entities
 
 
 def update_health_stamina(
-    mouse: Mouse,
-    kitten: Kitten,
+    mouse: Any,
+    kitten: Any,
     catch_range: float,
     dt: float,
 ) -> None:
