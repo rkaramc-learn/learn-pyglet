@@ -11,11 +11,11 @@ class TestAssetDirectoryStructure(unittest.TestCase):
 
     def setUp(self) -> None:
         """Set up test fixtures."""
-        # Get the pyglet_readme package directory
+        # Get the chaser_game package directory
         test_dir = os.path.dirname(__file__)
         project_root = os.path.dirname(test_dir)
-        pyglet_readme_dir = os.path.join(project_root, "src", "pyglet_readme")
-        self.assets_root = os.path.join(pyglet_readme_dir, "assets")
+        chaser_game_dir = os.path.join(project_root, "src", "chaser_game")
+        self.assets_root = os.path.join(chaser_game_dir, "assets")
         self.manifest_path = os.path.join(self.assets_root, "manifest.yaml")
 
     def test_assets_directory_exists(self) -> None:
@@ -237,8 +237,8 @@ class TestAssetPathConsistency(unittest.TestCase):
         """Set up test fixtures."""
         test_dir = os.path.dirname(__file__)
         project_root = os.path.dirname(test_dir)
-        pyglet_readme_dir = os.path.join(project_root, "src", "pyglet_readme")
-        self.assets_root = os.path.join(pyglet_readme_dir, "assets")
+        chaser_game_dir = os.path.join(project_root, "src", "chaser_game")
+        self.assets_root = os.path.join(chaser_game_dir, "assets")
         self.manifest_path = os.path.join(self.assets_root, "manifest.yaml")
 
     def test_asset_paths_use_forward_slashes(self) -> None:

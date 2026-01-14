@@ -18,7 +18,7 @@ This document details all game assets, their sources, generation strategies, and
 
 ## Asset Manifest
 
-The authoritative source for asset metadata is `src/pyglet_readme/assets/manifest.yaml`, which documents:
+The authoritative source for asset metadata is `src/chaser_game/assets/manifest.yaml`, which documents:
 
 - Asset paths and types
 - Dimensions and scaling factors
@@ -36,13 +36,13 @@ These assets are small enough and essential enough to commit:
 
 - PNG sprite (1040×1040 px, scaled to 104×104 in-game)
 - **Why tracked:** Core game asset, small (\<1 MB)
-- **Storage:** `src/pyglet_readme/assets/images/kitten.png`
+- **Storage:** `src/chaser_game/assets/images/kitten.png`
 
 **meow.wav**
 
 - WAV sound effect (~0.5 seconds)
 - **Why tracked:** Core game asset, small (\<1 MB), no external dependencies
-- **Storage:** `src/pyglet_readme/assets/audio/sfx/meow.wav`
+- **Storage:** `src/chaser_game/assets/audio/sfx/meow.wav`
 
 ### Ignored Assets (Not in Repository)
 
@@ -54,7 +54,7 @@ These assets are excluded from version control to reduce repo size:
 
 - PNG sprite sheet (1000×1000 px, 10×10 grid)
 - **Why ignored:** Generated from source video, can be recreated
-- **Storage:** `src/pyglet_readme/assets/sprites/mouse_sheet.png`
+- **Storage:** `src/chaser_game/assets/sprites/mouse_sheet.png`
 - **Git Rule:** Listed in `.gitignore` line 17
 
 **ambience.wav** (8.5 MB)
@@ -63,7 +63,7 @@ These assets are excluded from version control to reduce repo size:
 
 - WAV background music loop (~30 seconds)
 - **Why tracked with Git-LFS:** Core game asset needed for full functionality; large file requires LFS instead of direct commit
-- **Storage:** `src/pyglet_readme/assets/audio/music/ambience.wav`
+- **Storage:** `src/chaser_game/assets/audio/music/ambience.wav`
 - **Git Rule:** Tracked via Git-LFS (`.gitattributes` line 3)
 - **Status:** Awaiting source file (see Restoration section)
 
@@ -71,7 +71,7 @@ These assets are excluded from version control to reduce repo size:
 
 - MP4 source video for sprite generation
 - **Why ignored:** Source asset, not for distribution
-- **Storage:** `src/pyglet_readme/assets/source/mouse.mp4`
+- **Storage:** `src/chaser_game/assets/source/mouse.mp4`
 - **Git Rule:** Listed in `.gitignore` line 14
 
 ## Asset Generation Strategy
@@ -80,7 +80,7 @@ These assets are excluded from version control to reduce repo size:
 
 The sprite sheet is generated from the source video using FFmpeg and the `SpriteSheetGenerator` class.
 
-**Tool:** `SpriteSheetGenerator` (`src/pyglet_readme/sprite_generator.py`)
+**Tool:** `SpriteSheetGenerator` (`src/chaser_game/sprite_generator.py`)
 
 **Requirements:**
 
@@ -104,12 +104,12 @@ uv run python scripts/demo_debug_logging.py  # Or integrate into asset restorati
 **Configuration:**
 
 ```python
-from pyglet_readme.sprite_generator import SpriteSheetGenerator
+from chaser_game.sprite_generator import SpriteSheetGenerator
 
 generator = SpriteSheetGenerator()
 generator.generate(
-    video_path="src/pyglet_readme/assets/source/mouse.mp4",
-    output_dir="src/pyglet_readme/assets/sprites",
+    video_path="src/chaser_game/assets/source/mouse.mp4",
+    output_dir="src/chaser_game/assets/sprites",
     grid_cols=10,
     grid_rows=10,
     frame_width=100,
@@ -163,7 +163,7 @@ To regenerate `mouse.mp4` with the same or updated style:
 2. Use the model: Nano Banana Pro (or latest available)
 3. Submit the prompt (or modified version)
 4. Export the generated video as MP4
-5. Save to `src/pyglet_readme/assets/source/mouse.mp4`
+5. Save to `src/chaser_game/assets/source/mouse.mp4`
 6. Run sprite sheet generation: `SpriteSheetGenerator().generate(...)`
 
 **Notes:**
@@ -198,9 +198,9 @@ This script should:
 
    ```python
    missing = check_missing_assets([
-       "src/pyglet_readme/assets/sprites/mouse_sheet.png",
-       "src/pyglet_readme/assets/audio/music/ambience.wav",
-       "src/pyglet_readme/assets/source/mouse.mp4",
+       "src/chaser_game/assets/sprites/mouse_sheet.png",
+       "src/chaser_game/assets/audio/music/ambience.wav",
+       "src/chaser_game/assets/source/mouse.mp4",
    ])
    ```
 
@@ -238,7 +238,7 @@ See `hello_world.py` lines 69-79 and 117-124 for fallback implementations.
 ## Asset Directory Structure
 
 ```
-src/pyglet_readme/assets/
+src/chaser_game/assets/
 ├── images/
 │   ├── .gitkeep
 │   └── kitten.png          [TRACKED]
@@ -298,9 +298,9 @@ uv run python tests/test_startup.py -v
 
 ## References
 
-- **Manifest:** `src/pyglet_readme/assets/manifest.yaml`
+- **Manifest:** `src/chaser_game/assets/manifest.yaml`
 - **Git Rules:** `.gitignore`
-- **Generator:** `src/pyglet_readme/sprite_generator.py`
+- **Generator:** `src/chaser_game/sprite_generator.py`
 - **Tests:** `tests/test_asset_*.py`
 - **Entity System:** `specs/entity_system.md`
 

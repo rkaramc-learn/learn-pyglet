@@ -11,15 +11,15 @@ wheels/
 .venv
 
 # Large Media Files - Source Assets
-src/pyglet_readme/assets/source/mouse.mp4
+src/chaser_game/assets/source/mouse.mp4
 
 # Sprite Sheets (tracked)
 # mouse_sheet.png is now committed to repo
 
 # Music Files (tracked via Git-LFS)
-# src/pyglet_readme/assets/audio/music/*.wav  (now tracked via Git-LFS)
-src/pyglet_readme/assets/audio/music/*.mp3
-!src/pyglet_readme/assets/audio/music/.gitkeep
+# src/chaser_game/assets/audio/music/*.wav  (now tracked via Git-LFS)
+src/chaser_game/assets/audio/music/*.mp3
+!src/chaser_game/assets/audio/music/.gitkeep
 
 # Local binaries and DBs
 bin/

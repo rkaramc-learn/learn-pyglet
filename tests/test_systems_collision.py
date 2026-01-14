@@ -4,7 +4,7 @@ import unittest
 
 from chaser_game.entities.kitten import Kitten
 from chaser_game.entities.mouse import Mouse
-from chaser_game.systems.collision import (
+from chaser_game.mechanics.collision import (
     check_catch_condition,
     clamp_entities_to_bounds,
 )
@@ -18,7 +18,7 @@ class TestCollisionSystem(unittest.TestCase):
         self.mouse = Mouse(x=0.0, y=0.0)
         self.mouse.width = 32.0
         self.mouse.height = 32.0
-        
+
         self.kitten = Kitten(x=0.0, y=0.0)
         self.kitten.width = 32.0
         self.kitten.height = 32.0
@@ -29,9 +29,9 @@ class TestCollisionSystem(unittest.TestCase):
         self.mouse.y = 100.0
         self.kitten.x = 200.0
         self.kitten.y = 200.0
-        
+
         clamp_entities_to_bounds(self.mouse, self.kitten, 800.0, 600.0)
-        
+
         self.assertEqual(self.mouse.x, 100.0)
         self.assertEqual(self.mouse.y, 100.0)
         self.assertEqual(self.kitten.x, 200.0)
@@ -41,9 +41,9 @@ class TestCollisionSystem(unittest.TestCase):
         """Test clamping mouse to left boundary."""
         self.mouse.x = -10.0
         self.mouse.y = 100.0
-        
+
         clamp_entities_to_bounds(self.mouse, self.kitten, 800.0, 600.0)
-        
+
         self.assertEqual(self.mouse.x, 0.0)
         self.assertEqual(self.mouse.y, 100.0)
 
@@ -51,9 +51,9 @@ class TestCollisionSystem(unittest.TestCase):
         """Test clamping mouse to right boundary."""
         self.mouse.x = 800.0
         self.mouse.y = 100.0
-        
+
         clamp_entities_to_bounds(self.mouse, self.kitten, 800.0, 600.0)
-        
+
         # x should be clamped to (800 - 32) = 768
         self.assertEqual(self.mouse.x, 768.0)
         self.assertEqual(self.mouse.y, 100.0)
@@ -62,9 +62,9 @@ class TestCollisionSystem(unittest.TestCase):
         """Test clamping mouse to top boundary."""
         self.mouse.x = 100.0
         self.mouse.y = -10.0
-        
+
         clamp_entities_to_bounds(self.mouse, self.kitten, 800.0, 600.0)
-        
+
         self.assertEqual(self.mouse.x, 100.0)
         self.assertEqual(self.mouse.y, 0.0)
 
@@ -72,9 +72,9 @@ class TestCollisionSystem(unittest.TestCase):
         """Test clamping mouse to bottom boundary."""
         self.mouse.x = 100.0
         self.mouse.y = 600.0
-        
+
         clamp_entities_to_bounds(self.mouse, self.kitten, 800.0, 600.0)
-        
+
         # y should be clamped to (600 - 32) = 568
         self.assertEqual(self.mouse.x, 100.0)
         self.assertEqual(self.mouse.y, 568.0)
@@ -83,9 +83,9 @@ class TestCollisionSystem(unittest.TestCase):
         """Test clamping kitten to left boundary."""
         self.kitten.x = -10.0
         self.kitten.y = 100.0
-        
+
         clamp_entities_to_bounds(self.mouse, self.kitten, 800.0, 600.0)
-        
+
         self.assertEqual(self.kitten.x, 0.0)
         self.assertEqual(self.kitten.y, 100.0)
 
@@ -93,9 +93,9 @@ class TestCollisionSystem(unittest.TestCase):
         """Test clamping kitten to right boundary."""
         self.kitten.x = 800.0
         self.kitten.y = 100.0
-        
+
         clamp_entities_to_bounds(self.mouse, self.kitten, 800.0, 600.0)
-        
+
         self.assertEqual(self.kitten.x, 768.0)
         self.assertEqual(self.kitten.y, 100.0)
 
@@ -105,9 +105,9 @@ class TestCollisionSystem(unittest.TestCase):
         self.mouse.y = -10.0
         self.kitten.x = 800.0
         self.kitten.y = 600.0
-        
+
         clamp_entities_to_bounds(self.mouse, self.kitten, 800.0, 600.0)
-        
+
         self.assertEqual(self.mouse.x, 0.0)
         self.assertEqual(self.mouse.y, 0.0)
         self.assertEqual(self.kitten.x, 768.0)
@@ -119,9 +119,9 @@ class TestCollisionSystem(unittest.TestCase):
         self.mouse.y = 0.0
         self.kitten.x = 500.0
         self.kitten.y = 500.0
-        
+
         is_caught = check_catch_condition(self.mouse, self.kitten, catch_range=50.0)
-        
+
         self.assertFalse(is_caught)
 
     def test_check_catch_at_exact_distance(self) -> None:
@@ -134,9 +134,9 @@ class TestCollisionSystem(unittest.TestCase):
         catch_range = 100.0
         self.kitten.x = 84.0  # Distance from (16,16) to (100,16) is 84
         self.kitten.y = 0.0
-        
+
         is_caught = check_catch_condition(self.mouse, self.kitten, catch_range=catch_range)
-        
+
         self.assertTrue(is_caught)
 
     def test_check_catch_within_range(self) -> None:
@@ -146,9 +146,9 @@ class TestCollisionSystem(unittest.TestCase):
         # Center at (16, 16), kitten center at (50, 50) = distance ~48
         self.kitten.x = 34.0
         self.kitten.y = 34.0
-        
+
         is_caught = check_catch_condition(self.mouse, self.kitten, catch_range=100.0)
-        
+
         self.assertTrue(is_caught)
 
     def test_check_catch_just_outside_range(self) -> None:
@@ -158,9 +158,9 @@ class TestCollisionSystem(unittest.TestCase):
         # Place kitten far enough to be outside catch_range
         self.kitten.x = 200.0
         self.kitten.y = 200.0
-        
+
         is_caught = check_catch_condition(self.mouse, self.kitten, catch_range=50.0)
-        
+
         self.assertFalse(is_caught)
 
     def test_check_catch_at_same_position(self) -> None:
@@ -169,9 +169,9 @@ class TestCollisionSystem(unittest.TestCase):
         self.mouse.y = 100.0
         self.kitten.x = 100.0
         self.kitten.y = 100.0
-        
+
         is_caught = check_catch_condition(self.mouse, self.kitten, catch_range=50.0)
-        
+
         self.assertTrue(is_caught)
 
     def test_check_catch_zero_range(self) -> None:
@@ -181,10 +181,10 @@ class TestCollisionSystem(unittest.TestCase):
         # Center at (16, 16), kitten center at (16.5, 16)
         self.kitten.x = 0.5
         self.kitten.y = 0.0
-        
+
         # With catch_range = 1.0, distance = 0.5, should be caught
         is_caught = check_catch_condition(self.mouse, self.kitten, catch_range=1.0)
-        
+
         self.assertTrue(is_caught)
 
     def test_clamp_with_different_window_sizes(self) -> None:
@@ -193,9 +193,9 @@ class TestCollisionSystem(unittest.TestCase):
         self.mouse.y = -10.0
         self.kitten.x = 2560.0
         self.kitten.y = 1600.0
-        
+
         clamp_entities_to_bounds(self.mouse, self.kitten, 2560.0, 1600.0)
-        
+
         self.assertEqual(self.mouse.x, 0.0)
         self.assertEqual(self.mouse.y, 0.0)
         self.assertEqual(self.kitten.x, 2560.0 - 32.0)

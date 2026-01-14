@@ -7,8 +7,8 @@
 # Or:    .\generate_assets.ps1 -VideoPath "path/to/mouse.mp4" -OutputPath "output/mouse_sheet.png"
 
 param(
-    [string]$VideoPath = "$PSScriptRoot/../src/pyglet_readme/assets/source/mouse.mp4",
-    [string]$OutputPath = "$PSScriptRoot/../src/pyglet_readme/assets/sprites/mouse_sheet.png",
+    [string]$VideoPath = "$PSScriptRoot/../src/chaser_game/assets/source/mouse.mp4",
+    [string]$OutputPath = "$PSScriptRoot/../src/chaser_game/assets/sprites/mouse_sheet.png",
     [int]$GridWidth = 10,
     [int]$GridHeight = 10,
     [int]$FrameWidth = 100,

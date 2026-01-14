@@ -81,32 +81,32 @@ WARNING  | __main__ | Starting pyglet-readme application
 Key milestones:
 ```
 WARNING  | __main__ | Starting pyglet-readme application
-INFO     | pyglet_readme.hello_world | Starting game initialization
-INFO     | pyglet_readme.hello_world | Creating game window
-INFO     | pyglet_readme.hello_world | Window created: 1280x720
-INFO     | pyglet_readme.hello_world | Game initialization complete, starting game loop
+INFO     | chaser_game.hello_world | Starting game initialization
+INFO     | chaser_game.hello_world | Creating game window
+INFO     | chaser_game.hello_world | Window created: 1280x720
+INFO     | chaser_game.hello_world | Game initialization complete, starting game loop
 ```
 
 ### DEBUG Level (-vv)
 Detailed flow and asset information:
 ```
 WARNING  | __main__ | Starting pyglet-readme application
-INFO     | pyglet_readme.hello_world | Starting game initialization
-DEBUG    | pyglet_readme.assets | Initializing AssetLoader
-DEBUG    | pyglet_readme.assets | Assets directory: src/pyglet_readme/assets
-DEBUG    | pyglet_readme.assets | Loading image: assets/images/kitten.png
-DEBUG    | pyglet_readme.assets | Image loaded successfully in 0.039s: assets/images/kitten.png (1024x1024)
-DEBUG    | pyglet_readme.hello_world | Kitten sprite loaded: 1024x1024, position: (640, 360)
-INFO     | pyglet_readme.hello_world | Creating game window
-INFO     | pyglet_readme.hello_world | Window created: 1280x720
+INFO     | chaser_game.hello_world | Starting game initialization
+DEBUG    | chaser_game.assets | Initializing AssetLoader
+DEBUG    | chaser_game.assets | Assets directory: src/chaser_game/assets
+DEBUG    | chaser_game.assets | Loading image: assets/images/kitten.png
+DEBUG    | chaser_game.assets | Image loaded successfully in 0.039s: assets/images/kitten.png (1024x1024)
+DEBUG    | chaser_game.hello_world | Kitten sprite loaded: 1024x1024, position: (640, 360)
+INFO     | chaser_game.hello_world | Creating game window
+INFO     | chaser_game.hello_world | Window created: 1280x720
 ```
 
 ### TRACE Level (-vvv)
 Ultra-detailed system information:
 ```
 WARNING  | __main__ | Starting pyglet-readme application
-TRACE    | pyglet_readme.assets | Asset paths and system details
-DEBUG    | pyglet_readme.assets | All debug messages
+TRACE    | chaser_game.assets | Asset paths and system details
+DEBUG    | chaser_game.assets | All debug messages
 ... (everything)
 ```
 

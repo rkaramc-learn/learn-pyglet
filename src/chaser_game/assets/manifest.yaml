@@ -3,14 +3,14 @@
 
 version: "1.0"
 created: "2026-01-06"
-description: "Complete asset inventory for pyglet-readme game"
+description: "Complete asset inventory for chaser-game"
 
 images:
   kitten:
     path: "images/kitten.png"
     type: "sprite"
-    dimensions: [1040, 1040]  # Original dimensions (pixels)
-    scale_factor: 0.1  # Scaled to 104x104 in-game
+    dimensions: [1040, 1040] # Original dimensions (pixels)
+    scale_factor: 0.1 # Scaled to 104x104 in-game
     scaled_dimensions: [104, 104]
     format: "PNG"
     tracked: true
@@ -19,9 +19,9 @@ images:
   mouse_sheet:
     path: "sprites/mouse_sheet.png"
     type: "sprite_sheet"
-    grid: [10, 10]  # 10x10 grid of sprite frames
-    frame_duration: 0.0833333  # 1/12 second (12 FPS animation)
-    dimensions: [2280, 1280]  # Actual dimensions from Windows repo
+    grid: [10, 10] # 10x10 grid of sprite frames
+    frame_duration: 0.0833333 # 1/12 second (12 FPS animation)
+    dimensions: [2280, 1280] # Actual dimensions from Windows repo
     format: "PNG"
     tracked: false
     description: "Animated sprite sheet for mouse"
@@ -31,7 +31,7 @@ audio:
   meow:
     path: "audio/sfx/meow.wav"
     type: "sound_effect"
-    duration_seconds: 0.5  # Approximate
+    duration_seconds: 0.5 # Approximate
     sample_rate_hz: 44100
     format: "WAV"
     tracked: true
@@ -41,7 +41,7 @@ audio:
   ambience:
     path: "audio/music/ambience.wav"
     type: "background_music"
-    duration_seconds: 30  # Looped
+    duration_seconds: 30 # Looped
     sample_rate_hz: 44100
     format: "WAV"
     tracked: true

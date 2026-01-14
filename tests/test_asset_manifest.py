@@ -191,7 +191,7 @@ class TestAssetManifestIntegration(unittest.TestCase):
         """Test loading the actual project manifest.yaml."""
         manifest_path = os.path.join(
             os.path.dirname(__file__),
-            "../src/pyglet_readme/assets/manifest.yaml",
+            "../src/chaser_game/assets/manifest.yaml",
         )
 
         if not os.path.exists(manifest_path):
@@ -207,7 +207,7 @@ class TestAssetManifestIntegration(unittest.TestCase):
         """Test that project manifest has tracked assets."""
         manifest_path = os.path.join(
             os.path.dirname(__file__),
-            "../src/pyglet_readme/assets/manifest.yaml",
+            "../src/chaser_game/assets/manifest.yaml",
         )
 
         if not os.path.exists(manifest_path):

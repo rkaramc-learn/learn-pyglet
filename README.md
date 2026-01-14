@@ -23,5 +23,5 @@ uv run pyglet-readme
 Or run the hello world script directly:
 
 ```bash
-uv run src/pyglet_readme/hello_world.py
+uv run src/chaser_game/hello_world.py
 ```

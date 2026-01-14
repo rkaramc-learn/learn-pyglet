@@ -10,7 +10,7 @@ Current issues with asset management:
 
 | Issue                     | Description                                                                                                      |
 | ------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| **Mixed concerns**        | Assets (`.png`, `.wav`, `.mp4`) live alongside Python source files in `src/pyglet_readme/`                       |
+| **Mixed concerns**        | Assets (`.png`, `.wav`, `.mp4`) live alongside Python source files in `src/chaser_game/`                       |
 | **No categorization**     | All assets are in a flat directory with no organization by type or purpose                                       |
 | **Manual generation**     | `mouse_sheet.png` is derived from `mouse.mp4` but the generation process is undocumented                         |
 | **Inconsistent tracking** | Some assets are tracked (kitten.png, meow.wav), others are gitignored (ambience.wav, mouse_sheet.png, mouse.mp4) |
@@ -30,7 +30,7 @@ Current issues with asset management:
 ## Proposed Directory Structure
 
 ```tree
-src/pyglet_readme/
+src/chaser_game/
 ├── assets/
 │   ├── images/
 │   │   └── kitten.png
@@ -91,7 +91,7 @@ The `mouse_sheet.png` sprite sheet is generated from `mouse.mp4` using ffmpeg.
 
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
 $PROJECT_ROOT = Split-Path -Parent $SCRIPT_DIR
-$ASSETS_DIR = Join-Path $PROJECT_ROOT "src/pyglet_readme/assets"
+$ASSETS_DIR = Join-Path $PROJECT_ROOT "src/chaser_game/assets"
 
 # Parameters
 $VIDEO_SOURCE = Join-Path $ASSETS_DIR "source/mouse.mp4"
@@ -129,7 +129,7 @@ param(
     [string]$BackupPath = ""
 )
 
-$ASSETS_DIR = Join-Path (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)) "src/pyglet_readme/assets"
+$ASSETS_DIR = Join-Path (Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)) "src/chaser_game/assets"
 
 $REQUIRED_ASSETS = @(
     @{ Path = "sprites/mouse_sheet.png"; Source = "GENERATE" },

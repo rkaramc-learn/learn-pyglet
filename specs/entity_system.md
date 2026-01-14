@@ -17,7 +17,7 @@ Current implementation has:
 ## Proposed Architecture
 
 ```tree
-src/pyglet_readme/
+src/chaser_game/
 ├── main.py              # Entry point, window setup
 ├── config.py            # Constants: speeds, health, asset paths
 ├── entities/

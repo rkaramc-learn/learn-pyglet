@@ -42,7 +42,7 @@ class TestSpriteGenerationWorkflow(unittest.TestCase):
         """Clean up temporary directories."""
         self.temp_dir.cleanup()
 
-    @patch("pyglet_readme.restore_assets.get_asset_dir")
+    @patch("chaser_game.restore_assets.get_asset_dir")
     @patch("shutil.which")
     @patch("subprocess.run")
     def test_regenerate_sprite_sheet_success(
@@ -70,7 +70,7 @@ class TestSpriteGenerationWorkflow(unittest.TestCase):
         self.assertTrue(result)
         self.assertTrue(self.expected_sprite_sheet.exists())
 
-    @patch("pyglet_readme.restore_assets.get_asset_dir")
+    @patch("chaser_game.restore_assets.get_asset_dir")
     @patch("shutil.which")
     def test_regenerate_sprite_sheet_missing_video(
         self,
@@ -91,7 +91,7 @@ class TestSpriteGenerationWorkflow(unittest.TestCase):
 
         self.assertFalse(result)
 
-    @patch("pyglet_readme.restore_assets.get_asset_dir")
+    @patch("chaser_game.restore_assets.get_asset_dir")
     @patch("shutil.which")
     def test_regenerate_sprite_sheet_ffmpeg_not_available(
         self,
@@ -106,7 +106,7 @@ class TestSpriteGenerationWorkflow(unittest.TestCase):
 
         self.assertFalse(result)
 
-    @patch("pyglet_readme.restore_assets.get_asset_dir")
+    @patch("chaser_game.restore_assets.get_asset_dir")
     @patch("shutil.which")
     def test_regenerate_sprite_sheet_dry_run(
         self,
@@ -122,7 +122,7 @@ class TestSpriteGenerationWorkflow(unittest.TestCase):
         self.assertTrue(result)
         self.assertFalse(self.expected_sprite_sheet.exists())
 
-    @patch("pyglet_readme.restore_assets.get_asset_dir")
+    @patch("chaser_game.restore_assets.get_asset_dir")
     @patch("shutil.which")
     @patch("subprocess.run")
     def test_sprite_generator_receives_correct_paths(
@@ -158,8 +158,8 @@ class TestSpriteGenerationWorkflow(unittest.TestCase):
         self.assertIn("-i", cmd)  # input flag
         self.assertIn("ffmpeg", cmd[0])
 
-    @patch("pyglet_readme.restore_assets.get_asset_dir")
-    @patch("pyglet_readme.restore_assets.load_manifest")
+    @patch("chaser_game.restore_assets.get_asset_dir")
+    @patch("chaser_game.restore_assets.load_manifest")
     @patch("shutil.which")
     @patch("subprocess.run")
     def test_restore_assets_regenerates_missing_sprite_sheet(
@@ -205,8 +205,8 @@ class TestSpriteGenerationWorkflow(unittest.TestCase):
         # Sprite sheet should now exist
         self.assertTrue(self.expected_sprite_sheet.exists())
 
-    @patch("pyglet_readme.restore_assets.get_asset_dir")
-    @patch("pyglet_readme.restore_assets.load_manifest")
+    @patch("chaser_game.restore_assets.get_asset_dir")
+    @patch("chaser_game.restore_assets.load_manifest")
     def test_restore_assets_preserves_existing_sprite_sheets(
         self,
         mock_load_manifest: MagicMock,
@@ -236,8 +236,8 @@ class TestSpriteGenerationWorkflow(unittest.TestCase):
         self.assertTrue(self.expected_sprite_sheet.exists())
         self.assertEqual(self.expected_sprite_sheet.read_bytes(), original_content)
 
-    @patch("pyglet_readme.restore_assets.get_asset_dir")
-    @patch("pyglet_readme.restore_assets.load_manifest")
+    @patch("chaser_game.restore_assets.get_asset_dir")
+    @patch("chaser_game.restore_assets.load_manifest")
     @patch("shutil.which")
     def test_restore_assets_dry_run_mode(
         self,
@@ -264,7 +264,7 @@ class TestSpriteGenerationWorkflow(unittest.TestCase):
         # Sprite sheet should not be created
         self.assertFalse(self.expected_sprite_sheet.exists())
 
-    @patch("pyglet_readme.restore_assets.get_asset_dir")
+    @patch("chaser_game.restore_assets.get_asset_dir")
     @patch("shutil.which")
     @patch("subprocess.run")
     def test_sprite_sheet_output_directory_creation(
@@ -312,8 +312,8 @@ class TestSpriteGenerationCLIWorkflow(unittest.TestCase):
         """Clean up."""
         self.temp_dir.cleanup()
 
-    @patch("pyglet_readme.restore_assets.get_asset_dir")
-    @patch("pyglet_readme.restore_assets.load_manifest")
+    @patch("chaser_game.restore_assets.get_asset_dir")
+    @patch("chaser_game.restore_assets.load_manifest")
     @patch("shutil.which")
     @patch("subprocess.run")
     def test_sprite_generation_with_various_grid_sizes(

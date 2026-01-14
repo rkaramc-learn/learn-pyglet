@@ -11,8 +11,8 @@ from pathlib import Path
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from pyglet_readme.assets import get_loader
-from pyglet_readme.logging_config import get_logger, init_logging
+from chaser_game.assets import get_loader
+from chaser_game.logging_config import get_logger, init_logging
 
 # Setup DEBUG logging
 init_logging(level=logging.DEBUG)

@@ -17,9 +17,9 @@ class TestGameStartup(unittest.TestCase):
         # Get manifest path
         test_dir = os.path.dirname(__file__)
         project_root = os.path.dirname(test_dir)
-        pyglet_readme_dir = os.path.join(project_root, "src", "pyglet_readme")
-        self.pyglet_readme_dir = pyglet_readme_dir
-        self.assets_root = os.path.join(pyglet_readme_dir, "assets")
+        chaser_game_dir = os.path.join(project_root, "src", "chaser_game")
+        self.chaser_game_dir = chaser_game_dir
+        self.assets_root = os.path.join(chaser_game_dir, "assets")
         self.manifest_path = os.path.join(self.assets_root, "manifest.yaml")
 
     @patch("pyglet.app.run")

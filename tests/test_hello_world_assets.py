@@ -17,8 +17,8 @@ class TestHelloWorldAssetLoading(unittest.TestCase):
         # Get manifest path
         test_dir = os.path.dirname(__file__)
         project_root = os.path.dirname(test_dir)
-        pyglet_readme_dir = os.path.join(project_root, "src", "pyglet_readme")
-        self.assets_root = os.path.join(pyglet_readme_dir, "assets")
+        chaser_game_dir = os.path.join(project_root, "src", "chaser_game")
+        self.assets_root = os.path.join(chaser_game_dir, "assets")
         self.manifest_path = os.path.join(self.assets_root, "manifest.yaml")
 
     def test_asset_loader_initialization(self) -> None:
@@ -193,8 +193,8 @@ class TestAssetIntegrationWithManifest(unittest.TestCase):
         """Set up test fixtures."""
         test_dir = os.path.dirname(__file__)
         project_root = os.path.dirname(test_dir)
-        pyglet_readme_dir = os.path.join(project_root, "src", "pyglet_readme")
-        self.assets_root = os.path.join(pyglet_readme_dir, "assets")
+        chaser_game_dir = os.path.join(project_root, "src", "chaser_game")
+        self.assets_root = os.path.join(chaser_game_dir, "assets")
         self.manifest_path = os.path.join(self.assets_root, "manifest.yaml")
 
     def test_tracked_assets_loadable(self) -> None:
