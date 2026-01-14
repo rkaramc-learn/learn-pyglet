@@ -5,7 +5,6 @@ using the restore-assets CLI and sprite_generator module.
 """
 
 import logging
-import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -184,7 +183,7 @@ class TestSpriteGenerationWorkflow(unittest.TestCase):
                     "source": "source/mouse.mp4",
                 },
             },
-            "audio": {"sfx": {}, "music": {}},
+            "audio": {},
         }
 
         # Simulate sprite sheet creation
@@ -227,7 +226,7 @@ class TestSpriteGenerationWorkflow(unittest.TestCase):
                     "tracked": False,
                 },
             },
-            "audio": {"sfx": {}, "music": {}},
+            "audio": {},
         }
 
         result = restore_assets(self.logger, dry_run=False)
@@ -256,7 +255,7 @@ class TestSpriteGenerationWorkflow(unittest.TestCase):
                     "tracked": False,
                 },
             },
-            "audio": {"sfx": {}, "music": {}},
+            "audio": {},
         }
 
         result = restore_assets(self.logger, dry_run=True)
@@ -333,7 +332,7 @@ class TestSpriteGenerationCLIWorkflow(unittest.TestCase):
         mock_get_asset_dir.return_value = test_assets_dir
         mock_which.return_value = "ffmpeg"
         mock_run.return_value = MagicMock(returncode=0)
-        mock_load_manifest.return_value = {"images": {}, "audio": {"sfx": {}, "music": {}}}
+        mock_load_manifest.return_value = {"images": {}, "audio": {}}
 
         # Test with custom grid
         generator = SpriteSheetGenerator()

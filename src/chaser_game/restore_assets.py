@@ -131,7 +131,7 @@ def verify_assets(logger: logging.Logger) -> bool:
         if not exists and tracked:
             all_present = False
 
-    # Check sprites
+    # Check audio (flat structure: audio.meow, audio.ambience)
     for asset_name, asset_info in manifest.get("audio", {}).items():
         path = asset_info.get("path")
         tracked = asset_info.get("tracked", False)
@@ -144,19 +144,18 @@ def verify_assets(logger: logging.Logger) -> bool:
         if not exists and tracked:
             all_present = False
 
-    # Check audio
-    for section in ["sfx", "music"]:
-        for asset_name, asset_info in manifest.get("audio", {}).get(section, {}).items():
-            path = asset_info.get("path")
-            tracked = asset_info.get("tracked", False)
-            exists = asset_exists(path)
+    # Check source assets
+    for asset_name, asset_info in manifest.get("source", {}).items():
+        path = asset_info.get("path")
+        tracked = asset_info.get("tracked", False)
+        exists = asset_exists(path)
 
-            status = "[OK]" if exists else "[MISSING]"
-            tracked_str = "(tracked)" if tracked else "(gitignored)"
-            logger.info(f"  {status} {path} {tracked_str}")
+        status = "[OK]" if exists else "[MISSING]"
+        tracked_str = "(tracked)" if tracked else "(gitignored)"
+        logger.info(f"  {status} {path} {tracked_str}")
 
-            if not exists and tracked:
-                all_present = False
+        if not exists and tracked:
+            all_present = False
 
     if all_present:
         logger.info("All assets verified successfully")
@@ -208,22 +207,21 @@ def restore_assets(logger: logging.Logger, dry_run: bool = False) -> bool:
         else:
             logger.info(f"  [OK] Already present: {path}")
 
-    # Restore audio
-    for section in ["sfx", "music"]:
-        for asset_name, asset_info in manifest.get("audio", {}).get(section, {}).items():
-            path = asset_info.get("path")
-            tracked = asset_info.get("tracked", False)
+    # Restore audio (flat structure: audio.meow, audio.ambience)
+    for asset_name, asset_info in manifest.get("audio", {}).items():
+        path = asset_info.get("path")
+        tracked = asset_info.get("tracked", False)
 
-            if asset_exists(path):
-                logger.info(f"  [OK] Already present: {path}")
-                continue
+        if asset_exists(path):
+            logger.info(f"  [OK] Already present: {path}")
+            continue
 
-            if not tracked:
-                logger.debug(f"  [SKIP] Gitignored (not required): {path}")
-                continue
+        if not tracked:
+            logger.debug(f"  [SKIP] Gitignored (not required): {path}")
+            continue
 
-            # For now, log missing gitignored assets but don't fail
-            logger.info(f"  [WARN] Missing (gitignored): {path}")
+        # For tracked audio assets that are missing, log warning
+        logger.warning(f"  [WARN] Missing tracked audio: {path}")
 
     if all_restored:
         logger.info("All required assets restored successfully")
