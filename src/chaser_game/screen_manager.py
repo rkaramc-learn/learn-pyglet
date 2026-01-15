@@ -10,6 +10,7 @@ from typing import Optional
 
 import pyglet
 
+from .screens import ScreenName
 from .screens.base import ScreenProtocol
 from .types import WindowProtocol
 
@@ -39,7 +40,7 @@ class ScreenManager:
         self._screenshot_dir = os.path.join(os.getcwd(), "screenshots")
         os.makedirs(self._screenshot_dir, exist_ok=True)
 
-    def register_screen(self, name: str, screen: ScreenProtocol) -> None:
+    def register_screen(self, name: ScreenName, screen: ScreenProtocol) -> None:
         """Register a screen in the manager.
 
         Args:
@@ -69,7 +70,7 @@ class ScreenManager:
         except Exception as e:
             logger.error(f"Failed to capture screenshot: {e}")
 
-    def set_active_screen(self, name: str) -> None:
+    def set_active_screen(self, name: ScreenName) -> None:
         """Transition to a different screen.
 
         Calls on_exit() on the current screen and on_enter() on the new screen.

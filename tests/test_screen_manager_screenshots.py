@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 from chaser_game.screen_manager import ScreenManager
+from chaser_game.screens import ScreenName
 from chaser_game.screens.base import ScreenProtocol
 
 
@@ -16,8 +17,9 @@ class TestScreenManagerScreenshots(unittest.TestCase):
         self.screen_a = MagicMock(spec=ScreenProtocol)
         self.screen_b = MagicMock(spec=ScreenProtocol)
 
-        self.manager.register_screen("screen_a", self.screen_a)
-        self.manager.register_screen("screen_b", self.screen_b)
+        # Use actual ScreenName members instead of arbitrary strings
+        self.manager.register_screen(ScreenName.GAME_START, self.screen_a)
+        self.manager.register_screen(ScreenName.GAME_RUNNING, self.screen_b)
 
     @patch("chaser_game.screen_manager.pyglet.image.get_buffer_manager")
     @patch("chaser_game.screen_manager.datetime")
@@ -28,8 +30,8 @@ class TestScreenManagerScreenshots(unittest.TestCase):
         mock_get_buffer_manager.return_value.get_color_buffer.return_value = mock_buffer
         mock_datetime.datetime.now.return_value.strftime.return_value = "TIMESTAMP"
 
-        # 1. Enter Screen A
-        self.manager.set_active_screen("screen_a")
+        # 1. Enter Screen A (GAME_START)
+        self.manager.set_active_screen(ScreenName.GAME_START)
 
         # Should NOT capture exit (prev was None)
         # Should queue enter
@@ -41,7 +43,7 @@ class TestScreenManagerScreenshots(unittest.TestCase):
 
         # Should capture enter A
         mock_buffer.save.assert_called_with(
-            f"{self.manager._screenshot_dir}\\TIMESTAMP_screen_a_enter.png"
+            f"{self.manager._screenshot_dir}\\TIMESTAMP_game_start_enter.png"
         )
         self.assertFalse(self.manager._capture_next_frame)
         mock_buffer.save.reset_mock()
@@ -50,12 +52,12 @@ class TestScreenManagerScreenshots(unittest.TestCase):
         self.manager.draw()
         self.assertEqual(mock_buffer.save.call_count, 0)
 
-        # 4. Switch to Screen B
-        self.manager.set_active_screen("screen_b")
+        # 4. Switch to Screen B (GAME_RUNNING)
+        self.manager.set_active_screen(ScreenName.GAME_RUNNING)
 
         # Should capture exit A immediately
         mock_buffer.save.assert_called_with(
-            f"{self.manager._screenshot_dir}\\TIMESTAMP_screen_a_exit.png"
+            f"{self.manager._screenshot_dir}\\TIMESTAMP_game_start_exit.png"
         )
         self.assertTrue(self.manager._capture_next_frame)
         mock_buffer.save.reset_mock()
@@ -65,5 +67,5 @@ class TestScreenManagerScreenshots(unittest.TestCase):
 
         # Should capture enter B
         mock_buffer.save.assert_called_with(
-            f"{self.manager._screenshot_dir}\\TIMESTAMP_screen_b_enter.png"
+            f"{self.manager._screenshot_dir}\\TIMESTAMP_game_running_enter.png"
         )

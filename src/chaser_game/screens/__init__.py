@@ -3,11 +3,13 @@
 Provides base screen class and screen manager for multi-screen UI architecture.
 """
 
+from enum import StrEnum
 
-class ScreenNames:
-    """Constants for screen name identifiers.
 
-    Use these instead of string literals to prevent typos causing silent bugs.
+class ScreenName(StrEnum):
+    """Enumeration for screen name identifiers.
+
+    Provides strict type safety while remaining compatible with string-based APIs.
     """
 
     SPLASH = "splash"
@@ -25,7 +27,7 @@ from .game_start import GameStartScreen
 from .splash import SplashScreen
 
 __all__ = [
-    "ScreenNames",
+    "ScreenName",
     "ScreenProtocol",
     "GameEndScreen",
     "GameRunningScreen",

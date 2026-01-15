@@ -4,7 +4,7 @@ Provides high-level components like Panel, Button, and Label that abstract away
 pyglet primitives and enforce consistent styling.
 """
 
-from typing import Optional
+from typing import Callable, Optional
 
 import pyglet
 
@@ -114,7 +114,7 @@ class Button:
         width: float,
         height: float,
         text: str,
-        on_click: Optional[callable] = None,
+        on_click: Optional[Callable[[], None]] = None,
         base_color: tuple[int, int, int] = CONFIG.COLOR_ACCENT,
         hover_color: tuple[int, int, int] = CONFIG.COLOR_PLAYER,
         text_color: tuple[int, int, int] = CONFIG.COLOR_TEXT,

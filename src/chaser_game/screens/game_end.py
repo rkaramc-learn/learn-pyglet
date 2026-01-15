@@ -191,11 +191,11 @@ class GameEndScreen(ScreenProtocol):
             logger.info("Replay requested from game end screen")
             # Import here to avoid circular imports
             from ..screen_manager import ScreenManager
-            from . import ScreenNames
+            from . import ScreenName
 
             manager = getattr(self.window, "_screen_manager", None)
             if isinstance(manager, ScreenManager):
-                manager.set_active_screen(ScreenNames.GAME_RUNNING)
+                manager.set_active_screen(ScreenName.GAME_RUNNING)
         elif symbol == key.Q:
             logger.info("Quit requested from game end screen")
             self.window.close()
