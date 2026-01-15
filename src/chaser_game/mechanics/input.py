@@ -1,20 +1,33 @@
 """Input handling system for entity control."""
 
-from typing import Any
+from typing import Any, Protocol
 
 from pyglet.window import key, mouse
 
-# TODO(pyglet-ciz.2): Update to use Protocol types for mouse entity
+
+class ControllableEntity(Protocol):
+    """Protocol for entities that can be controlled via input."""
+
+    def update_from_keyboard(self, up: bool, down: bool, left: bool, right: bool) -> None:
+        """Update velocity from keyboard state."""
+        ...
+
+    def set_velocity_to_target(self, target_x: float, target_y: float) -> None:
+        """Set velocity toward a target position."""
+        ...
+
+    def stop(self) -> None:
+        """Stop all movement."""
+        ...
 
 
-def handle_keyboard_input(entity: Any, keys: Any) -> None:
+def handle_keyboard_input(entity: ControllableEntity, keys: Any) -> None:
     """Handle continuous keyboard input for the mouse entity.
 
     Args:
         entity: Mouse entity to control.
         keys: pyglet KeyStateHandler instance with key states.
     """
-    # KeyStateHandler supports __getitem__ for key lookup
     try:
         up = keys[key.UP]
         down = keys[key.DOWN]
@@ -26,7 +39,7 @@ def handle_keyboard_input(entity: Any, keys: Any) -> None:
         pass
 
 
-def handle_key_press(entity: Any, symbol: int) -> None:
+def handle_key_press(entity: ControllableEntity, symbol: int) -> None:
     """Handle discrete key press events.
 
     Maps special keys to movement commands.
@@ -48,7 +61,7 @@ def handle_key_press(entity: Any, symbol: int) -> None:
         entity.stop()
 
 
-def handle_mouse_press(entity: Any, x: float, y: float, button: int) -> None:
+def handle_mouse_press(entity: ControllableEntity, x: float, y: float, button: int) -> None:
     """Handle mouse click input.
 
     Args:
@@ -58,4 +71,4 @@ def handle_mouse_press(entity: Any, x: float, y: float, button: int) -> None:
         button: Mouse button from pyglet.window.mouse.
     """
     if button == mouse.LEFT:
-        entity.update_from_click(x, y)
+        entity.set_velocity_to_target(x, y)

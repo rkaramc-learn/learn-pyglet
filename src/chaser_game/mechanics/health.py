@@ -1,16 +1,34 @@
 """Health and stamina management system."""
 
-from typing import Any
+from typing import Protocol
 
 from ..config import CONFIG
 from ..movement import distance
 
-# TODO(pyglet-ciz.2): Update to use Protocol types for mouse/kitten entities
+
+class HealthEntity(Protocol):
+    """Protocol for entities with health."""
+
+    center_x: float
+    center_y: float
+    width: float
+    height: float
+    health: float
+
+
+class StaminaEntity(Protocol):
+    """Protocol for entities with stamina."""
+
+    center_x: float
+    center_y: float
+    width: float
+    height: float
+    stamina: float
 
 
 def update_health_stamina(
-    mouse: Any,
-    kitten: Any,
+    mouse: HealthEntity,
+    kitten: StaminaEntity,
     catch_range: float,
     dt: float,
 ) -> None:
@@ -25,18 +43,13 @@ def update_health_stamina(
     - Kitten loses stamina continuously (passive drain)
 
     Args:
-        mouse: Mouse entity to update.
-        kitten: Kitten entity to update.
-        catch_range: Maximum distance for health transfer (average of sprite dimensions).
+        mouse: Mouse entity with health attribute.
+        kitten: Kitten entity with stamina attribute.
+        catch_range: Maximum distance for health transfer.
         dt: Time elapsed in seconds.
     """
-    # Calculate distance between sprites
-    mouse_center_x = mouse.x + mouse.width / 2
-    mouse_center_y = mouse.y + mouse.height / 2
-    kitten_center_x = kitten.x + kitten.width / 2
-    kitten_center_y = kitten.y + kitten.height / 2
-
-    dist = distance(mouse_center_x, mouse_center_y, kitten_center_x, kitten_center_y)
+    # Calculate distance between sprite centers
+    dist = distance(mouse.center_x, mouse.center_y, kitten.center_x, kitten.center_y)
 
     # Proximity-based damage: the closer, the more damage
     if dist < catch_range:
@@ -45,8 +58,12 @@ def update_health_stamina(
 
         transfer_amount = (CONFIG.BASE_DRAIN_RATE * proximity_factor) * dt
 
-        mouse.apply_health_change(-transfer_amount)
-        kitten.apply_stamina_change(transfer_amount)
+        mouse.health -= transfer_amount
+        kitten.stamina += transfer_amount
 
     # Passive stamina drain (kitten gets tired over time)
-    kitten.apply_stamina_change(-CONFIG.PASSIVE_STAMINA_DRAIN * dt)
+    kitten.stamina -= CONFIG.PASSIVE_STAMINA_DRAIN * dt
+
+    # Clamp values
+    mouse.health = max(0.0, min(CONFIG.MAX_HEALTH, mouse.health))
+    kitten.stamina = max(0.0, min(CONFIG.MAX_STAMINA, kitten.stamina))

@@ -1,15 +1,26 @@
 """Collision detection and bounds checking system."""
 
-from typing import Any
+from typing import Protocol
 
 from ..movement import distance
 
-# TODO(pyglet-ciz.2): Update to use Protocol types for mouse/kitten entities
+
+class BoundedEntity(Protocol):
+    """Protocol for entities that can be clamped to bounds."""
+
+    center_x: float
+    center_y: float
+    width: float
+    height: float
+
+    def clamp_to_bounds(self, window_width: float, window_height: float) -> None:
+        """Clamp entity position to window bounds."""
+        ...
 
 
 def clamp_entities_to_bounds(
-    mouse: Any,
-    kitten: Any,
+    mouse: BoundedEntity,
+    kitten: BoundedEntity,
     window_width: float,
     window_height: float,
 ) -> None:
@@ -21,11 +32,15 @@ def clamp_entities_to_bounds(
         window_width: Width of the game window.
         window_height: Height of the game window.
     """
-    mouse.clamp_to_bounds(window_width, window_height, mouse.width, mouse.height)
-    kitten.clamp_to_bounds(window_width, window_height, kitten.width, kitten.height)
+    mouse.clamp_to_bounds(window_width, window_height)
+    kitten.clamp_to_bounds(window_width, window_height)
 
 
-def check_catch_condition(mouse: Any, kitten: Any, catch_range: float) -> bool:
+def check_catch_condition(
+    mouse: BoundedEntity,
+    kitten: BoundedEntity,
+    catch_range: float,
+) -> bool:
     """Check if kitten has caught the mouse.
 
     Args:
@@ -36,10 +51,5 @@ def check_catch_condition(mouse: Any, kitten: Any, catch_range: float) -> bool:
     Returns:
         True if kitten has caught the mouse, False otherwise.
     """
-    mouse_center_x = mouse.x + mouse.width / 2
-    mouse_center_y = mouse.y + mouse.height / 2
-    kitten_center_x = kitten.x + kitten.width / 2
-    kitten_center_y = kitten.y + kitten.height / 2
-
-    dist = distance(mouse_center_x, mouse_center_y, kitten_center_x, kitten_center_y)
+    dist = distance(mouse.center_x, mouse.center_y, kitten.center_x, kitten.center_y)
     return dist < catch_range

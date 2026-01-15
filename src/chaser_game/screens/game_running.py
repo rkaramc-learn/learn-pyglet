@@ -12,6 +12,7 @@ from pyglet.window import key, mouse
 from ..assets import get_loader
 from ..config import CONFIG
 from ..entities import Kitten, Mouse
+from ..mechanics.health import update_health_stamina
 from ..types import AudioProtocol, WindowProtocol
 from .base import ScreenProtocol
 
@@ -287,29 +288,13 @@ class GameRunningScreen(ScreenProtocol):
         distance = self.kitten.distance_to(self.mouse.center_x, self.mouse.center_y)
         return distance
 
-    def _update_health_stamina(self, distance: float, dt: float) -> None:
+    def _update_health_stamina(self, dt: float) -> None:
         """Update health and stamina based on proximity and time.
 
         Args:
-            distance: Current distance between kitten and mouse.
             dt: Time elapsed since last update in seconds.
         """
-        # Drain/Regen if within range
-        if distance < self.catch_range:
-            proximity_factor = 1.0 - (distance / self.catch_range)
-            proximity_factor = max(0.0, min(1.0, proximity_factor))
-
-            transfer_amount = (CONFIG.BASE_DRAIN_RATE * proximity_factor) * dt
-
-            self.mouse.health -= transfer_amount
-            self.kitten.stamina += transfer_amount
-
-        # Passive Stamina Drain
-        self.kitten.stamina -= CONFIG.PASSIVE_STAMINA_DRAIN * dt
-
-        # Clamp values
-        self.mouse.health = max(0.0, min(CONFIG.MAX_HEALTH, self.mouse.health))
-        self.kitten.stamina = max(0.0, min(CONFIG.MAX_STAMINA, self.kitten.stamina))
+        update_health_stamina(self.mouse, self.kitten, self.catch_range, dt)
 
     def _check_win_loss_conditions(self) -> None:
         """Check and handle win/loss game conditions."""
@@ -382,8 +367,8 @@ class GameRunningScreen(ScreenProtocol):
         # Track elapsed time
         self.elapsed_time += dt
 
-        distance = self._update_entities(dt)
-        self._update_health_stamina(distance, dt)
+        self._update_entities(dt)
+        self._update_health_stamina(dt)
         self._check_win_loss_conditions()
         self._update_ui_bars()
 
