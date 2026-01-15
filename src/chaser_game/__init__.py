@@ -3,7 +3,7 @@ import logging
 import sys
 from pathlib import Path
 
-from .hello_world import run_hello_world
+from .hello_world import main as run_game
 from .logging_config import TRACE_LEVEL, init_logging
 
 
@@ -56,7 +56,7 @@ def main() -> None:
         logger.warning(f"Logging to file: {log_file}")
 
     try:
-        run_hello_world()
+        run_game()
     except Exception as e:
         logger.error(f"Application error: {e}", exc_info=True)
         sys.exit(1)

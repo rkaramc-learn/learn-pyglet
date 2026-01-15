@@ -24,16 +24,18 @@ class ScreenManager:
     routing of update/draw/input calls to the active screen.
     """
 
-    def __init__(self, window: WindowProtocol) -> None:
+    def __init__(self, window: WindowProtocol, capture_screenshots: bool = False) -> None:
         """Initialize screen manager.
 
         Args:
             window: The pyglet game window instance.
+            capture_screenshots: Whether to capture screenshots on screen transitions.
         """
         self.window = window
         self.screens: dict[str, ScreenProtocol] = {}
         self.active_screen: Optional[ScreenProtocol] = None
         self.active_screen_name: Optional[str] = None
+        self.capture_screenshots = capture_screenshots
 
         # Screenshot state
         self._capture_next_frame: bool = False
@@ -88,7 +90,7 @@ class ScreenManager:
         if self.active_screen:
             logger.debug(f"Exiting screen: {self.active_screen_name}")
             # Capture exit screenshot of the outgoing screen
-            if self.active_screen_name:
+            if self.capture_screenshots and self.active_screen_name:
                 self._capture_screenshot(self.active_screen_name, "exit")
             self.active_screen.on_exit()
 
@@ -99,7 +101,8 @@ class ScreenManager:
         if self.active_screen:
             self.active_screen.on_enter()
             # Queue capture for the next frame (when it's drawn)
-            self._capture_next_frame = True
+            if self.capture_screenshots:
+                self._capture_next_frame = True
 
     def update(self, dt: float) -> None:
         """Update active screen.

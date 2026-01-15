@@ -5,12 +5,13 @@ description = "A first application using the pyglet graphics engine."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "click>=8.3.1",
     "pyglet>=2.1.11",
     "pyyaml>=6.0.3",
 ]
 
 [project.scripts]
-chaser = "chaser_game:main"
+chaser = "chaser_game.cli:cli"
 restore-assets = "chaser_game.restore_assets:restore_assets_cli"
 
 [build-system]
