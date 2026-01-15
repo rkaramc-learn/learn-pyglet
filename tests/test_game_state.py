@@ -127,7 +127,7 @@ class TestGameStateManager(unittest.TestCase):
         manager = GameStateManager()
         manager.win()
         self.assertTrue(manager.is_game_over())
-        
+
         manager.reset()
         self.assertEqual(manager.state, GameState.PLAYING)
         self.assertTrue(manager.is_playing())
@@ -135,22 +135,22 @@ class TestGameStateManager(unittest.TestCase):
     def test_state_transitions_sequence(self) -> None:
         """Test a sequence of state transitions."""
         manager = GameStateManager()
-        
+
         # Start playing
         self.assertTrue(manager.is_playing())
         self.assertFalse(manager.is_game_over())
-        
+
         # Win
         manager.win()
         self.assertFalse(manager.is_playing())
         self.assertTrue(manager.is_game_over())
         self.assertTrue(manager.is_player_won())
-        
+
         # Reset to playing
         manager.reset()
         self.assertTrue(manager.is_playing())
         self.assertFalse(manager.is_game_over())
-        
+
         # Lose
         manager.lose()
         self.assertFalse(manager.is_playing())
@@ -160,16 +160,16 @@ class TestGameStateManager(unittest.TestCase):
     def test_multiple_state_changes(self) -> None:
         """Test multiple rapid state changes."""
         manager = GameStateManager()
-        
+
         manager.set_state(GameState.PAUSED)
         self.assertEqual(manager.state, GameState.PAUSED)
-        
+
         manager.set_state(GameState.PLAYING)
         self.assertEqual(manager.state, GameState.PLAYING)
-        
+
         manager.win()
         self.assertEqual(manager.state, GameState.GAME_OVER_WIN)
-        
+
         manager.reset()
         self.assertEqual(manager.state, GameState.PLAYING)
 

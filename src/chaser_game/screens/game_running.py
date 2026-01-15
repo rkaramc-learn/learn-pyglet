@@ -121,31 +121,35 @@ class GameRunningScreen(ScreenProtocol):
         # Key handler for continuous input
         self.keys = key.KeyStateHandler()
 
+        # Background
+        self.background_panel = Panel(
+            x=0,
+            y=0,
+            width=window.width,
+            height=window.height,
+            color=CONFIG.COLOR_BACKGROUND,
+        )
+
         # Game statistics
         self.elapsed_time = 0.0  # Time survived in seconds
 
-        # HUD Setup
-        self.hud_panel = Panel(
-            x=0,
-            y=window.height - 40,
-            width=window.width,
-            height=40,
-            color=(0, 0, 0),
-            opacity=150,
-        )
+        # HUD Setup (Minimalist: Top Right)
+        # We don't need a panel background for the HUD in this style, just text floating.
 
         self.time_label = StyledLabel(
-            "TIME: 0s",
-            font_size=CONFIG.FONT_SIZE_BODY,
-            x=window.width // 2,
+            "time: 0s",
+            font_size=12,  # Tiny text
+            color=(*CONFIG.COLOR_TEXT, 200),
+            x=window.width - 150,  # Increased spacing from 120
             y=window.height - 20,
-            anchor_x="center",
+            anchor_x="left",
             anchor_y="center",
         )
 
         self.distance_label = StyledLabel(
-            "DIST: 0px",
-            font_size=CONFIG.FONT_SIZE_BODY,
+            "dist: 0px",
+            font_size=12,
+            color=(*CONFIG.COLOR_TEXT, 200),
             x=window.width - 20,
             y=window.height - 20,
             anchor_x="right",
@@ -364,8 +368,8 @@ class GameRunningScreen(ScreenProtocol):
 
     def _update_hud_stats(self) -> None:
         """Update HUD statistics."""
-        self.time_label.text = f"TIME: {int(self.elapsed_time)}s"
-        self.distance_label.text = f"DIST: {int(self.mouse.total_distance)}px"
+        self.time_label.text = f"time: {int(self.elapsed_time)}s"
+        self.distance_label.text = f"dist: {int(self.mouse.total_distance)}px"
 
     def update(self, dt: float) -> None:
         """Update game running screen state.
@@ -387,6 +391,8 @@ class GameRunningScreen(ScreenProtocol):
 
     def draw(self) -> None:
         """Render game running screen content."""
+        self.background_panel.draw()
+
         # Draw entities
         self.kitten.draw()
         self.mouse.draw()
@@ -396,6 +402,5 @@ class GameRunningScreen(ScreenProtocol):
         self.kitten_stamina_bar.draw()
 
         # Draw HUD
-        self.hud_panel.draw()
         self.time_label.draw()
         self.distance_label.draw()

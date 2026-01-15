@@ -274,9 +274,7 @@ class TestSpriteGenerationWorkflow(unittest.TestCase):
     ) -> None:
         """Test that sprite sheet output directory is created if missing."""
         # Use nested directory structure
-        nested_output_dir = (
-            self.test_assets_dir / "nested" / "sprite" / "output" / "mouse_sheet.png"
-        )
+        nested_output_dir = self.test_assets_dir / "nested" / "sprite" / "output" / "mouse_sheet.png"
 
         mock_get_asset_dir.return_value = self.test_assets_dir
         mock_which.return_value = "ffmpeg"

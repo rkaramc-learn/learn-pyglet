@@ -301,6 +301,16 @@ bd automatically syncs with git:
 - ❌ Do NOT use external issue trackers
 - ❌ Do NOT duplicate tracking systems
 
+### Protocol for Iterative Work & Structural Changes
+
+Lessons from `after_action_report.md` regarding adherence to the "Plan -> Bead -> Implement" loop:
+
+1. **Structural Changes via Prompt**: If a user prompt implies a **new capability** or **structural change** (e.g., "add SVG support", "change asset loading strategy"), you MUST create a new Bead to track it before implementation. Do not rely solely on `task.md`.
+   - _Why?_ "Off the books" architectural changes reduce traceability and can lead to technical debt (e.g., untracked dependencies).
+2. **Iterative Visual Polish**: For rapid feedback loops (e.g., "move this left", "make that green"), it is acceptable to batch these into a single "Visual Polish" Bead.
+   - _Rule_: If the polish work exceeds ~3 significant changes or introduces new assets, create a new child Bead or split the work.
+3. **Gap Analysis**: Periodically compare your `task.md` (checklist) against active Beads. If `task.md` has items like "Refactor X" that have no corresponding Bead, **create the Bead immediately**.
+
 For more details, see README.md and docs/QUICKSTART.md.
 
 <!-- END BEADS INTEGRATION -->

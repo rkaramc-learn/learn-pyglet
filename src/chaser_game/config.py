@@ -48,13 +48,18 @@ class GameConfig:
     BAR_HEIGHT: int = 5
     BAR_OFFSET: int = 20
 
-    # Palette (Playful Chase Theme)
+    # Palette (Minimalist Dark Theme)
     # RGB tuples (0-255)
-    COLOR_BACKGROUND: tuple[int, int, int] = (44, 62, 80)  # Deep Space
-    COLOR_PLAYER: tuple[int, int, int] = (46, 204, 113)  # Emerald
-    COLOR_ENEMY: tuple[int, int, int] = (231, 76, 60)  # Alizarin
-    COLOR_TEXT: tuple[int, int, int] = (236, 240, 241)  # Clouds
-    COLOR_ACCENT: tuple[int, int, int] = (52, 152, 219)  # Peter River
+    COLOR_BACKGROUND: tuple[int, int, int] = (15, 23, 42)  # Matte Slate
+    COLOR_PLAYER: tuple[int, int, int] = (255, 255, 255)  # White (Minimalist)
+    COLOR_ENEMY: tuple[int, int, int] = (231, 76, 60)  # Alizarin (Red)
+    COLOR_TEXT: tuple[int, int, int] = (255, 255, 255)  # White
+    COLOR_TEXT_SECONDARY: tuple[int, int, int] = (148, 163, 184)  # Slate Grey
+    COLOR_ACCENT: tuple[int, int, int] = (52, 152, 219)  # Peter River (Blue)
+
+    # Minimalist Accents
+    COLOR_GREEN_ACCENT: tuple[int, int, int] = (46, 204, 113)  # Emerald
+    COLOR_RED_ACCENT: tuple[int, int, int] = (231, 76, 60)  # Alizarin
 
     # Semantic Colors
     COLOR_HEALTH_GOOD: tuple[int, int, int] = (46, 204, 113)  # Emerald
@@ -82,6 +87,7 @@ class GameConfig:
     # Asset Paths
     ASSET_KITTEN_IMAGE: str = "assets/images/kitten.png"
     ASSET_MOUSE_SHEET: str = "assets/sprites/mouse_sheet.png"
+    ASSET_LOGO_SVG: str = "assets/images/chaser_logo.png"  # Generated from source SVG
     ASSET_MEOW_SOUND: str = "assets/audio/sfx/meow.wav"
     ASSET_AMBIENCE_MUSIC: str = "assets/audio/music/ambience.wav"
 

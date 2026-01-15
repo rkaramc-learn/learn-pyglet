@@ -7,6 +7,7 @@ import logging
 
 import pyglet
 
+from ..config import CONFIG
 from ..types import WindowProtocol
 from .base import ScreenProtocol
 
@@ -30,19 +31,22 @@ class SplashScreen(ScreenProtocol):
         """
         super().__init__(window)
         self.elapsed_time = 0.0
-        self.label = pyglet.text.Label(
-            "pyglet-readme",
-            font_name="Arial",
-            font_size=72,
-            x=window.width // 2,
-            y=window.height // 2,
-            anchor_x="center",
-            anchor_y="center",
-        )
+
+        # Center coordinates
+        cx = window.width // 2
+        cy = window.height // 2
+
+        # Main Title "CHASER"
+        # Main Title "CHASER"
+        from ..ui.logo import ChaserLogo
+
+        self.logo = ChaserLogo(x=cx, y=cy)
 
     def on_enter(self) -> None:
         """Called when splash screen becomes active."""
         self.elapsed_time = 0.0
+        # Reset background color to configured default
+        # (Though Panel usually handles this in other screens)
         logger.info(f"Splash screen started (duration: {self.DISPLAY_DURATION}s)")
 
     def on_exit(self) -> None:
@@ -70,4 +74,10 @@ class SplashScreen(ScreenProtocol):
 
     def draw(self) -> None:
         """Render splash screen content."""
-        self.label.draw()
+        # Clear/Fill background manually since we don't have a Panel here
+        # (or rely on window clear color if set globally, but safe to draw a rect)
+        pyglet.shapes.Rectangle(
+            0, 0, self.window.width, self.window.height, color=CONFIG.COLOR_BACKGROUND
+        ).draw()
+
+        self.logo.draw()

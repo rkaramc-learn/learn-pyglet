@@ -38,87 +38,63 @@ class GameStartScreen(ScreenProtocol):
             color=CONFIG.COLOR_BACKGROUND,
         )
 
-        # Title
-        self.title = StyledLabel(
-            "CHASER GAME",
-            font_size=CONFIG.FONT_SIZE_HERO,
-            color=(*CONFIG.COLOR_PLAYER, 255),
-            x=window.width // 2,
-            y=window.height - 100,
-            anchor_x="center",
-            anchor_y="center",
-        )
+        # Title "CHASER"
+        from ..ui.logo import ChaserLogo
+
+        self.logo = ChaserLogo(x=window.width // 2, y=window.height - 120)
+        # Note: StyledLabel might not expose 'bold' property directly if it wraps Label.
+        # If StyledLabel inherits from Label, this works. If it wraps, we might need access.
+        # Assuming StyledLabel is a wrapper or subclass (viewed in Primitive before? No, let's assume standard behavior for now).
 
         # Subtitle
         self.subtitle = StyledLabel(
-            "Evade the kitten. Stay alive.",
+            "survive the hunt",
             font_size=CONFIG.FONT_SIZE_HEADER,
-            color=(*CONFIG.COLOR_ACCENT, 255),
+            color=(*CONFIG.COLOR_TEXT_SECONDARY, 255),
             x=window.width // 2,
-            y=window.height - 160,
+            y=window.height - 180,
             anchor_x="center",
             anchor_y="center",
         )
 
-        # Instructions Panel
-        panel_width = window.width - 200
-        panel_height = 250
-        panel_x = 100
-        panel_y = window.height // 2 - 50
-
-        self.instructions_panel = Panel(
-            x=panel_x,
-            y=panel_y,
-            width=panel_width,
-            height=panel_height,
-            color=(0, 0, 0),
-            opacity=100,  # Semi-transparent
-            border_color=CONFIG.COLOR_ACCENT,
-        )
-
-        instructions = [
-            "CONTROLS",
-            "----------------",
-            "ARROWS / WASD  : Move Mouse",
-            "CLICK          : Dash to Point",
-            "SPACE          : Stop Moving",
-            "",
-            "SURVIVAL TIPS",
-            "----------------",
-            "Health drains near kitten.",
-            "Kitten gets tired if you run.",
-        ]
+        # Instructions (Minimalist: No heavy panel, just text)
+        instructions_text = "WASD / ARROWS to Move\nCLICK to Dash\nAvoid the Kitten"
 
         self.instruction_label = StyledLabel(
-            "\n".join(instructions),
+            instructions_text,
             font_size=CONFIG.FONT_SIZE_BODY,
+            color=(*CONFIG.COLOR_TEXT, 255),
             x=window.width // 2,
-            y=window.height // 2 + 75,
+            y=window.height // 2,
             anchor_x="center",
             anchor_y="center",
             multiline=True,
-            width=panel_width - 40,
+            width=window.width - 100,
             align="center",
         )
 
+        # We perform a trick to keep the reference but not draw the panel if we don't want it,
+        # or we just make it invisible.
+        self.instructions_panel = Panel(x=0, y=0, width=0, height=0, color=(0, 0, 0), opacity=0)
+
         # Start prompt
         self.start_prompt = StyledLabel(
-            "PRESS [SPACE] TO START",
+            "press space to start",
             font_size=CONFIG.FONT_SIZE_TITLE,
-            color=(*CONFIG.COLOR_TEXT, 255),
+            color=(*CONFIG.COLOR_GREEN_ACCENT, 255),
             x=window.width // 2,
-            y=80,
+            y=150,
             anchor_x="center",
             anchor_y="center",
         )
 
         # Quit hint
         self.quit_hint = StyledLabel(
-            "Press Q to Quit",
+            "q to quit",
             font_size=CONFIG.FONT_SIZE_LABEL,
-            color=(*CONFIG.COLOR_ENEMY, 200),
+            color=(*CONFIG.COLOR_TEXT_SECONDARY, 150),
             x=window.width // 2,
-            y=30,
+            y=50,
             anchor_x="center",
             anchor_y="center",
         )
@@ -137,14 +113,12 @@ class GameStartScreen(ScreenProtocol):
         Args:
             dt: Time elapsed since last update in seconds.
         """
-        # Simple pulsing effect for start prompt
-        # self.start_prompt.opacity = int(128 + 127 * abs(math.sin(time.time() * 2)))
         pass
 
     def draw(self) -> None:
         """Render game start screen content."""
         self.background_panel.draw()
-        self.title.draw()
+        self.logo.draw()
         self.subtitle.draw()
         self.instructions_panel.draw()
         self.instruction_label.draw()

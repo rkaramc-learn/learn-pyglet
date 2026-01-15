@@ -1,0 +1,32 @@
+<svg width="400" height="100" viewBox="0 0 400 100" xmlns="http://www.w3.org/2000/svg">
+     <!-- Background for visibility context, transparent in production -->
+     <defs>
+          <mask id="erase-crossbars">
+               <rect x="0" y="0" width="400" height="100" fill="white" />
+               <!-- Erase A crossbar (approximate between legs) -->
+               <polygon points="176.5,50 185.9,50 190.3,62 172,62" fill="black" />
+               <!-- Erase E central bar -->
+               <rect x="270" y="43" width="9" height="9" fill="black" />
+          </mask>
+     </defs>
+
+     <!-- Text: CHASER 
+       Using a broad sans-serif font.
+       Positioning manually to allow custom shape composition.
+       Mask applied to erase crossbars.
+     -->
+     <text x="50%" y="70" font-family="Arial, sans-serif" font-weight="bold" font-size="60" fill="white"
+          text-anchor="middle" mask="url(#erase-crossbars)">CHASER</text>
+
+     <!-- Red ACCENT: Dot in 'A' 
+       'A' is roughly at 45% to 50% width.
+       Approximating position based on standard Arial font rendering.
+     -->
+     <circle cx="181.2" cy="56" r="6.3" fill="#e74c3c" />
+
+     <!-- Green ACCENT: Arrow on 'E' 
+       'E' is roughly at 70% width.
+       Triangle pointing right.
+     -->
+     <path d="M 270 41.2 L 270 53.2 L 279 47.2 Z" fill="#2ecc71" />
+</svg>

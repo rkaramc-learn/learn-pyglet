@@ -70,9 +70,7 @@ def regenerate_sprite_sheet(logger: logging.Logger, dry_run: bool = False) -> bo
         return False
 
 
-def download_asset(
-    asset_path: str, url: str, logger: logging.Logger, dry_run: bool = False
-) -> bool:
+def download_asset(asset_path: str, url: str, logger: logging.Logger, dry_run: bool = False) -> bool:
     """Download a remote asset.
 
     Args:

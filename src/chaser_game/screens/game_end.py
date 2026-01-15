@@ -5,6 +5,7 @@ Displays final outcome, game statistics, and provides options to replay or quit 
 
 import logging
 
+import pyglet
 from pyglet.window import key
 
 from ..config import CONFIG
@@ -17,6 +18,11 @@ logger = logging.getLogger(__name__)
 # Game End Messages
 MESSAGE_WIN = "You Win!!"
 MESSAGE_LOSE = "Caught!"
+
+
+# Helper to format RGB to Hex
+def _rgb_to_hex(color_tuple: tuple[int, int, int]) -> str:
+    return f"#{color_tuple[0]:02x}{color_tuple[1]:02x}{color_tuple[2]:02x}"
 
 
 class GameEndScreen(ScreenProtocol):
@@ -38,62 +44,39 @@ class GameEndScreen(ScreenProtocol):
         self.time_survived = 0.0
         self.distance_traveled = 0.0
 
-        # Background Panel (Tint)
+        # Background
         self.background_panel = Panel(
-            x=0, y=0, width=window.width, height=window.height, color=(0, 0, 0), opacity=200
-        )
-
-        # Stats Card Panel
-        card_width = 400
-        card_height = 300
-        self.stats_panel = Panel(
-            x=window.width // 2 - card_width // 2,
-            y=window.height // 2 - card_height // 2,
-            width=card_width,
-            height=card_height,
+            x=0,
+            y=0,
+            width=window.width,
+            height=window.height,
             color=CONFIG.COLOR_BACKGROUND,
-            border_color=CONFIG.COLOR_ACCENT,
         )
 
-        # Outcome title
-        self.outcome_label = StyledLabel(
-            MESSAGE_WIN,
-            font_size=CONFIG.FONT_SIZE_HERO,
-            x=window.width // 2,
-            y=window.height // 2 + 100,
-            anchor_x="center",
-            anchor_y="center",
-        )
+        # Outcome title (SVG Logo 75% scale)
+        from ..ui.logo import ChaserLogo
 
-        # Outcome description
-        self.description_label = StyledLabel(
-            "",
-            font_size=CONFIG.FONT_SIZE_HEADER,
-            x=window.width // 2,
-            y=window.height // 2 + 40,
-            anchor_x="center",
-            anchor_y="center",
-            color=(*CONFIG.COLOR_TEXT, 200),
-        )
+        self.logo = ChaserLogo(x=window.width // 2, y=window.height // 2 + 50, scale=0.75)
 
-        # Statistics display
+        # Statistics display (Minimalist floating text)
         self.stats_label = StyledLabel(
             "",
-            font_size=CONFIG.FONT_SIZE_BODY,
+            font_size=14,
+            color=(*CONFIG.COLOR_TEXT, 200),
             x=window.width // 2,
-            y=window.height // 2 - 40,
+            y=window.height // 2 - 20,
             anchor_x="center",
             anchor_y="center",
             multiline=True,
-            width=card_width - 40,
+            width=window.width - 40,
             align="center",
         )
 
-        # Replay prompt (Visual Button)
+        # Replay prompt
         self.replay_label = StyledLabel(
-            "PRESS [SPACE] TO PLAY AGAIN",
+            "press space to play again",
             font_size=CONFIG.FONT_SIZE_TITLE,
-            color=(*CONFIG.COLOR_PLAYER, 255),
+            color=(*CONFIG.COLOR_GREEN_ACCENT, 255),
             x=window.width // 2,
             y=100,
             anchor_x="center",
@@ -102,11 +85,11 @@ class GameEndScreen(ScreenProtocol):
 
         # Quit prompt
         self.quit_label = StyledLabel(
-            "Press Q to Quit",
+            "q to quit",
             font_size=CONFIG.FONT_SIZE_LABEL,
-            color=(*CONFIG.COLOR_ENEMY, 200),
+            color=(*CONFIG.COLOR_TEXT_SECONDARY, 150),
             x=window.width // 2,
-            y=40,
+            y=50,
             anchor_x="center",
             anchor_y="center",
         )
@@ -125,35 +108,51 @@ class GameEndScreen(ScreenProtocol):
         self.time_survived = time_survived
         self.distance_traveled = distance_traveled
 
-        # Set outcome text and themes
+        # Outcome Text
+        # The Custom SVG Logo handles the "CHASER" branding.
+        # However, the user request for "escaped!" vs "caught." logic needs to be addressed.
+        # Wait, the user asked for "caught." / "escaped!" text previously, but now asked for the Logo.
+        # "On end screen, size should be scaled down to 75%."
+        # If the Logo says "CHASER", we still need the outcome state text.
+
+        # Re-adding the outcome text below the logo, but removing the overlapping CHASER text if any.
+        # The previous 'outcome_label' was the main title text.
+        # Let's create a NEW label for the status message "caught." / "escaped!" below the logo.
+
+        self.status_label = pyglet.text.HTMLLabel(
+            "",
+            x=self.window.width // 2,
+            y=self.window.height // 2 - 10,  # Below logo
+            anchor_x="center",
+            anchor_y="center",
+            width=self.window.width,
+            multiline=True,
+        )
+
+        font_name = CONFIG.FONT_NAME
+        font_size = CONFIG.FONT_SIZE_TITLE
+        text_hex = _rgb_to_hex(CONFIG.COLOR_TEXT)
+        green_hex = _rgb_to_hex(CONFIG.COLOR_GREEN_ACCENT)
+        red_hex = _rgb_to_hex(CONFIG.COLOR_RED_ACCENT)
+
         if is_win:
-            self.outcome_label.text = MESSAGE_WIN
-            self.outcome_label.color = (*CONFIG.COLOR_PLAYER, 255)
-            self.description_label.text = "You Outlasted the Kitten!"
-            self.background_panel.background.color = (20, 50, 20)  # Greenish tint
-            if self.stats_panel.border:
-                self.stats_panel.border.color = CONFIG.COLOR_PLAYER
+            html_text = (
+                f'<font face="{font_name}" size="{font_size}" color="{text_hex}">escaped'
+                f'<font color="{green_hex}">!</font></font>'
+            )
         else:
-            self.outcome_label.text = MESSAGE_LOSE
-            self.outcome_label.color = (*CONFIG.COLOR_ENEMY, 255)
-            self.description_label.text = "Caught by the Kitten!"
-            self.background_panel.background.color = (50, 20, 20)  # Reddish tint
-            if self.stats_panel.border:
-                self.stats_panel.border.color = CONFIG.COLOR_ENEMY
+            html_text = (
+                f'<font face="{font_name}" size="{font_size}" color="{text_hex}">caught'
+                f'<font color="{red_hex}">.</font></font>'
+            )
+        self.status_label.text = html_text
 
-        # Format and display statistics
-        self._update_stats_display()
-
-    def _update_stats_display(self) -> None:
-        """Update the statistics label with formatted game data."""
-        # Format time (convert to minutes and seconds)
+        # Format statistics
         minutes = int(self.time_survived) // 60
         seconds = int(self.time_survived) % 60
+        distance_rounded = round(self.distance_traveled)
 
-        # Format distance (show in pixels, rounded to nearest 10)
-        distance_rounded = round(self.distance_traveled / 10) * 10
-
-        stats_text = f"Time Survived: {minutes}m {seconds}s\nDistance Run: {distance_rounded}px"
+        stats_text = f"time survived: {minutes}m {seconds}s\ndistance run: {distance_rounded}px"
         self.stats_label.text = stats_text
 
     def on_enter(self) -> None:
@@ -170,14 +169,13 @@ class GameEndScreen(ScreenProtocol):
         Args:
             dt: Time elapsed since last update in seconds.
         """
-        # No state changes needed for end screen
+        pass
 
     def draw(self) -> None:
         """Render game end screen content."""
         self.background_panel.draw()
-        self.stats_panel.draw()
-        self.outcome_label.draw()
-        self.description_label.draw()
+        self.logo.draw()
+        self.status_label.draw()
         self.stats_label.draw()
         self.replay_label.draw()
         self.quit_label.draw()

@@ -55,9 +55,7 @@ def normalize_vector(dx: float, dy: float) -> Vector2:
     return Vector2(dx / length, dy / length)
 
 
-def apply_speed_to_direction(
-    direction_x: float, direction_y: float, speed: float
-) -> Vector2:
+def apply_speed_to_direction(direction_x: float, direction_y: float, speed: float) -> Vector2:
     """Apply speed magnitude to a direction vector.
 
     The direction should already be normalized. If it's not, this function
@@ -147,9 +145,7 @@ def calculate_click_velocity(
     return apply_speed_to_direction(direction.x, direction.y, speed)
 
 
-def update_position(
-    x: float, y: float, vx: float, vy: float, dt: float
-) -> Vector2:
+def update_position(x: float, y: float, vx: float, vy: float, dt: float) -> Vector2:
     """Update position based on velocity and delta time.
 
     Args:
@@ -166,8 +162,12 @@ def update_position(
 
 
 def clamp_to_bounds(
-    x: float, y: float, bounds_width: float, bounds_height: float,
-    sprite_width: float, sprite_height: float
+    x: float,
+    y: float,
+    bounds_width: float,
+    bounds_height: float,
+    sprite_width: float,
+    sprite_height: float,
 ) -> Vector2:
     """Clamp position to window bounds.
 

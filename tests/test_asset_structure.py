@@ -286,6 +286,7 @@ class TestAssetPathConsistency(unittest.TestCase):
             ".ogg",
             ".flac",
             ".mp4",
+            ".svg",
         }
 
         for path in paths:

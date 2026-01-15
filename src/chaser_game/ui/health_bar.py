@@ -50,9 +50,7 @@ class HealthBar:
         self.background.opacity = 200
 
         # Foreground (filled) bar
-        self.foreground = pyglet.shapes.Rectangle(
-            x, y, width, height, color=CONFIG.COLOR_HEALTH_GOOD
-        )
+        self.foreground = pyglet.shapes.Rectangle(x, y, width, height, color=CONFIG.COLOR_HEALTH_GOOD)
 
     def update(self, current_value: float, x: float, y: float) -> None:
         """Update bar position and fill based on current value.

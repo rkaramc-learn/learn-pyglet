@@ -1,0 +1,54 @@
+import pyglet
+
+from ..assets import get_loader
+from ..config import CONFIG
+
+
+class ChaserLogo:
+    """Reusable component for the Chaser Game logo with accents.
+
+    Renders the SVG logo asset as a sprite.
+    """
+
+    def __init__(self, x: float, y: float, scale: float = 1.0, batch=None, group=None):
+        self.x = x
+        self.y = y
+        self.scale = scale
+        self.batch = batch
+        self.group = group
+
+        # Load SVG/Image
+        try:
+            loader = get_loader()
+            logo_image = loader.load_image(CONFIG.ASSET_LOGO_SVG)
+            # Center anchor
+            logo_image.anchor_x = logo_image.width // 2
+            logo_image.anchor_y = logo_image.height // 2
+
+            self.sprite = pyglet.sprite.Sprite(logo_image, x=x, y=y, batch=batch, group=group)
+            self.sprite.scale = scale
+        except Exception as e:
+            # Fallback if SVG fails to load (e.g. missing decoder)
+            print(f"Failed to load SVG logo: {e}")
+            self.sprite = None
+            # Fallback text
+            self.label = pyglet.text.Label(
+                "CHASER",
+                font_name=CONFIG.FONT_NAME,
+                font_size=CONFIG.FONT_SIZE_HERO,
+                color=(*CONFIG.COLOR_TEXT, 255),
+                x=x,
+                y=y,
+                anchor_y="center",
+                batch=batch,
+                group=group,
+                bold=True,  # pyright: ignore[reportCallIssue]
+            )
+
+    def draw(self):
+        """Draw the logo components."""
+        if self.batch is None:
+            if self.sprite:
+                self.sprite.draw()
+            elif hasattr(self, "label"):
+                self.label.draw()

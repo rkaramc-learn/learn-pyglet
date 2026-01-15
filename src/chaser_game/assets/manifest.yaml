@@ -16,6 +16,15 @@ images:
     tracked: true
     description: "Player-controlled kitten sprite"
 
+  chaser_logo:
+    path: "images/chaser_logo.png"
+    type: "ui_element"
+    dimensions: [400, 100]
+    format: "PNG"
+    tracked: true
+    description: "Game logo (manually generated from SVG)"
+    source: "source/chaser_logo.svg"
+
   mouse_sheet:
     path: "sprites/mouse_sheet.png"
     type: "sprite_sheet"
@@ -62,6 +71,15 @@ source:
     description: "Source video used to generate mouse_sheet.png sprite sheet"
     generated_from: "mouse.mp4"
     generation_method: "ffmpeg frame extraction"
+
+  chaser_logo_source:
+    path: "source/chaser_logo.svg"
+    type: "vector_source"
+    dimensions: [400, 100]
+    format: "SVG"
+    tracked: true
+    description: "Source vector file for game logo"
+    generation_target: "images/chaser_logo.png"
 
 metadata:
   total_assets: 5
