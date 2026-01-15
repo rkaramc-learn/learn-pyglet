@@ -40,12 +40,18 @@ class HealthBar:
 
         # Background (empty) bar
         self.background = pyglet.shapes.Rectangle(
-            x, y, width, height, color=CONFIG.COLOR_DARK_GRAY
+            x - 2,
+            y - 2,
+            width + 4,
+            height + 4,
+            color=CONFIG.COLOR_BACKGROUND,
         )
+        # Border effect via background being larger
+        self.background.opacity = 200
 
         # Foreground (filled) bar
         self.foreground = pyglet.shapes.Rectangle(
-            x, y, width, height, color=CONFIG.COLOR_GREEN
+            x, y, width, height, color=CONFIG.COLOR_HEALTH_GOOD
         )
 
     def update(self, current_value: float, x: float, y: float) -> None:
@@ -59,9 +65,9 @@ class HealthBar:
         # Clamp value to valid range
         clamped_value = max(0.0, min(self.max_value, current_value))
 
-        # Update background position
-        self.background.x = x
-        self.background.y = y
+        # Update background position (centered border effect)
+        self.background.x = x - 2
+        self.background.y = y - 2
 
         # Update foreground position and width
         self.foreground.x = x
@@ -70,9 +76,11 @@ class HealthBar:
 
         # Update color based on threshold
         if clamped_value > CONFIG.LOW_HEALTH_THRESHOLD:
-            self.foreground.color = CONFIG.COLOR_GREEN
+            self.foreground.color = CONFIG.COLOR_HEALTH_GOOD
+        elif clamped_value > 0:
+            self.foreground.color = CONFIG.COLOR_HEALTH_LOW
         else:
-            self.foreground.color = CONFIG.COLOR_RED
+            self.foreground.color = CONFIG.COLOR_HEALTH_CRITICAL
 
     def draw(self) -> None:
         """Draw both background and foreground bars."""

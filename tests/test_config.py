@@ -49,8 +49,8 @@ class TestGameConfig(unittest.TestCase):
         """Test color constants are RGB tuples."""
         config = GameConfig()
         self.assertEqual(config.COLOR_DARK_GRAY, (50, 50, 50))
-        self.assertEqual(config.COLOR_GREEN, (0, 255, 0))
-        self.assertEqual(config.COLOR_RED, (255, 0, 0))
+        self.assertEqual(config.COLOR_GREEN, (46, 204, 113))
+        self.assertEqual(config.COLOR_RED, (231, 76, 60))
 
     def test_config_asset_paths(self) -> None:
         """Test asset path constants."""

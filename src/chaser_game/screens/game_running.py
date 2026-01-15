@@ -16,6 +16,7 @@ from ..game_state import GameStateManager
 from ..mechanics.health import update_health_stamina
 from ..types import AudioProtocol, WindowProtocol
 from ..ui.health_bar import HealthBar
+from ..ui.primitives import Panel, StyledLabel
 from .base import ScreenProtocol
 
 logger = logging.getLogger(__name__)
@@ -122,6 +123,34 @@ class GameRunningScreen(ScreenProtocol):
 
         # Game statistics
         self.elapsed_time = 0.0  # Time survived in seconds
+
+        # HUD Setup
+        self.hud_panel = Panel(
+            x=0,
+            y=window.height - 40,
+            width=window.width,
+            height=40,
+            color=(0, 0, 0),
+            opacity=150,
+        )
+
+        self.time_label = StyledLabel(
+            "TIME: 0s",
+            font_size=CONFIG.FONT_SIZE_BODY,
+            x=window.width // 2,
+            y=window.height - 20,
+            anchor_x="center",
+            anchor_y="center",
+        )
+
+        self.distance_label = StyledLabel(
+            "DIST: 0px",
+            font_size=CONFIG.FONT_SIZE_BODY,
+            x=window.width - 20,
+            y=window.height - 20,
+            anchor_x="right",
+            anchor_y="center",
+        )
 
         # Game state manager
         self.state_manager = GameStateManager()
@@ -333,6 +362,11 @@ class GameRunningScreen(ScreenProtocol):
         kitten_bar_y = self.kitten.center_y + (self.kitten.height / 2) + CONFIG.BAR_OFFSET
         self.kitten_stamina_bar.update(self.kitten.stamina, kitten_bar_x, kitten_bar_y)
 
+    def _update_hud_stats(self) -> None:
+        """Update HUD statistics."""
+        self.time_label.text = f"TIME: {int(self.elapsed_time)}s"
+        self.distance_label.text = f"DIST: {int(self.mouse.total_distance)}px"
+
     def update(self, dt: float) -> None:
         """Update game running screen state.
 
@@ -349,6 +383,7 @@ class GameRunningScreen(ScreenProtocol):
         self._update_health_stamina(dt)
         self._check_win_loss_conditions()
         self._update_ui_bars()
+        self._update_hud_stats()
 
     def draw(self) -> None:
         """Render game running screen content."""
@@ -359,3 +394,8 @@ class GameRunningScreen(ScreenProtocol):
         # Draw UI health bars
         self.mouse_health_bar.draw()
         self.kitten_stamina_bar.draw()
+
+        # Draw HUD
+        self.hud_panel.draw()
+        self.time_label.draw()
+        self.distance_label.draw()

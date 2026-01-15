@@ -48,10 +48,36 @@ class GameConfig:
     BAR_HEIGHT: int = 5
     BAR_OFFSET: int = 20
 
-    # Colors (RGB tuples)
-    COLOR_DARK_GRAY: tuple[int, int, int] = (50, 50, 50)
-    COLOR_GREEN: tuple[int, int, int] = (0, 255, 0)
-    COLOR_RED: tuple[int, int, int] = (255, 0, 0)
+    # Palette (Playful Chase Theme)
+    # RGB tuples (0-255)
+    COLOR_BACKGROUND: tuple[int, int, int] = (44, 62, 80)  # Deep Space
+    COLOR_PLAYER: tuple[int, int, int] = (46, 204, 113)  # Emerald
+    COLOR_ENEMY: tuple[int, int, int] = (231, 76, 60)  # Alizarin
+    COLOR_TEXT: tuple[int, int, int] = (236, 240, 241)  # Clouds
+    COLOR_ACCENT: tuple[int, int, int] = (52, 152, 219)  # Peter River
+
+    # Semantic Colors
+    COLOR_HEALTH_GOOD: tuple[int, int, int] = (46, 204, 113)  # Emerald
+    COLOR_HEALTH_LOW: tuple[int, int, int] = (243, 156, 18)  # Orange
+    COLOR_HEALTH_CRITICAL: tuple[int, int, int] = (231, 76, 60)  # Alizarin
+
+    # Backward Compatibility (Deprecate if possible)
+    COLOR_DARK_GRAY: tuple[int, int, int] = (50, 50, 50)  # Alias or keep for debug
+    COLOR_GREEN: tuple[int, int, int] = (46, 204, 113)
+    COLOR_RED: tuple[int, int, int] = (231, 76, 60)
+
+    # Typography
+    FONT_NAME: str = "Arial"
+    FONT_SIZE_HERO: int = 72
+    FONT_SIZE_TITLE: int = 48
+    FONT_SIZE_HEADER: int = 36
+    FONT_SIZE_BODY: int = 18
+    FONT_SIZE_LABEL: int = 14
+
+    # UI Layout
+    UI_PADDING: int = 20
+    UI_PANEL_RADIUS: int = 10
+    UI_BUTTON_HEIGHT: int = 40
 
     # Asset Paths
     ASSET_KITTEN_IMAGE: str = "assets/images/kitten.png"

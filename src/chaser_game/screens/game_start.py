@@ -5,10 +5,11 @@ Shows how to play and provides a button or key press to start the game.
 
 import logging
 
-import pyglet
 from pyglet.window import key
 
+from ..config import CONFIG
 from ..types import WindowProtocol
+from ..ui.primitives import Panel, StyledLabel
 from .base import ScreenProtocol
 
 logger = logging.getLogger(__name__)
@@ -28,53 +29,96 @@ class GameStartScreen(ScreenProtocol):
         """
         super().__init__(window)
 
+        # Background
+        self.background_panel = Panel(
+            x=0,
+            y=0,
+            width=window.width,
+            height=window.height,
+            color=CONFIG.COLOR_BACKGROUND,
+        )
+
         # Title
-        self.title = pyglet.text.Label(
-            "pyglet-readme: Chase Game",
-            font_name="Arial",
-            font_size=48,
+        self.title = StyledLabel(
+            "CHASER GAME",
+            font_size=CONFIG.FONT_SIZE_HERO,
+            color=(*CONFIG.COLOR_PLAYER, 255),
             x=window.width // 2,
             y=window.height - 100,
             anchor_x="center",
             anchor_y="center",
         )
 
-        # Instructions
+        # Subtitle
+        self.subtitle = StyledLabel(
+            "Evade the kitten. Stay alive.",
+            font_size=CONFIG.FONT_SIZE_HEADER,
+            color=(*CONFIG.COLOR_ACCENT, 255),
+            x=window.width // 2,
+            y=window.height - 160,
+            anchor_x="center",
+            anchor_y="center",
+        )
+
+        # Instructions Panel
+        panel_width = window.width - 200
+        panel_height = 250
+        panel_x = 100
+        panel_y = window.height // 2 - 50
+
+        self.instructions_panel = Panel(
+            x=panel_x,
+            y=panel_y,
+            width=panel_width,
+            height=panel_height,
+            color=(0, 0, 0),
+            opacity=100,  # Semi-transparent
+            border_color=CONFIG.COLOR_ACCENT,
+        )
+
         instructions = [
-            "OBJECTIVE: Evade the kitten for as long as possible!",
+            "CONTROLS",
+            "----------------",
+            "ARROWS / WASD  : Move Mouse",
+            "CLICK          : Dash to Point",
+            "SPACE          : Stop Moving",
             "",
-            "CONTROLS:",
-            "Arrow Keys or WASD - Move the mouse",
-            "Mouse Click - Move mouse to clicked location",
-            "HOME/PAGEUP/END/PAGEDOWN - Move diagonally",
-            "SPACE - Stop moving",
-            "",
-            "GAMEPLAY:",
-            "Avoid the kitten who chases you",
-            "Stay healthy to survive",
-            "Kitten gets tired over time",
-            "",
+            "SURVIVAL TIPS",
+            "----------------",
+            "Health drains near kitten.",
+            "Kitten gets tired if you run.",
         ]
 
-        self.instruction_label = pyglet.text.Label(
+        self.instruction_label = StyledLabel(
             "\n".join(instructions),
-            font_name="Arial",
-            font_size=14,
+            font_size=CONFIG.FONT_SIZE_BODY,
             x=window.width // 2,
-            y=window.height // 2 + 50,
+            y=window.height // 2 + 75,
             anchor_x="center",
             anchor_y="center",
             multiline=True,
-            width=window.width - 100,
+            width=panel_width - 40,
+            align="center",
         )
 
         # Start prompt
-        self.start_prompt = pyglet.text.Label(
-            "Press SPACE or ENTER to Start | Q to Quit",
-            font_name="Arial",
-            font_size=16,
+        self.start_prompt = StyledLabel(
+            "PRESS [SPACE] TO START",
+            font_size=CONFIG.FONT_SIZE_TITLE,
+            color=(*CONFIG.COLOR_TEXT, 255),
             x=window.width // 2,
-            y=50,
+            y=80,
+            anchor_x="center",
+            anchor_y="center",
+        )
+
+        # Quit hint
+        self.quit_hint = StyledLabel(
+            "Press Q to Quit",
+            font_size=CONFIG.FONT_SIZE_LABEL,
+            color=(*CONFIG.COLOR_ENEMY, 200),
+            x=window.width // 2,
+            y=30,
             anchor_x="center",
             anchor_y="center",
         )
@@ -93,13 +137,19 @@ class GameStartScreen(ScreenProtocol):
         Args:
             dt: Time elapsed since last update in seconds.
         """
-        # No state changes needed for start screen
+        # Simple pulsing effect for start prompt
+        # self.start_prompt.opacity = int(128 + 127 * abs(math.sin(time.time() * 2)))
+        pass
 
     def draw(self) -> None:
         """Render game start screen content."""
+        self.background_panel.draw()
         self.title.draw()
+        self.subtitle.draw()
+        self.instructions_panel.draw()
         self.instruction_label.draw()
         self.start_prompt.draw()
+        self.quit_hint.draw()
 
     def on_key_press(self, symbol: int, modifiers: int) -> None:
         """Handle key press events.

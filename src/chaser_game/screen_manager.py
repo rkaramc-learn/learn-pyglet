@@ -3,8 +3,12 @@
 Manages the active screen, routes input events, and orchestrates screen updates and rendering.
 """
 
+import datetime
 import logging
+import os
 from typing import Optional
+
+import pyglet
 
 from .screens.base import ScreenProtocol
 from .types import WindowProtocol
@@ -30,6 +34,11 @@ class ScreenManager:
         self.active_screen: Optional[ScreenProtocol] = None
         self.active_screen_name: Optional[str] = None
 
+        # Screenshot state
+        self._capture_next_frame: bool = False
+        self._screenshot_dir = os.path.join(os.getcwd(), "screenshots")
+        os.makedirs(self._screenshot_dir, exist_ok=True)
+
     def register_screen(self, name: str, screen: ScreenProtocol) -> None:
         """Register a screen in the manager.
 
@@ -41,6 +50,24 @@ class ScreenManager:
             logger.warning(f"Screen '{name}' already registered, replacing")
         self.screens[name] = screen
         logger.debug(f"Registered screen: {name}")
+
+    def _capture_screenshot(self, screen_name: str, event: str) -> None:
+        """Capture and save a screenshot of the current frame.
+
+        Args:
+            screen_name: Name of the screen being captured
+            event: Event name (e.g., 'enter', 'exit')
+        """
+        try:
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{timestamp}_{screen_name}_{event}.png"
+            path = os.path.join(self._screenshot_dir, filename)
+
+            # Get the color buffer and save it
+            pyglet.image.get_buffer_manager().get_color_buffer().save(path)
+            logger.info(f"Saved screenshot: {filename}")
+        except Exception as e:
+            logger.error(f"Failed to capture screenshot: {e}")
 
     def set_active_screen(self, name: str) -> None:
         """Transition to a different screen.
@@ -59,6 +86,9 @@ class ScreenManager:
         # Exit current screen
         if self.active_screen:
             logger.debug(f"Exiting screen: {self.active_screen_name}")
+            # Capture exit screenshot of the outgoing screen
+            if self.active_screen_name:
+                self._capture_screenshot(self.active_screen_name, "exit")
             self.active_screen.on_exit()
 
         # Enter new screen
@@ -67,6 +97,8 @@ class ScreenManager:
         logger.info(f"Transitioning to screen: {name}")
         if self.active_screen:
             self.active_screen.on_enter()
+            # Queue capture for the next frame (when it's drawn)
+            self._capture_next_frame = True
 
     def update(self, dt: float) -> None:
         """Update active screen.
@@ -84,6 +116,11 @@ class ScreenManager:
         """
         if self.active_screen:
             self.active_screen.draw()
+
+            # If queued, capture the frame we just drew
+            if self._capture_next_frame and self.active_screen_name:
+                self._capture_screenshot(self.active_screen_name, "enter")
+                self._capture_next_frame = False
 
     def on_key_press(self, symbol: int, modifiers: int) -> None:
         """Route key press to active screen.
