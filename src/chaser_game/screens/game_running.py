@@ -14,6 +14,7 @@ from ..config import CONFIG
 from ..entities import Kitten, Mouse
 from ..mechanics.health import update_health_stamina
 from ..types import AudioProtocol, WindowProtocol
+from ..ui.health_bar import HealthBar
 from .base import ScreenProtocol
 
 logger = logging.getLogger(__name__)
@@ -91,19 +92,9 @@ class GameRunningScreen(ScreenProtocol):
         mouse_max_dim = max(mouse_sprite.width, mouse_sprite.height)
         self.catch_range = (kitten_max_dim + mouse_max_dim) / 2.0
 
-        # UI Setup (Shapes)
-        self.mouse_bar_bg = pyglet.shapes.Rectangle(
-            0, 0, CONFIG.BAR_WIDTH, CONFIG.BAR_HEIGHT, color=CONFIG.COLOR_DARK_GRAY
-        )
-        self.mouse_bar_fg = pyglet.shapes.Rectangle(
-            0, 0, CONFIG.BAR_WIDTH, CONFIG.BAR_HEIGHT, color=CONFIG.COLOR_GREEN
-        )
-        self.kitten_bar_bg = pyglet.shapes.Rectangle(
-            0, 0, CONFIG.BAR_WIDTH, CONFIG.BAR_HEIGHT, color=CONFIG.COLOR_DARK_GRAY
-        )
-        self.kitten_bar_fg = pyglet.shapes.Rectangle(
-            0, 0, CONFIG.BAR_WIDTH, CONFIG.BAR_HEIGHT, color=CONFIG.COLOR_GREEN
-        )
+        # UI Setup - Health bars using HealthBar component
+        self.mouse_health_bar = HealthBar(max_value=CONFIG.MAX_HEALTH)
+        self.kitten_stamina_bar = HealthBar(max_value=CONFIG.MAX_STAMINA)
 
         # Load sound - with fallback
         logger.debug("Loading sound effects")
@@ -331,29 +322,15 @@ class GameRunningScreen(ScreenProtocol):
 
     def _update_ui_bars(self) -> None:
         """Update health and stamina bar positions and values."""
-        # Mouse Bar (centered above sprite)
-        self.mouse_bar_bg.x = self.mouse.center_x - (CONFIG.BAR_WIDTH / 2)
-        self.mouse_bar_bg.y = self.mouse.center_y + (self.mouse.height / 2) + CONFIG.BAR_OFFSET
-        self.mouse_bar_fg.x = self.mouse_bar_bg.x
-        self.mouse_bar_fg.y = self.mouse_bar_bg.y
-        self.mouse_bar_fg.width = CONFIG.BAR_WIDTH * (self.mouse.health / CONFIG.MAX_HEALTH)
-        self.mouse_bar_fg.color = (
-            CONFIG.COLOR_GREEN
-            if self.mouse.health > CONFIG.LOW_HEALTH_THRESHOLD
-            else CONFIG.COLOR_RED
-        )
+        # Mouse health bar (centered above sprite)
+        mouse_bar_x = self.mouse.center_x - (CONFIG.BAR_WIDTH / 2)
+        mouse_bar_y = self.mouse.center_y + (self.mouse.height / 2) + CONFIG.BAR_OFFSET
+        self.mouse_health_bar.update(self.mouse.health, mouse_bar_x, mouse_bar_y)
 
-        # Kitten Bar (centered above sprite)
-        self.kitten_bar_bg.x = self.kitten.center_x - (CONFIG.BAR_WIDTH / 2)
-        self.kitten_bar_bg.y = self.kitten.center_y + (self.kitten.height / 2) + CONFIG.BAR_OFFSET
-        self.kitten_bar_fg.x = self.kitten_bar_bg.x
-        self.kitten_bar_fg.y = self.kitten_bar_bg.y
-        self.kitten_bar_fg.width = CONFIG.BAR_WIDTH * (self.kitten.stamina / CONFIG.MAX_STAMINA)
-        self.kitten_bar_fg.color = (
-            CONFIG.COLOR_GREEN
-            if self.kitten.stamina > CONFIG.LOW_HEALTH_THRESHOLD
-            else CONFIG.COLOR_RED
-        )
+        # Kitten stamina bar (centered above sprite)
+        kitten_bar_x = self.kitten.center_x - (CONFIG.BAR_WIDTH / 2)
+        kitten_bar_y = self.kitten.center_y + (self.kitten.height / 2) + CONFIG.BAR_OFFSET
+        self.kitten_stamina_bar.update(self.kitten.stamina, kitten_bar_x, kitten_bar_y)
 
     def update(self, dt: float) -> None:
         """Update game running screen state.
@@ -378,8 +355,6 @@ class GameRunningScreen(ScreenProtocol):
         self.kitten.draw()
         self.mouse.draw()
 
-        # Draw UI
-        self.mouse_bar_bg.draw()
-        self.mouse_bar_fg.draw()
-        self.kitten_bar_bg.draw()
-        self.kitten_bar_fg.draw()
+        # Draw UI health bars
+        self.mouse_health_bar.draw()
+        self.kitten_stamina_bar.draw()
