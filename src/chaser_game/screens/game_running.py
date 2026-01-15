@@ -12,6 +12,7 @@ from pyglet.window import key, mouse
 from ..assets import get_loader
 from ..config import CONFIG
 from ..entities import Kitten, Mouse
+from ..game_state import GameStateManager
 from ..mechanics.health import update_health_stamina
 from ..types import AudioProtocol, WindowProtocol
 from ..ui.health_bar import HealthBar
@@ -122,8 +123,8 @@ class GameRunningScreen(ScreenProtocol):
         # Game statistics
         self.elapsed_time = 0.0  # Time survived in seconds
 
-        # Game state
-        self.game_over = False
+        # Game state manager
+        self.state_manager = GameStateManager()
 
     def on_enter(self) -> None:
         """Called when game running screen becomes active."""
@@ -144,9 +145,8 @@ class GameRunningScreen(ScreenProtocol):
             self.window.height * CONFIG.KITTEN_START_Y_RATIO,
         )
 
-        # Reset game statistics
+        self.state_manager.reset()
         self.elapsed_time = 0.0
-        self.game_over = False
 
         logger.debug("Game state reset on screen entry")
 
@@ -183,10 +183,10 @@ class GameRunningScreen(ScreenProtocol):
                 self.window.height * CONFIG.KITTEN_START_Y_RATIO,
             )
             self.elapsed_time = 0.0
-            self.game_over = False
+            self.state_manager.reset()
             logger.debug("Game state reset complete")
 
-        if self.game_over:
+        if self.state_manager.is_game_over():
             return
 
         # Manual Movement Control (Sets Velocity)
@@ -229,7 +229,7 @@ class GameRunningScreen(ScreenProtocol):
             button: Mouse button from pyglet.window.mouse
             _modifiers: Modifier keys (unused)
         """
-        if self.game_over:
+        if self.state_manager.is_game_over():
             return
 
         if button == mouse.LEFT:
@@ -290,14 +290,14 @@ class GameRunningScreen(ScreenProtocol):
     def _check_win_loss_conditions(self) -> None:
         """Check and handle win/loss game conditions."""
         if self.mouse.health <= 0:
-            self.game_over = True
+            self.state_manager.lose()
             self.mouse.velocity_x = 0.0
             self.mouse.velocity_y = 0.0
             logger.info("Game Over: Mouse caught by kitten")
             self._transition_to_game_end(is_win=False)
 
         elif self.kitten.stamina <= 0:
-            self.game_over = True
+            self.state_manager.win()
             self.mouse.velocity_x = 0.0
             self.mouse.velocity_y = 0.0
             logger.info("Game Over: Kitten exhausted, player wins")
@@ -338,7 +338,7 @@ class GameRunningScreen(ScreenProtocol):
         Args:
             dt: Time elapsed since last update in seconds.
         """
-        if self.game_over:
+        if self.state_manager.is_game_over():
             return
 
         # Track elapsed time
