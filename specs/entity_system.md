@@ -1,5 +1,14 @@
 # Entity System Refactoring Specification
 
+> [!NOTE] > **Status: IMPLEMENTED** (pyglet-ciz epic)
+>
+> The actual implementation differs from this spec:
+>
+> - Uses class-based `Character`/`Mouse`/`Kitten` in `entities/character.py` (not dataclasses)
+> - `systems/` directory renamed to `mechanics/` to avoid Python conflict
+> - Dataclass entities (`base.py`, `kitten.py`, `mouse.py`) were deleted as unused
+> - See `pyglet-ciz` epic for implementation details
+
 ## Overview
 
 Refactor `hello_world.py` from a monolithic function into a modular entity-component architecture following game development best practices.
