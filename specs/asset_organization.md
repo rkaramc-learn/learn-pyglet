@@ -10,7 +10,7 @@ Current issues with asset management:
 
 | Issue                     | Description                                                                                                      |
 | ------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| **Mixed concerns**        | Assets (`.png`, `.wav`, `.mp4`) live alongside Python source files in `src/chaser_game/`                       |
+| **Mixed concerns**        | Assets (`.png`, `.wav`, `.mp4`) live alongside Python source files in `src/chaser_game/`                         |
 | **No categorization**     | All assets are in a flat directory with no organization by type or purpose                                       |
 | **Manual generation**     | `mouse_sheet.png` is derived from `mouse.mp4` but the generation process is undocumented                         |
 | **Inconsistent tracking** | Some assets are tracked (kitten.png, meow.wav), others are gitignored (ambience.wav, mouse_sheet.png, mouse.mp4) |
@@ -188,20 +188,22 @@ audio:
 
 ## Code Changes Required
 
-Update asset loading paths in `hello_world.py`:
+Update asset loading to use `config.py` constants and the centralized `assets.py` loader used by screens (e.g., `game_running.py`).
 
 ```python
-# Before
-image = pyglet.resource.image("kitten.png")
-mouse_sheet = pyglet.resource.image("mouse_sheet.png")
-meow_sound = pyglet.resource.media("meow.wav", streaming=False)
-ambience_sound = pyglet.resource.media("ambience.wav")
+# config.py
+@dataclass(frozen=True)
+class GameConfig:
+    ASSET_KITTEN_IMAGE: str = "assets/images/kitten.png"
+    # ...
 
-# After
-image = pyglet.resource.image("assets/images/kitten.png")
-mouse_sheet = pyglet.resource.image("assets/sprites/mouse_sheet.png")
-meow_sound = pyglet.resource.media("assets/audio/sfx/meow.wav", streaming=False)
-ambience_sound = pyglet.resource.media("assets/audio/music/ambience.wav")
+# assets.py (Loader)
+def load_image(self, path: str) -> AbstractImage:
+    # uses pyglet.resource or Path access
+    ...
+
+# game_running.py
+image = self.loader.load_image(CONFIG.ASSET_KITTEN_IMAGE)
 ```
 
 ## Implementation Stories

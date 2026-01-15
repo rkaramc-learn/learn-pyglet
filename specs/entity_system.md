@@ -1,21 +1,15 @@
 # Entity System Refactoring Specification
 
 > [!NOTE] > **Status: IMPLEMENTED** (pyglet-ciz epic)
->
-> The actual implementation differs from this spec:
->
-> - Uses class-based `Character`/`Mouse`/`Kitten` in `entities/character.py` (not dataclasses)
-> - `systems/` directory renamed to `mechanics/` to avoid Python conflict
-> - Dataclass entities (`base.py`, `kitten.py`, `mouse.py`) were deleted as unused
-> - See `pyglet-ciz` epic for implementation details
+> This document reflects the actual implementation of the entity system refactoring.
 
 ## Overview
 
-Refactor `hello_world.py` from a monolithic function into a modular entity-component architecture following game development best practices.
+Refactor `hello_world.py` from a monolithic function into a modular entity-component architecture using `ScreenManager`, specific `mechanics` systems, and class-based entities.
 
 ## Problem Statement
 
-Current implementation has:
+Original implementation had:
 
 - **God Function**: 294-line `run_hello_world()` containing all logic
 - **No Entity Abstraction**: Mouse/Kitten represented as loose variables
@@ -23,162 +17,64 @@ Current implementation has:
 - **Magic Numbers**: Hardcoded values scattered throughout
 - **Mixed Responsibilities**: Update function handles physics, AI, health, UI, win conditions
 
-## Proposed Architecture
+## Implemented Architecture
 
 ```tree
 src/chaser_game/
-├── main.py              # Entry point, window setup
+├── hello_world.py       # Entry point runner
+├── screen_manager.py    # Screen management and transition logic
 ├── config.py            # Constants: speeds, health, asset paths
 ├── entities/
-│   ├── base.py          # Entity base class
-│   ├── kitten.py        # Kitten-specific behavior
-│   └── mouse.py         # Mouse-specific behavior
-├── systems/
-│   ├── health.py        # Health/stamina management
-│   ├── collision.py     # Bounds checking, entity interaction
-│   └── input.py         # Keyboard/mouse handlers
-├── ui/
-│   └── health_bar.py    # Health bar component
-└── game.py              # Game class with state machine
+│   └── character.py     # Character base class and Key/Mouse implementations
+├── mechanics/
+│   ├── health.py        # Health/stamina calculation logic
+│   ├── collision.py     # Bounds checking logic
+│   └── input.py         # Input handling logic
+├── screens/
+│   ├── base.py          # Screen protocol/base
+│   ├── splash.py        # Intro screen
+│   ├── game_start.py    # Menu screen
+│   ├── game_running.py  # Main gameplay loop
+│   └── game_end.py      # Result screen
+└── ui/
+    └── health_bar.py    # Health bar component
 ```
 
-## Entity Base Class
+## Entity Classes
 
-```python
-from dataclasses import dataclass
-from enum import Enum, auto
+`src/chaser_game/entities/character.py`:
 
-class EntityState(Enum):
-    IDLE = auto()
-    MOVING = auto()
-    CHASING = auto()
-
-@dataclass
-class Entity:
-    # Position
-    x: float = 0.0
-    y: float = 0.0
-
-    # Velocity
-    vx: float = 0.0
-    vy: float = 0.0
-
-    # Physics
-    speed: float = 100.0
-    acceleration: float = 0.0
-
-    # State
-    state: EntityState = EntityState.IDLE
-
-    def update(self, dt: float) -> None:
-        self.x += self.vx * dt
-        self.y += self.vy * dt
-
-    def clamp_to_bounds(self, bounds: tuple[float, float],
-                        size: tuple[float, float]) -> None:
-        self.x = max(0, min(bounds[0] - size[0], self.x))
-        self.y = max(0, min(bounds[1] - size[1], self.y))
-```
+- **Character**: Base class with center-based positioning (`center_x`, `center_y`), bounds clamping, and velocity-based movement.
+- **Mouse**: Player character, inherits from `Character`. Handles distance tracking and sprite rendering.
+- **Kitten**: AI character, inherits from `Character`. Implements chase logic.
 
 ## Configuration Module
 
-```python
-# config.py
-from dataclasses import dataclass
+`src/chaser_game/config.py`:
+Centralized configuration `GameConfig` dataclass containing:
 
-@dataclass(frozen=True)
-class GameConfig:
-    # Window
-    WINDOW_WIDTH: int = 800
-    WINDOW_HEIGHT: int = 600
-    TARGET_FPS: float = 60.0
+- Window settings
+- Movement speeds and physics constants
+- Health/Stamina parameters
+- UI dimensions
+- Asset paths
 
-    # Movement
-    BASE_SPEED_FACTOR: float = 10.0  # Cross window in N seconds
-    MOUSE_SPEED_MULTIPLIER: float = 1.0
-    KITTEN_SPEED_MULTIPLIER: float = 0.67
-    JITTER_THRESHOLD: float = 2.0
+## Game State Management
 
-    # Health System
-    MAX_HEALTH: float = 100.0
-    MAX_STAMINA: float = 100.0
-    BASE_DRAIN_RATE: float = 20.0
-    PASSIVE_STAMINA_DRAIN: float = 2.0
-    LOW_HEALTH_THRESHOLD: float = 30.0
+- **ScreenManager**: Manages high-level app state (Splash -> Start -> Running -> End).
+- **GameStateManager**: (Internal to GameRunning) Tracks Win/Loss conditions during gameplay.
+- **GameRunningScreen**: Orchestrates the game loop, integrating entities, mechanics, and UI.
 
-    # UI
-    BAR_WIDTH: int = 50
-    BAR_HEIGHT: int = 5
-    BAR_OFFSET: int = 20
+## Systems (Mechanics)
 
-CONFIG = GameConfig()
-```
+Logic separated into functional modules in `mechanics/`:
 
-## Game State Machine
-
-```python
-from enum import Enum, auto
-
-class GameState(Enum):
-    PLAYING = auto()
-    PAUSED = auto()
-    GAME_OVER_WIN = auto()
-    GAME_OVER_LOSE = auto()
-```
-
-## Implementation Stories
-
-### Story 1: Entity Base Class
-
-Create `Entity` dataclass with position, velocity, acceleration, and state management.
-
-### Story 2: Character Entities
-
-Extend `Entity` for `Kitten` and `Mouse` with specific behaviors:
-
-- **Kitten**: AI chase logic, stamina system
-- **Mouse**: Player input handling, health system
-
-### Story 3: Configuration Module
-
-Extract all magic numbers into `config.py` with typed dataclass.
-
-### Story 4: Game State Machine
-
-Replace `game_over` boolean with proper `GameState` enum and transitions.
-
-### Story 5: System Separation
-
-Split update logic into focused systems:
-
-- `health.py`: Damage calculation, stamina drain
-- `collision.py`: Bounds checking, catch detection
-- `input.py`: Keyboard/mouse event routing
-
-### Story 6: UI Components
-
-Extract health bar rendering into reusable `HealthBar` class.
-
-## Dependencies
-
-```mermaid
-graph TD
-    A[Epic: Entity System] --> B[Story 1: Base Entity]
-    A --> C[Story 2: Characters]
-    A --> D[Story 3: Config]
-    A --> E[Story 4: Game State]
-    A --> F[Story 5: Systems]
-    A --> G[Story 6: UI]
-
-    B --> C
-    D --> C
-    D --> F
-    C --> F
-    F --> E
-```
+- `health.py`: `update_health_stamina()` function.
+- `collision.py`: `check_bounds()` (integrated into Character methods).
+- `input.py`: Input processing utilities.
 
 ## Verification Plan
 
-1. **Type Safety**: `uv run basedpyright` must pass
-2. **Manual Testing**: Run game, verify identical behavior
-3. **Unit Tests**: Add tests for entity movement, health calculations
+1. **Type Safety**: `uv run basedpyright` passes.
+2. **Manual Testing**: Game runs correctly through all screens.
+3. **Unit Tests**: Coverage exists for new components.
