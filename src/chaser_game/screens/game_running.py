@@ -310,15 +310,16 @@ class GameRunningScreen(ScreenProtocol):
             is_win: True if player won, False if player lost.
         """
         from ..screen_manager import ScreenManager
+        from . import ScreenNames
         from .game_end import GameEndScreen
 
         manager = getattr(self.window, "_screen_manager", None)
         if isinstance(manager, ScreenManager):
-            game_end_screen = manager.screens.get("game_end")
+            game_end_screen = manager.screens.get(ScreenNames.GAME_END)
             if isinstance(game_end_screen, GameEndScreen):
                 # Set outcome on the game end screen
                 game_end_screen.set_outcome(is_win, self.elapsed_time, self.mouse.total_distance)
-            manager.set_active_screen("game_end")
+            manager.set_active_screen(ScreenNames.GAME_END)
 
     def _update_ui_bars(self) -> None:
         """Update health and stamina bar positions and values."""

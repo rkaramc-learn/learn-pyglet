@@ -62,10 +62,11 @@ class SplashScreen(ScreenProtocol):
             logger.info("Splash screen duration expired, transitioning to game_start")
             # Import here to avoid circular imports
             from ..screen_manager import ScreenManager
+            from . import ScreenNames
 
             manager = getattr(self.window, "_screen_manager", None)
             if isinstance(manager, ScreenManager):
-                manager.set_active_screen("game_start")
+                manager.set_active_screen(ScreenNames.GAME_START)
 
     def draw(self) -> None:
         """Render splash screen content."""
