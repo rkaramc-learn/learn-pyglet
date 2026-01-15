@@ -132,6 +132,9 @@ See [docs/SETUP.md](docs/SETUP.md) for installation and execution instructions.
 
 3. **Commit work** (if not already done)
 
+   - **Rule**: Separate process/documentation changes (e.g., `AGENTS.md`) into their own `docs:` commits. Do not mix with feature code.
+   - **Rule**: Ensure quality gates passed BEFORE committing.
+
    ```bash
    jj commit -m "type(scope): description"
    ```
@@ -143,6 +146,8 @@ See [docs/SETUP.md](docs/SETUP.md) for installation and execution instructions.
    ```
 
 5. **Update issue status** - Close completed issues:
+
+   - **CRITICAL**: Do NOT close issues until steps 2 (Quality Gates) and 3 (Commit) are successfully completed.
 
    ```bash
    bd close <id> --reason "Done" --json
@@ -270,12 +275,13 @@ bd close bd-42 --reason "Completed" --json
 
 ### Workflow for AI Agents
 
-1. **Check ready work**: `bd ready` shows unblocked issues
-2. **Claim your task**: `bd update <id> --status in_progress`
-3. **Work on it**: Implement, test, document
-4. **Discover new work?** Create linked issue:
+1. **Context Resolution**: If the specific task or user prompt mentions an ID starting with `pyglet-` (e.g., `pyglet-ciz`), **ALWAYS** run `bd show <id>` first to retrieve the definition, scope, and status.
+2. **Check ready work**: `bd ready` shows unblocked issues
+3. **Claim your task**: `bd update <id> --status in_progress`
+4. **Work on it**: Implement, test, document
+5. **Discover new work?** Create linked issue:
    - `bd create "Found bug" --description="Details about what was found" -p 1 --deps discovered-from:<parent-id>`
-5. **Complete**: `bd close <id> --reason "Done"`
+6. **Complete**: `bd close <id> --reason "Done"`
 
 ### Auto-Sync
 
