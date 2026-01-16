@@ -33,7 +33,12 @@ def cli(ctx: click.Context) -> None:
     default=False,
     help="Enable/disable automated screenshot capture on screen transitions.",
 )
-def play(verbose: int, log_file: Path | None, screenshots: bool) -> None:
+@click.option(
+    "--show-fps/--no-show-fps",
+    default=False,
+    help="Show/hide FPS counter overlay.",
+)
+def play(verbose: int, log_file: Path | None, screenshots: bool, show_fps: bool) -> None:
     """Start the game."""
     # Determine log level based on verbosity count
     if verbose == 0:
@@ -61,7 +66,7 @@ def play(verbose: int, log_file: Path | None, screenshots: bool) -> None:
         logger.warning(f"Logging to file: {log_file}")
 
     try:
-        main(capture_screenshots=screenshots)
+        main(capture_screenshots=screenshots, show_fps=show_fps)
     except Exception as e:
         logger.error(f"Application error: {e}", exc_info=True)
         sys.exit(1)

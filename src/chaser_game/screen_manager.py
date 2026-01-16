@@ -41,11 +41,11 @@ def _save_screenshot_shm(shm_name: str, size: int, width: int, height: int, path
         # Use Pillow for encoding - it releases GIL during C operations
         img = Image.frombytes("RGBA", (width, height), raw_data)
         # Flip vertically (OpenGL origin is bottom-left)
-        img = img.transpose(Image.FLIP_TOP_BOTTOM)
+        img = img.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
         img.save(path, "PNG")
     except Exception as e:
         # Log error in worker process
-        print(f"Error saving screenshot: {e}")
+        logger.error(f"Error saving screenshot: {e}")
 
 
 class ScreenManager:
@@ -55,18 +55,22 @@ class ScreenManager:
     routing of update/draw/input calls to the active screen.
     """
 
-    def __init__(self, window: WindowProtocol, capture_screenshots: bool = False) -> None:
+    def __init__(
+        self, window: WindowProtocol, capture_screenshots: bool = False, show_fps: bool = False
+    ) -> None:
         """Initialize screen manager.
 
         Args:
             window: The pyglet game window instance.
             capture_screenshots: Whether to capture screenshots on screen transitions.
+            show_fps: Whether to show the FPS counter overlay.
         """
         self.window = window
         self.screens: dict[str, ScreenProtocol] = {}
         self.active_screen: Optional[ScreenProtocol] = None
         self.active_screen_name: Optional[str] = None
         self.capture_screenshots = capture_screenshots
+        self.show_fps = show_fps
 
         # Screenshot state
         self._capture_next_frame: bool = False
@@ -86,8 +90,10 @@ class ScreenManager:
         # PBO Manager for manual screenshots
         self.pbo_manager = PBOManager(window.width, window.height)
 
-        # FPS Display
-        self.fps_display = pyglet.window.FPSDisplay(window=self.window)
+        # FPS Display (optional, controlled by --show-fps)
+        self.fps_display: Optional[pyglet.window.FPSDisplay] = None
+        if show_fps:
+            self.fps_display = pyglet.window.FPSDisplay(window=self.window)
 
     def _init_shared_memory(self) -> None:
         """Initialize shared memory buffer for screenshot transfer."""
@@ -309,8 +315,9 @@ class ScreenManager:
                 self._pbo_capture_pending = False
                 self._pbo_readback_pending = True
 
-        # Draw FPS overlay (always on top)
-        self.fps_display.draw()
+        # Draw FPS overlay (if enabled)
+        if self.fps_display:
+            self.fps_display.draw()
 
     def on_key_press(self, symbol: int, modifiers: int) -> None:
         """Route key press to active screen.

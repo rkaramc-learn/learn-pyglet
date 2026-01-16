@@ -13,11 +13,12 @@ from .types import WindowProtocol
 logger = logging.getLogger(__name__)
 
 
-def main(capture_screenshots: bool = False) -> None:
+def main(capture_screenshots: bool = False, show_fps: bool = False) -> None:
     """Initialize and run the game application with multi-screen support.
 
     Args:
         capture_screenshots: Whether to enable automated screenshot capture.
+        show_fps: Whether to show the FPS counter overlay.
     """
 
     logger.info("Starting game initialization")
@@ -28,7 +29,9 @@ def main(capture_screenshots: bool = False) -> None:
     logger.info(f"Window created: {window.width}x{window.height}")
 
     # Initialize screen manager
-    screen_manager = ScreenManager(window, capture_screenshots=capture_screenshots)
+    screen_manager = ScreenManager(
+        window, capture_screenshots=capture_screenshots, show_fps=show_fps
+    )
     # Store screen manager on window for access from screens
     # Use setattr to avoid type checker issues with dynamic attributes
     window._screen_manager = screen_manager  # pyright: ignore[reportAttributeAccessIssue]

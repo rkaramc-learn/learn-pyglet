@@ -14,7 +14,9 @@ def runner() -> CliRunner:
 
 @patch("chaser_game.cli.init_logging")
 @patch("chaser_game.cli.main")
-def test_play_defaults(mock_main: MagicMock, mock_init_logging: MagicMock, runner: CliRunner) -> None:
+def test_play_defaults(
+    mock_main: MagicMock, mock_init_logging: MagicMock, runner: CliRunner
+) -> None:
     """Test play command with default arguments."""
     result = runner.invoke(cli, ["play"])
 
@@ -22,7 +24,7 @@ def test_play_defaults(mock_main: MagicMock, mock_init_logging: MagicMock, runne
     # Verify default logging (WARNING)
     mock_init_logging.assert_called_once_with(level=logging.WARNING, log_file=None)
     # Verify main called with default screenshots=False
-    mock_main.assert_called_once_with(capture_screenshots=False)
+    mock_main.assert_called_once_with(capture_screenshots=False, show_fps=False)
 
 
 @patch("chaser_game.cli.init_logging")
@@ -51,7 +53,9 @@ def test_play_verbose_2(
 
 @patch("chaser_game.cli.init_logging")
 @patch("chaser_game.cli.main")
-def test_play_log_file(mock_main: MagicMock, mock_init_logging: MagicMock, runner: CliRunner) -> None:
+def test_play_log_file(
+    mock_main: MagicMock, mock_init_logging: MagicMock, runner: CliRunner
+) -> None:
     """Test play command with --log-file."""
     from pathlib import Path
 
@@ -75,7 +79,7 @@ def test_play_screenshots_enabled(
     result = runner.invoke(cli, ["play", "--screenshots"])
 
     assert result.exit_code == 0
-    mock_main.assert_called_once_with(capture_screenshots=True)
+    mock_main.assert_called_once_with(capture_screenshots=True, show_fps=False)
 
 
 @patch("chaser_game.cli.init_logging")
@@ -87,4 +91,4 @@ def test_play_screenshots_disabled_explicitly(
     result = runner.invoke(cli, ["play", "--no-screenshots"])
 
     assert result.exit_code == 0
-    mock_main.assert_called_once_with(capture_screenshots=False)
+    mock_main.assert_called_once_with(capture_screenshots=False, show_fps=False)
