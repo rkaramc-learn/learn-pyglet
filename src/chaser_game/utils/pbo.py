@@ -14,6 +14,7 @@ from pyglet.gl import (
     GL_RGBA,
     GL_STREAM_READ,
     GL_UNSIGNED_BYTE,
+    GLsizeiptr,
     glBindBuffer,
     glBufferData,
     glGenBuffers,
@@ -64,7 +65,9 @@ class PBOManager:
 
             for buf_id in self.buffers:
                 glBindBuffer(GL_PIXEL_PACK_BUFFER, buf_id)
-                glBufferData(GL_PIXEL_PACK_BUFFER, self.buffer_size, None, GL_STREAM_READ)
+                glBufferData(
+                    GL_PIXEL_PACK_BUFFER, GLsizeiptr(self.buffer_size), None, GL_STREAM_READ
+                )
 
             glBindBuffer(GL_PIXEL_PACK_BUFFER, 0)
             logger.info(f"Initialized {self.count} PBOs (size: {self.buffer_size} bytes)")
