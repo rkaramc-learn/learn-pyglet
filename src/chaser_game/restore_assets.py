@@ -70,7 +70,9 @@ def regenerate_sprite_sheet(logger: logging.Logger, dry_run: bool = False) -> bo
         return False
 
 
-def download_asset(asset_path: str, url: str, logger: logging.Logger, dry_run: bool = False) -> bool:
+def download_asset(
+    asset_path: str, url: str, logger: logging.Logger, dry_run: bool = False
+) -> bool:
     """Download a remote asset.
 
     Args:
@@ -163,12 +165,13 @@ def verify_assets(logger: logging.Logger) -> bool:
     return all_present
 
 
-def restore_assets(logger: logging.Logger, dry_run: bool = False) -> bool:
+def restore_assets(logger: logging.Logger, dry_run: bool = False, confirm: bool = True) -> bool:
     """Restore missing assets.
 
     Args:
         logger: Logger instance
         dry_run: If True, only log what would be done
+        confirm: If True, ask for user confirmation before overwriting/moving
 
     Returns:
         True if all assets restored or already present, False if any restoration failed
@@ -178,48 +181,114 @@ def restore_assets(logger: logging.Logger, dry_run: bool = False) -> bool:
 
     logger.info("Restoring missing assets...")
 
-    # Restore sprites (regenerate from source)
+    # Iterate over all images in manifest
     for asset_name, asset_info in manifest.get("images", {}).items():
-        path = asset_info.get("path")
-        if asset_exists(path):
-            logger.info(f"  [OK] Already present: {path}")
+        path_str = asset_info.get("path")
+        if not path_str:
             continue
 
+        path = get_asset_dir() / path_str
+
+        if path.exists():
+            logger.info(f"  [OK] Already present: {path_str}")
+            continue
+
+        # Check if we can regenerate this asset
+        # Currently hardcoded for mouse_sheet, but logic is generic
+        is_regeneratable = asset_name == "mouse_sheet"
+
+        if is_regeneratable:
+            if dry_run:
+                logger.info(f"  [DRY RUN] Would regenerate: {path_str}")
+                continue
+
+            logger.info(f"  [REGENERATING] {path_str}")
+
+            # Generate to temp file first
+            import shutil
+            import tempfile
+
+            try:
+                with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp_file:
+                    tmp_path = Path(tmp_file.name)
+
+                # Close file so generator can write to it
+
+                # Call generator with temp path
+                # Note: regeneration functions currently take full paths
+                # We need to adapt regenerate_sprite_sheet to take output path override or just call generator directly here
+                # Re-using existing function structure for specific asset
+                if asset_name == "mouse_sheet":
+                    # We can't use existing regenerate_sprite_sheet easily as it hardcodes paths
+                    # So we inline the logic or modify regenerate_sprite_sheet.
+                    # Let's modify regenerate_sprite_sheet signature slightly in a separate tool call if needed,
+                    # or just import the generator class here.
+
+                    from .sprite_generator import SpriteSheetGenerator
+
+                    mouse_video = get_asset_dir() / "source" / "mouse.mp4"
+
+                    if not mouse_video.exists():
+                        logger.error(f"  [ERROR] Source video missing for {path_str}")
+                        all_restored = False
+                        continue
+
+                    generator = SpriteSheetGenerator()
+                    logger.debug(f"Generating to temp file: {tmp_path}")
+                    generator.generate(str(mouse_video), str(tmp_path))
+
+                    # Confirmation
+                    if confirm:
+                        response = input(f"Asset regenerated at {tmp_path}. Move to {path}? [y/N] ")
+                        if response.lower() not in ("y", "yes"):
+                            logger.warning("  [SKIPPED] User aborted move.")
+                            tmp_path.unlink()  # Cleanup
+                            all_restored = False  # Treated as not restored
+                            continue
+
+                    # Move to final location
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.move(str(tmp_path), str(path))
+                    logger.info(f"  [SUCCESS] Restored {path_str}")
+                    continue
+
+            except Exception as e:
+                logger.error(f"  [ERROR] Failed to regenerate {path_str}: {e}")
+                if "tmp_path" in locals() and tmp_path.exists():
+                    tmp_path.unlink()
+                all_restored = False
+                continue
+
+        # If not regeneratable (or regeneration logic skipped), check tracking status
         tracked = asset_info.get("tracked", False)
         if not tracked:
-            logger.debug(f"  [SKIP] Gitignored (not required): {path}")
+            logger.debug(f"  [SKIP] Gitignored (not required): {path_str}")
             continue
 
-        logger.warning(f"  [ERROR] Missing tracked asset: {path}")
+        logger.warning(f"  [ERROR] Missing tracked asset: {path_str}")
         all_restored = False
 
-    # Restore sprite sheets (regenerate from video)
-    if "mouse_sheet" in manifest.get("images", {}):
-        asset_info = manifest["images"]["mouse_sheet"]
-        path = asset_info.get("path")
-
-        if not asset_exists(path):
-            logger.info(f"  [REGENERATING] {path}")
-            if not regenerate_sprite_sheet(logger, dry_run):
-                all_restored = False
-        else:
-            logger.info(f"  [OK] Already present: {path}")
-
     # Restore audio (flat structure: audio.meow, audio.ambience)
+    # Audio regeneration not implemented yet
     for asset_name, asset_info in manifest.get("audio", {}).items():
-        path = asset_info.get("path")
+        path_str = asset_info.get("path")
+        if not path_str:
+            continue
+
+        path = get_asset_dir() / path_str
         tracked = asset_info.get("tracked", False)
 
-        if asset_exists(path):
-            logger.info(f"  [OK] Already present: {path}")
+        if path.exists():
+            logger.info(f"  [OK] Already present: {path_str}")
             continue
 
         if not tracked:
-            logger.debug(f"  [SKIP] Gitignored (not required): {path}")
+            logger.debug(f"  [SKIP] Gitignored (not required): {path_str}")
             continue
 
         # For tracked audio assets that are missing, log warning
-        logger.warning(f"  [WARN] Missing tracked audio: {path}")
+        logger.warning(f"  [WARN] Missing tracked audio: {path_str}")
+        all_restored = False
 
     if all_restored:
         logger.info("All required assets restored successfully")
@@ -249,7 +318,11 @@ def restore_command(args: argparse.Namespace) -> int:
         if args.dry_run:
             logger.info("Running in DRY-RUN mode (no changes will be made)")
 
-        all_restored = restore_assets(logger, dry_run=args.dry_run)
+        # confirm is True unless --yes is passed (args.yes is True -> confirm False? No, confirm=not args.yes)
+        # Assuming --yes means "skip confirmation"
+        confirm = not args.yes
+
+        all_restored = restore_assets(logger, dry_run=args.dry_run, confirm=confirm)
         return 0 if all_restored else 1
     except Exception as e:
         logger.error(f"Restore failed: {e}", exc_info=args.verbose >= 3)
@@ -290,6 +363,12 @@ def restore_assets_cli() -> None:
         "--dry-run",
         action="store_true",
         help="Show what would be restored without making changes",
+    )
+    restore_parser.add_argument(
+        "-y",
+        "--yes",
+        action="store_true",
+        help="Skip confirmation prompts (assume yes)",
     )
     restore_parser.set_defaults(func=restore_command)
 
