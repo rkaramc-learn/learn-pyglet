@@ -50,19 +50,9 @@ def main(capture_screenshots: bool = False, show_fps: bool = False) -> None:
     # Start with splash screen
     screen_manager.set_active_screen(ScreenName.SPLASH)
 
-    # Set up event handlers to route to screen manager
-    @window.event
-    def on_draw() -> None:
-        window.clear()
-        screen_manager.draw()
-
-    @window.event
-    def on_key_press(symbol: int, modifiers: int) -> None:
-        screen_manager.on_key_press(symbol, modifiers)
-
-    @window.event
-    def on_mouse_press(x: int, y: int, button: int, modifiers: int) -> None:
-        screen_manager.on_mouse_press(x, y, button, modifiers)
+    # Set up event handlers by pushing the screen manager
+    # This automatically routes on_draw, on_key_press, etc. to the manager
+    window.push_handlers(screen_manager)
 
     def update(dt: float) -> None:
         screen_manager.update(dt)

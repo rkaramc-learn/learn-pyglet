@@ -70,7 +70,7 @@ class TestScreenManagerScreenshots(unittest.TestCase):
         self.assertEqual(mock_buffer.save.call_count, 0)
 
         # 2. Draw Screen A (First Frame)
-        self.manager.draw()
+        self.manager.on_draw()
 
         # Should capture enter A
         # Should capture enter A
@@ -83,7 +83,7 @@ class TestScreenManagerScreenshots(unittest.TestCase):
         mock_executor.submit.reset_mock()
 
         # 3. Draw Screen A (Subsequent Frame)
-        self.manager.draw()
+        self.manager.on_draw()
         mock_executor = cast(MagicMock, self.manager.executor)
         self.assertEqual(mock_executor.submit.call_count, 0)
 
@@ -100,7 +100,7 @@ class TestScreenManagerScreenshots(unittest.TestCase):
         mock_executor.submit.reset_mock()
 
         # 5. Draw Screen B
-        self.manager.draw()
+        self.manager.on_draw()
 
         # Should capture enter B
         # Should capture enter B
@@ -136,7 +136,7 @@ class TestScreenManagerScreenshots(unittest.TestCase):
         self.mock_pbo.end_capture.assert_not_called()
 
         # 2. Simulate Frame N Draw (Triggers Phase 1: Start Capture)
-        self.manager.draw()
+        self.manager.on_draw()
 
         self.mock_pbo.start_capture.assert_called_once()
         self.mock_pbo.end_capture.assert_not_called()

@@ -295,11 +295,12 @@ class ScreenManager:
         """Get duration of last manual screenshot capture in microseconds."""
         return self.pbo_manager.last_capture_duration_us
 
-    def draw(self) -> None:
+    def on_draw(self) -> None:
         """Draw active screen.
 
-        Should be called after window.clear() in the on_draw event.
+        Called automatically by pyglet window event loop.
         """
+        self.window.clear()
         if self.active_screen:
             self.active_screen.draw()
 
