@@ -274,7 +274,9 @@ class TestSpriteGenerationWorkflow(unittest.TestCase):
     ) -> None:
         """Test that sprite sheet output directory is created if missing."""
         # Use nested directory structure
-        nested_output_dir = self.test_assets_dir / "nested" / "sprite" / "output" / "mouse_sheet.png"
+        nested_output_dir = (
+            self.test_assets_dir / "nested" / "sprite" / "output" / "mouse_sheet.png"
+        )
 
         mock_get_asset_dir.return_value = self.test_assets_dir
         mock_which.return_value = "ffmpeg"
@@ -334,7 +336,8 @@ class TestSpriteGenerationCLIWorkflow(unittest.TestCase):
 
         # Test with custom grid
         generator = SpriteSheetGenerator()
-        result = generator.generate(
+        # generate() returns None on success (no exception raised)
+        generator.generate(
             str(test_video),
             str(test_assets_dir / "sprites" / "custom_grid.png"),
             grid_width=8,
@@ -343,7 +346,6 @@ class TestSpriteGenerationCLIWorkflow(unittest.TestCase):
             frame_height=128,
         )
 
-        self.assertTrue(result)
         call_args = mock_run.call_args
         cmd = " ".join(call_args[0][0])
 

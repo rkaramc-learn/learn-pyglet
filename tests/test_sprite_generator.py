@@ -1,6 +1,7 @@
 """Unit tests for SpriteSheetGenerator class."""
 
 import os
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -58,7 +59,8 @@ class TestSpriteSheetGeneratorGenerate(unittest.TestCase):
         mock_run.return_value = MagicMock(returncode=0)
 
         generator = SpriteSheetGenerator()
-        result = generator.generate(
+        # generate() returns None on success (no exception raised)
+        generator.generate(
             self.test_video,
             self.test_output,
             grid_width=10,
@@ -67,7 +69,6 @@ class TestSpriteSheetGeneratorGenerate(unittest.TestCase):
             frame_height=100,
         )
 
-        self.assertTrue(result)
         mock_run.assert_called_once()
 
         # Check command structure
@@ -80,14 +81,14 @@ class TestSpriteSheetGeneratorGenerate(unittest.TestCase):
     @patch("shutil.which")
     @patch("subprocess.run")
     def test_generate_failure(self, mock_run: MagicMock, mock_which: MagicMock) -> None:
-        """Test sprite sheet generation failure."""
+        """Test sprite sheet generation failure raises CalledProcessError."""
         mock_which.return_value = "ffmpeg"
-        mock_run.return_value = MagicMock(returncode=1)
+        # With check=True, non-zero returncode raises CalledProcessError
+        mock_run.side_effect = subprocess.CalledProcessError(1, "ffmpeg", stderr="Error")
 
         generator = SpriteSheetGenerator()
-        result = generator.generate(self.test_video, self.test_output)
-
-        self.assertFalse(result)
+        with self.assertRaises(subprocess.CalledProcessError):
+            generator.generate(self.test_video, self.test_output)
 
     @patch("shutil.which")
     def test_generate_video_not_found(self, mock_which: MagicMock) -> None:
@@ -148,15 +149,16 @@ class TestSpriteSheetGeneratorGenerate(unittest.TestCase):
 
     @patch("shutil.which")
     @patch("subprocess.run")
-    def test_generate_subprocess_exception(self, mock_run: MagicMock, mock_which: MagicMock) -> None:
-        """Test handling of subprocess exceptions."""
+    def test_generate_subprocess_exception(
+        self, mock_run: MagicMock, mock_which: MagicMock
+    ) -> None:
+        """Test handling of subprocess exceptions (bubbles up to caller)."""
         mock_which.return_value = "ffmpeg"
-        mock_run.side_effect = Exception("Subprocess error")
+        mock_run.side_effect = OSError("Subprocess error")
 
         generator = SpriteSheetGenerator()
-        result = generator.generate(self.test_video, self.test_output)
-
-        self.assertFalse(result)
+        with self.assertRaises(OSError):
+            generator.generate(self.test_video, self.test_output)
 
 
 class TestSpriteSheetGeneratorVideoInfo(unittest.TestCase):
@@ -222,7 +224,9 @@ class TestSpriteSheetGeneratorVideoInfo(unittest.TestCase):
 
     @patch("shutil.which")
     @patch("subprocess.run")
-    def test_get_video_info_fractional_fps(self, mock_run: MagicMock, mock_which: MagicMock) -> None:
+    def test_get_video_info_fractional_fps(
+        self, mock_run: MagicMock, mock_which: MagicMock
+    ) -> None:
         """Test video info with fractional fps (e.g., 30000/1001)."""
         mock_which.return_value = "ffprobe"
 
@@ -308,9 +312,8 @@ class TestSpriteSheetGeneratorIntegration(unittest.TestCase):
         Path(temp_video).touch()
 
         generator = SpriteSheetGenerator()
-        result = generator.generate(temp_video, temp_output)
-
-        self.assertTrue(result)
+        # generate() returns None on success
+        generator.generate(temp_video, temp_output)
 
         # Check that defaults were applied (10x10 grid, 100x100 frames)
         call_args = mock_run.call_args

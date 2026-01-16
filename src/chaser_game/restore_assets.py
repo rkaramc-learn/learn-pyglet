@@ -7,9 +7,11 @@ from remote locations. Uses asset manifest for metadata and restoration strategy
 import argparse
 import hashlib
 import logging
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
+from urllib.error import URLError
 
 import yaml
 
@@ -66,8 +68,13 @@ def regenerate_sprite_sheet(logger: logging.Logger, dry_run: bool = False) -> bo
         generator.generate(str(mouse_video), str(mouse_sheet))
         logger.info(f"Successfully regenerated: {mouse_sheet}")
         return True
-    except Exception as e:
+    except FileNotFoundError as e:
         logger.error(f"Failed to regenerate sprite sheet: {e}")
+        return False
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Failed to regenerate sprite sheet: ffmpeg exited with code {e.returncode}")
+        if e.stderr:
+            logger.error(f"ffmpeg stderr: {e.stderr}")
         return False
 
 
@@ -100,7 +107,7 @@ def download_asset(
         urllib.request.urlretrieve(url, full_path)
         logger.info(f"Successfully downloaded: {asset_path}")
         return True
-    except Exception as e:
+    except (OSError, URLError) as e:
         logger.error(f"Failed to download {asset_path}: {e}")
         return False
 
@@ -145,7 +152,7 @@ def verify_image_metadata(path: Path, verify_cfg: dict, logger: logging.Logger) 
             f"  [WARN] Pillow not installed, skipping image metadata check for {path.name}"
         )
         return True
-    except Exception as e:
+    except OSError as e:
         logger.error(f"  [FAIL] Failed to verify image metadata {path}: {e}")
         return False
 
@@ -185,7 +192,7 @@ def verify_audio_metadata(path: Path, verify_cfg: dict, logger: logging.Logger) 
                     return False
 
         return True
-    except Exception as e:
+    except (OSError, wave.Error) as e:
         logger.error(f"  [FAIL] Failed to verify audio metadata {path}: {e}")
         return False
 

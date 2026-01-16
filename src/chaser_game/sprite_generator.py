@@ -18,7 +18,9 @@ class SpriteSheetGenerator:
         """Initialize the generator and check ffmpeg availability."""
         self.ffmpeg = shutil.which("ffmpeg")
         if not self.ffmpeg:
-            raise FileNotFoundError("ffmpeg not found. Install from https://ffmpeg.org/download.html")
+            raise FileNotFoundError(
+                "ffmpeg not found. Install from https://ffmpeg.org/download.html"
+            )
 
     def generate(
         self,
@@ -28,7 +30,7 @@ class SpriteSheetGenerator:
         grid_height: int = 10,
         frame_width: int = 100,
         frame_height: int = 100,
-    ) -> bool:
+    ) -> None:
         """Generate a sprite sheet from a video file.
 
         Args:
@@ -39,11 +41,9 @@ class SpriteSheetGenerator:
             frame_width: Width of each frame in pixels.
             frame_height: Height of each frame in pixels.
 
-        Returns:
-            True if generation succeeded, False otherwise.
-
         Raises:
             FileNotFoundError: If video file doesn't exist.
+            subprocess.CalledProcessError: If ffmpeg fails (includes returncode and stderr).
         """
         video = Path(video_path)
         if not video.exists():
@@ -71,12 +71,7 @@ class SpriteSheetGenerator:
             str(output),
         ]
 
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=False)
-            return result.returncode == 0
-        except Exception as e:
-            logger.error(f"Error running ffmpeg: {e}")
-            return False
+        subprocess.run(cmd, capture_output=True, text=True, check=True)
 
     @staticmethod
     def get_video_info(video_path: str) -> dict[str, str | float] | None:
