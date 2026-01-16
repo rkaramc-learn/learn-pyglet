@@ -32,7 +32,7 @@ images:
     frame_duration: 0.0833333 # 1/12 second (12 FPS animation)
     dimensions: [2280, 1280] # Actual dimensions from Windows repo
     format: "PNG"
-    tracked: false
+    tracked: true
     description: "Animated sprite sheet for mouse"
     source: "Windows repository"
 
