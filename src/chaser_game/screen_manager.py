@@ -3,6 +3,7 @@
 Manages the active screen, routes input events, and orchestrates screen updates and rendering.
 """
 
+import concurrent.futures
 import datetime
 import logging
 import os
@@ -41,6 +42,8 @@ class ScreenManager:
         self._capture_next_frame: bool = False
         self._screenshot_dir = os.path.join(os.getcwd(), "screenshots")
         os.makedirs(self._screenshot_dir, exist_ok=True)
+        # Thread pool for offloading screenshot IO
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
 
     def register_screen(self, name: ScreenName, screen: ScreenProtocol) -> None:
         """Register a screen in the manager.
@@ -68,11 +71,16 @@ class ScreenManager:
             filename = f"{timestamp}_{milliseconds:03d}_{screen_name}_{event}.png"
             path = os.path.join(self._screenshot_dir, filename)
 
-            # Get the color buffer and save it
-            pyglet.image.get_buffer_manager().get_color_buffer().save(path)
-            logger.info(f"Saved screenshot: {filename}")
+            path = os.path.join(self._screenshot_dir, filename)
+
+            # Get image data on main thread (fast, GL context required)
+            image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
+
+            # Offload saving (encoding + IO) to background thread
+            self.executor.submit(image_data.save, path)
+            logger.info(f"Queued screenshot save: {filename}")
         except Exception as e:
-            logger.error(f"Failed to capture screenshot: {e}")
+            logger.error(f"Failed to initiate screenshot capture: {e}")
 
     def set_active_screen(self, name: ScreenName) -> None:
         """Transition to a different screen.
