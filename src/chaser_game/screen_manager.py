@@ -14,6 +14,7 @@ import pyglet
 from .screens import ScreenName
 from .screens.base import ScreenProtocol
 from .types import WindowProtocol
+from .utils.pbo import PBOManager
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,9 @@ class ScreenManager:
         # Thread pool for offloading screenshot IO
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
 
+        # PBO Manager for manual screenshots
+        self.pbo_manager = PBOManager(window.width, window.height)
+
     def register_screen(self, name: ScreenName, screen: ScreenProtocol) -> None:
         """Register a screen in the manager.
 
@@ -71,14 +75,31 @@ class ScreenManager:
             filename = f"{timestamp}_{milliseconds:03d}_{screen_name}_{event}.png"
             path = os.path.join(self._screenshot_dir, filename)
 
-            path = os.path.join(self._screenshot_dir, filename)
+            image_data = None
+            if event == "manual":
+                # Use PBO for manual screenshots to avoid GPU stall
+                raw_data = self.pbo_manager.capture()
+                if raw_data:
+                    # Construct ImageData from raw bytes
+                    # Format is RGBA, pitch is width * 4
+                    image_data = pyglet.image.ImageData(
+                        self.window.width,
+                        self.window.height,
+                        "RGBA",
+                        raw_data,
+                        pitch=self.window.width * 4,
+                    )
+                else:
+                    logger.debug("PBO capture returned None (first frame or buffer empty)")
+            else:
+                # Auto screenshots use standard readback (threaded save only)
+                # Get image data on main thread (fast, GL context required)
+                image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
 
-            # Get image data on main thread (fast, GL context required)
-            image_data = pyglet.image.get_buffer_manager().get_color_buffer().get_image_data()
-
-            # Offload saving (encoding + IO) to background thread
-            self.executor.submit(image_data.save, path)
-            logger.info(f"Queued screenshot save: {filename}")
+            if image_data:
+                # Offload saving (encoding + IO) to background thread
+                self.executor.submit(image_data.save, path)
+                logger.info(f"Queued screenshot save: {filename}")
         except Exception as e:
             logger.error(f"Failed to initiate screenshot capture: {e}")
 
@@ -122,6 +143,14 @@ class ScreenManager:
         """
         if self.active_screen:
             self.active_screen.update(dt)
+
+        # Resize PBO if needed (naive check)
+        # Ideally capture this via an event, but checking here covers it
+        if (
+            self.window.width != self.pbo_manager.width
+            or self.window.height != self.pbo_manager.height
+        ):
+            self.pbo_manager.resize(self.window.width, self.window.height)
 
     def draw(self) -> None:
         """Draw active screen.

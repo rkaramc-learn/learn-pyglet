@@ -13,7 +13,14 @@ class TestScreenManagerScreenshots(unittest.TestCase):
 
     def setUp(self) -> None:
         self.mock_window = MagicMock()
-        self.manager = ScreenManager(self.mock_window, capture_screenshots=True)
+        self.mock_window.width = 800
+        self.mock_window.height = 600
+
+        # Patch PBOManager initialized in __init__
+        with patch("chaser_game.screen_manager.PBOManager") as mock_pbo_cls:
+            self.manager = ScreenManager(self.mock_window, capture_screenshots=True)
+            self.mock_pbo = mock_pbo_cls.return_value
+
         # Mock executor to prevent actual threading during tests
         self.manager.executor = MagicMock()
 
@@ -105,12 +112,27 @@ class TestScreenManagerScreenshots(unittest.TestCase):
 
         self.manager.set_active_screen(ScreenName.GAME_START)
 
+        # Mock PBO to return data
+        self.mock_pbo.capture.return_value = b"FAKE_DATA" * (800 * 600 * 4 // 9)
+
         # Simulate INSERT key press
         self.manager.on_key_press(pyglet.window.key.INSERT, 0)
 
-        # Should capture with 'manual' event
+        # Should verify PBO capture called
+        self.mock_pbo.capture.assert_called_once()
+
+        # Should capture with 'manual' event (using correct mock call check)
+        # The args will be complex (ImageData object), so we verify usage
         mock_executor = cast(MagicMock, self.manager.executor)
-        mock_executor.submit.assert_called_with(
-            mock_image_data.save,
-            f"{self.manager._screenshot_dir}\\TIMESTAMP_123_game_start_manual.png",
-        )
+        self.assertEqual(mock_executor.submit.call_count, 1)
+        args, _ = mock_executor.submit.call_args
+        self.assertIn("manual", args[1])  # args[1] is filename path
+
+    def test_pbo_resize_handling(self) -> None:
+        """Test PBO is resized when window size changes."""
+        self.mock_window.width = 1024
+        self.mock_window.height = 768
+
+        self.manager.update(0.1)
+
+        self.mock_pbo.resize.assert_called_with(1024, 768)
