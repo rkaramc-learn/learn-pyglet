@@ -140,7 +140,7 @@ class GameRunningScreen(ScreenProtocol):
             "time: 0s",
             font_size=12,  # Tiny text
             color=(CONFIG.COLOR_TEXT.r, CONFIG.COLOR_TEXT.g, CONFIG.COLOR_TEXT.b, 200),
-            x=window.width - 150,  # Increased spacing from 120
+            x=window.width - 200,  # Increased spacing for distance label growth
             y=window.height - 20,
             anchor_x="left",
             anchor_y="center",
