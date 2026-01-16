@@ -29,6 +29,7 @@ class TestScreenManagerScreenshots(unittest.TestCase):
         mock_buffer = MagicMock()
         mock_get_buffer_manager.return_value.get_color_buffer.return_value = mock_buffer
         mock_datetime.datetime.now.return_value.strftime.return_value = "TIMESTAMP"
+        mock_datetime.datetime.now.return_value.microsecond = 456789  # Sets ms to 456
 
         # 1. Enter Screen A (GAME_START)
         self.manager.set_active_screen(ScreenName.GAME_START)
@@ -43,7 +44,7 @@ class TestScreenManagerScreenshots(unittest.TestCase):
 
         # Should capture enter A
         mock_buffer.save.assert_called_with(
-            f"{self.manager._screenshot_dir}\\TIMESTAMP_game_start_enter.png"
+            f"{self.manager._screenshot_dir}\\TIMESTAMP_456_game_start_enter.png"
         )
         self.assertFalse(self.manager._capture_next_frame)
         mock_buffer.save.reset_mock()
@@ -57,7 +58,7 @@ class TestScreenManagerScreenshots(unittest.TestCase):
 
         # Should capture exit A immediately
         mock_buffer.save.assert_called_with(
-            f"{self.manager._screenshot_dir}\\TIMESTAMP_game_start_exit.png"
+            f"{self.manager._screenshot_dir}\\TIMESTAMP_456_game_start_exit.png"
         )
         self.assertTrue(self.manager._capture_next_frame)
         mock_buffer.save.reset_mock()
@@ -67,5 +68,5 @@ class TestScreenManagerScreenshots(unittest.TestCase):
 
         # Should capture enter B
         mock_buffer.save.assert_called_with(
-            f"{self.manager._screenshot_dir}\\TIMESTAMP_game_running_enter.png"
+            f"{self.manager._screenshot_dir}\\TIMESTAMP_456_game_running_enter.png"
         )

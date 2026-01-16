@@ -62,8 +62,10 @@ class ScreenManager:
             event: Event name (e.g., 'enter', 'exit')
         """
         try:
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            filename = f"{timestamp}_{screen_name}_{event}.png"
+            now = datetime.datetime.now()
+            timestamp = now.strftime("%Y%m%d_%H%M%S")
+            milliseconds = int(now.microsecond / 1000)
+            filename = f"{timestamp}_{milliseconds:03d}_{screen_name}_{event}.png"
             path = os.path.join(self._screenshot_dir, filename)
 
             # Get the color buffer and save it
