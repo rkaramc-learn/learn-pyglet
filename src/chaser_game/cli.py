@@ -72,5 +72,88 @@ def play(verbose: int, log_file: Path | None, screenshots: bool, show_fps: bool)
         sys.exit(1)
 
 
+@cli.group()
+def assets() -> None:
+    """Manage game assets."""
+    pass
+
+
+@assets.command()
+@click.option(
+    "-v",
+    "--verbose",
+    count=True,
+    help="Increase verbosity: -v (INFO), -vv (DEBUG), -vvv (TRACE)",
+)
+def verify(verbose: int) -> None:
+    """Verify all assets are present."""
+    from .restore_assets import verify_assets
+
+    # Determine log level
+    if verbose == 0:
+        log_level = logging.WARNING
+    elif verbose == 1:
+        log_level = logging.INFO
+    elif verbose == 2:
+        log_level = logging.DEBUG
+    else:
+        log_level = TRACE_LEVEL
+
+    init_logging(level=log_level, log_file=None)
+    logger = logging.getLogger(__name__)
+
+    try:
+        success = verify_assets(logger)
+        sys.exit(0 if success else 1)
+    except Exception as e:
+        logger.error(f"Verification failed: {e}", exc_info=verbose >= 3)
+        sys.exit(1)
+
+
+@assets.command()
+@click.option(
+    "-v",
+    "--verbose",
+    count=True,
+    help="Increase verbosity: -v (INFO), -vv (DEBUG), -vvv (TRACE)",
+)
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    help="Show what would be restored without making changes",
+)
+@click.option(
+    "-y",
+    "--yes",
+    is_flag=True,
+    help="Skip confirmation prompts",
+)
+def restore(verbose: int, dry_run: bool, yes: bool) -> None:
+    """Restore missing assets (regenerate/download)."""
+    from .restore_assets import restore_assets
+
+    # Determine log level
+    if verbose == 0:
+        log_level = logging.WARNING
+    elif verbose == 1:
+        log_level = logging.INFO
+    elif verbose == 2:
+        log_level = logging.DEBUG
+    else:
+        log_level = TRACE_LEVEL
+
+    init_logging(level=log_level, log_file=None)
+    logger = logging.getLogger(__name__)
+
+    try:
+        # confirm is True unless --yes is passed
+        confirm = not yes
+        success = restore_assets(logger, dry_run=dry_run, confirm=confirm)
+        sys.exit(0 if success else 1)
+    except Exception as e:
+        logger.error(f"Restoration failed: {e}", exc_info=verbose >= 3)
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     cli()
