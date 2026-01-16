@@ -5,7 +5,7 @@ Displays final outcome, game statistics, and provides options to replay or quit 
 
 import logging
 
-import pyglet
+from pyglet.text import document, layout
 from pyglet.window import key
 
 from ..config import CONFIG
@@ -56,7 +56,18 @@ class GameEndScreen(ScreenProtocol):
         # Outcome title (SVG Logo 75% scale)
         from ..ui.logo import ChaserLogo
 
-        self.logo = ChaserLogo(x=window.width // 2, y=window.height // 2 + 50, scale=0.75)
+        self.logo = ChaserLogo(x=window.width // 2, y=window.height - 120, scale=1.0)
+
+        # Status Label (Win/Loss) - Initialized empty
+        # We use a FormattedDocument to allow mixed colors while strictly adhering to points sizing
+        self.status_doc = document.FormattedDocument("")
+        self.status_layout = layout.TextLayout(
+            self.status_doc, width=window.width, multiline=True, wrap_lines=False
+        )
+        self.status_layout.x = 0
+        self.status_layout.y = window.height - 180
+        self.status_layout.anchor_x = "left"  # We will center align text within the document
+        self.status_layout.anchor_y = "center"
 
         # Statistics display (Minimalist floating text)
         self.stats_label = StyledLabel(
@@ -64,7 +75,7 @@ class GameEndScreen(ScreenProtocol):
             font_size=14,
             color=(CONFIG.COLOR_TEXT.r, CONFIG.COLOR_TEXT.g, CONFIG.COLOR_TEXT.b, 200),
             x=window.width // 2,
-            y=window.height // 2 - 20,
+            y=window.height // 2,
             anchor_x="center",
             anchor_y="center",
             multiline=True,
@@ -83,7 +94,7 @@ class GameEndScreen(ScreenProtocol):
                 255,
             ),
             x=window.width // 2,
-            y=100,
+            y=150,
             anchor_x="center",
             anchor_y="center",
         )
@@ -129,33 +140,43 @@ class GameEndScreen(ScreenProtocol):
         # The previous 'outcome_label' was the main title text.
         # Let's create a NEW label for the status message "caught." / "escaped!" below the logo.
 
-        self.status_label = pyglet.text.HTMLLabel(
-            "",
-            x=self.window.width // 2,
-            y=self.window.height // 2 - 10,  # Below logo
-            anchor_x="center",
-            anchor_y="center",
-            width=self.window.width,
-            multiline=True,
-        )
-
-        font_name = CONFIG.FONT_NAME
-        font_size = CONFIG.FONT_SIZE_TITLE
-        text_hex = _rgb_to_hex(CONFIG.COLOR_TEXT)
-        green_hex = _rgb_to_hex(CONFIG.COLOR_GREEN_ACCENT)
-        red_hex = _rgb_to_hex(CONFIG.COLOR_RED_ACCENT)
-
         if is_win:
-            html_text = (
-                f'<font face="{font_name}" size="{font_size}" color="{text_hex}">escaped'
-                f'<font color="{green_hex}">!</font></font>'
+            raw_text = "escaped!"
+            accent_color = (
+                CONFIG.COLOR_GREEN_ACCENT.r,
+                CONFIG.COLOR_GREEN_ACCENT.g,
+                CONFIG.COLOR_GREEN_ACCENT.b,
+                255,
             )
         else:
-            html_text = (
-                f'<font face="{font_name}" size="{font_size}" color="{text_hex}">caught'
-                f'<font color="{red_hex}">.</font></font>'
+            raw_text = "caught."
+            accent_color = (
+                CONFIG.COLOR_RED_ACCENT.r,
+                CONFIG.COLOR_RED_ACCENT.g,
+                CONFIG.COLOR_RED_ACCENT.b,
+                255,
             )
-        self.status_label.text = html_text
+
+        self.status_doc.text = raw_text
+
+        # Base Style (White, Header Size, Centered)
+        self.status_doc.set_style(
+            0,
+            len(raw_text),
+            {
+                "font_name": CONFIG.FONT_NAME,
+                "font_size": CONFIG.FONT_SIZE_HEADER,
+                "color": (255, 255, 255, 255),
+                "align": "center",
+            },
+        )
+
+        # Accent Style for last character
+        self.status_doc.set_style(
+            len(raw_text) - 1,
+            len(raw_text),
+            {"color": accent_color},
+        )
 
         # Format statistics
         minutes = int(self.time_survived) // 60
@@ -185,7 +206,7 @@ class GameEndScreen(ScreenProtocol):
         """Render game end screen content."""
         self.background_panel.draw()
         self.logo.draw()
-        self.status_label.draw()
+        self.status_layout.draw()
         self.stats_label.draw()
         self.replay_label.draw()
         self.quit_label.draw()
