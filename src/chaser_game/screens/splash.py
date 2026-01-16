@@ -6,6 +6,7 @@ Displays title/logo for a short duration then transitions to GameStart screen.
 import logging
 
 import pyglet
+from pyglet.math import Vec2
 
 from ..config import CONFIG
 from ..types import WindowProtocol
@@ -21,7 +22,7 @@ class SplashScreen(ScreenProtocol):
     transitions to the GameStart screen.
     """
 
-    DISPLAY_DURATION = 2.0  # Seconds to show splash screen
+    DISPLAY_DURATION = 2.5  # Seconds to show splash screen (Total animation time)
 
     def __init__(self, window: WindowProtocol) -> None:
         """Initialize splash screen.
@@ -42,11 +43,30 @@ class SplashScreen(ScreenProtocol):
 
         self.logo = ChaserLogo(x=cx, y=cy)
 
+        # Animation State
+        self.start_pos = Vec2(cx, cy)
+        self.target_pos = Vec2(cx, window.height - 120)  # Target matches GameStartScreen
+        self.current_pos = Vec2(cx, cy)
+
+        # Start invisible
+        self.logo.update_opacity(0)
+
+    def _smooth_step(self, t: float) -> float:
+        """Smooth step easing (t * t * (3 - 2 * t))."""
+        return t * t * (3 - 2 * t)
+
     def on_enter(self) -> None:
         """Called when splash screen becomes active."""
         self.elapsed_time = 0.0
         # Reset background color to configured default
         # (Though Panel usually handles this in other screens)
+
+        # Reset Animation State
+        self.elapsed_time = 0.0
+        self.current_pos = self.start_pos
+        self.logo.update_position(self.start_pos.x, self.start_pos.y)
+        self.logo.update_opacity(0)
+
         logger.info(f"Splash screen started (duration: {self.DISPLAY_DURATION}s)")
 
     def on_exit(self) -> None:
@@ -60,6 +80,31 @@ class SplashScreen(ScreenProtocol):
             dt: Time elapsed since last update in seconds.
         """
         self.elapsed_time += dt
+
+        # Animation Phases
+
+        # Phase 1: Fade In (0.0s - 1.0s)
+        if self.elapsed_time <= 1.0:
+            fade_progress = self.elapsed_time / 1.0
+            opacity = int(self._smooth_step(fade_progress) * 255)
+            self.logo.update_opacity(opacity)
+            self.logo.update_position(self.start_pos.x, self.start_pos.y)
+
+        # Phase 2: Hold (1.0s - 1.5s)
+        elif self.elapsed_time <= 1.5:
+            self.logo.update_opacity(255)
+            self.logo.update_position(self.start_pos.x, self.start_pos.y)
+
+        # Phase 3: Slide Up (1.5s - 2.5s)
+        elif self.elapsed_time <= self.DISPLAY_DURATION:
+            self.logo.update_opacity(255)
+            # Normalize time for this phase (0.0 to 1.0 over 1 second)
+            slide_progress = (self.elapsed_time - 1.5) / 1.0
+            # Ease the progress
+            t = self._smooth_step(slide_progress)
+            # Lerp position
+            self.current_pos = self.start_pos.lerp(self.target_pos, t)
+            self.logo.update_position(self.current_pos.x, self.current_pos.y)
 
         # Transition to GameStart after duration expires
         if self.elapsed_time >= self.DISPLAY_DURATION:
