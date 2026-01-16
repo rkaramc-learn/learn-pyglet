@@ -9,12 +9,16 @@ images:
   kitten:
     path: "images/kitten.png"
     type: "sprite"
-    dimensions: [1040, 1040] # Original dimensions (pixels)
-    scale_factor: 0.1 # Scaled to 104x104 in-game
-    scaled_dimensions: [104, 104]
+    dimensions: [1024, 1024] # Corrected from 1040
+    scale_factor: 0.1 # Scaled to ~100x100 in-game
+    scaled_dimensions: [102, 102]
     format: "PNG"
     tracked: true
     description: "Player-controlled kitten sprite"
+    verify:
+      sha256: "D3BBB51CDAFBD0A37EF9EBB9E5E449E62F14BB1B70891C13F3D8F9247C5901B9"
+      dimensions: [1024, 1024]
+      format: "PNG"
 
   chaser_logo:
     path: "images/chaser_logo.png"
@@ -24,6 +28,10 @@ images:
     tracked: true
     description: "Game logo (manually generated from SVG)"
     source: "source/chaser_logo.svg"
+    verify:
+      sha256: "289A0F40C5C586BB71387E4EC53F3F04350A4505BC3FDBB05A9210C2C5737547"
+      dimensions: [400, 100]
+      format: "PNG"
 
   mouse_sheet:
     path: "sprites/mouse_sheet.png"
@@ -35,22 +43,32 @@ images:
     tracked: true
     description: "Animated sprite sheet for mouse"
     source: "Windows repository"
+    verify:
+      sha256: "A8D2F16FD8567EF6642C5F89823E8A9EF160E6C3AD4E1EBAE3AB1E79A8C838E8"
+      dimensions: [2280, 1280]
+      format: "PNG"
 
 audio:
   meow:
     path: "audio/sfx/meow.wav"
     type: "sound_effect"
-    duration_seconds: 0.5 # Approximate
+    duration_seconds: 0.88 # Actual ~0.875s
     sample_rate_hz: 44100
     format: "WAV"
     tracked: true
     description: "Sound effect played when kitten stops moving"
     usage: "on_kitten_idle"
+    verify:
+      sha256: "81C720BE8CDE3BF20C2068B93C176D104033A6FCD8DC2DBDCDC0C41620B2A6D5"
+      duration_seconds: 0.88
+      channels: 2
+      sample_rate: 44100
+      format: "WAV"
 
   ambience:
     path: "audio/music/ambience.wav"
     type: "background_music"
-    duration_seconds: 30 # Looped
+    duration_seconds: 48.0 # Actual 48.0s
     sample_rate_hz: 44100
     format: "WAV"
     tracked: true
@@ -59,6 +77,12 @@ audio:
     looped: true
     description: "Background music loop for game"
     usage: "continuous_background"
+    verify:
+      sha256: "97656FE66EEF139B6113ED2C69BA837EB8F6EED4C6F34A724C5890D66A40903E"
+      duration_seconds: 48.0
+      channels: 2
+      sample_rate: 44100
+      format: "WAV"
 
 source:
   mouse_video:
@@ -71,6 +95,7 @@ source:
     description: "Source video used to generate mouse_sheet.png sprite sheet"
     generated_from: "mouse.mp4"
     generation_method: "ffmpeg frame extraction"
+    # No verify block for ignored/untracked assets
 
   chaser_logo_source:
     path: "source/chaser_logo.svg"
@@ -80,6 +105,9 @@ source:
     tracked: true
     description: "Source vector file for game logo"
     generation_target: "images/chaser_logo.png"
+    verify:
+      sha256: "1212F764261DFA0D62AA8D70F43A2D4EF551CFA0110DF26136C89957054160E7"
+      format: "SVG"
 
 metadata:
   total_assets: 5

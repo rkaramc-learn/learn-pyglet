@@ -5,6 +5,7 @@ from remote locations. Uses asset manifest for metadata and restoration strategy
 """
 
 import argparse
+import hashlib
 import logging
 import sys
 from pathlib import Path
@@ -104,65 +105,183 @@ def download_asset(
         return False
 
 
+def calculate_sha256(file_path: Path) -> str:
+    """Calculate SHA256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        # Read and update hash string value in blocks of 4K
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest().upper()
+
+
+def verify_image_metadata(path: Path, verify_cfg: dict, logger: logging.Logger) -> bool:
+    """Verify image specific metadata (dimensions, format)."""
+    try:
+        from PIL import Image
+
+        with Image.open(path) as img:
+            # Check dimensions
+            expected_dims = verify_cfg.get("dimensions")
+            if expected_dims:
+                expected_w, expected_h = expected_dims
+                if img.size != (expected_w, expected_h):
+                    logger.error(
+                        f"  [FAIL] Dimensions mismatch {path.name}: Expected {expected_dims}, got {img.size}"
+                    )
+                    return False
+
+            # Check format
+            expected_fmt = verify_cfg.get("format")
+            if expected_fmt and img.format != expected_fmt:
+                logger.error(
+                    f"  [FAIL] Format mismatch {path.name}: Expected {expected_fmt}, got {img.format}"
+                )
+                return False
+
+        return True
+    except ImportError:
+        logger.warning(
+            f"  [WARN] Pillow not installed, skipping image metadata check for {path.name}"
+        )
+        return True
+    except Exception as e:
+        logger.error(f"  [FAIL] Failed to verify image metadata {path}: {e}")
+        return False
+
+
+def verify_audio_metadata(path: Path, verify_cfg: dict, logger: logging.Logger) -> bool:
+    """Verify audio specific metadata (duration, channels, sample_rate)."""
+    try:
+        import wave
+
+        with wave.open(str(path), "rb") as wav:
+            # Check channels
+            expected_channels = verify_cfg.get("channels")
+            if expected_channels and wav.getnchannels() != expected_channels:
+                logger.error(
+                    f"  [FAIL] Channels mismatch {path.name}: Expected {expected_channels}, got {wav.getnchannels()}"
+                )
+                return False
+
+            # Check sample rate
+            expected_rate = verify_cfg.get("sample_rate")
+            if expected_rate and wav.getframerate() != expected_rate:
+                logger.error(
+                    f"  [FAIL] Sample rate mismatch {path.name}: Expected {expected_rate}, got {wav.getframerate()}"
+                )
+                return False
+
+            # Check duration (approx)
+            expected_duration = verify_cfg.get("duration_seconds")
+            if expected_duration:
+                frames = wav.getnframes()
+                rate = wav.getframerate()
+                duration = frames / float(rate)
+                if abs(duration - expected_duration) > 0.1:  # 0.1s tolerance
+                    logger.error(
+                        f"  [FAIL] Duration mismatch {path.name}: Expected {expected_duration}s, got {duration:.2f}s"
+                    )
+                    return False
+
+        return True
+    except Exception as e:
+        logger.error(f"  [FAIL] Failed to verify audio metadata {path}: {e}")
+        return False
+
+
+def verify_asset_integrity(
+    path: Path, verify_cfg: dict, type_hint: str, logger: logging.Logger
+) -> bool:
+    """Verify asset integrity based on config."""
+    valid = True
+
+    # 1. SHA256 Check
+    expected_hash = verify_cfg.get("sha256")
+    if expected_hash:
+        try:
+            actual_hash = calculate_sha256(path)
+            if actual_hash != expected_hash:
+                logger.error(f"  [FAIL] Hash mismatch {path.name}")
+                logger.debug(f"         Expected: {expected_hash}")
+                logger.debug(f"         Got:      {actual_hash}")
+                valid = False
+        except Exception as e:
+            logger.error(f"  [FAIL] Could not calculate hash for {path}: {e}")
+            valid = False
+
+    if not valid:
+        return False
+
+    # 2. Type-specific metadata checks
+    if type_hint in ["sprite", "ui_element", "sprite_sheet"]:
+        if not verify_image_metadata(path, verify_cfg, logger):
+            valid = False
+    elif type_hint in ["sound_effect", "background_music"]:
+        if not verify_audio_metadata(path, verify_cfg, logger):
+            valid = False
+
+    return valid
+
+
 def verify_assets(logger: logging.Logger) -> bool:
-    """Verify all assets from manifest are present.
+    """Verify all assets from manifest are present and valid.
 
     Args:
         logger: Logger instance
 
     Returns:
-        True if all assets present, False if any missing
+        True if all assets present and valid, False otherwise
     """
     manifest = load_manifest()
     all_present = True
+    all_valid = True
 
     logger.info("Verifying assets...")
 
-    # Check images
-    for asset_name, asset_info in manifest.get("images", {}).items():
-        path = asset_info.get("path")
-        tracked = asset_info.get("tracked", False)
-        exists = asset_exists(path)
+    categories = ["images", "audio", "source"]
 
-        status = "[OK]" if exists else "[MISSING]"
-        tracked_str = "(tracked)" if tracked else "(gitignored)"
-        logger.info(f"  {status} {path} {tracked_str}")
+    for category in categories:
+        for asset_name, asset_info in manifest.get(category, {}).items():
+            path_str = asset_info.get("path")
+            if not path_str:
+                continue
 
-        if not exists and tracked:
-            all_present = False
+            path = get_asset_dir() / path_str
+            tracked = asset_info.get("tracked", False)
+            exists = path.exists()
+            asset_type = asset_info.get("type", "unknown")
 
-    # Check audio (flat structure: audio.meow, audio.ambience)
-    for asset_name, asset_info in manifest.get("audio", {}).items():
-        path = asset_info.get("path")
-        tracked = asset_info.get("tracked", False)
-        exists = asset_exists(path)
+            status = "[OK]" if exists else "[MISSING]"
+            tracked_str = "(tracked)" if tracked else "(gitignored)"
 
-        status = "[OK]" if exists else "[MISSING]"
-        tracked_str = "(tracked)" if tracked else "(gitignored)"
-        logger.info(f"  {status} {path} {tracked_str}")
+            # If exists, verify contents if config present
+            verify_cfg = asset_info.get("verify")
+            integrity_ok = True
 
-        if not exists and tracked:
-            all_present = False
+            if exists and verify_cfg:
+                integrity_ok = verify_asset_integrity(path, verify_cfg, asset_type, logger)
+                if not integrity_ok:
+                    status = "[INVALID]"
+                    all_valid = False
 
-    # Check source assets
-    for asset_name, asset_info in manifest.get("source", {}).items():
-        path = asset_info.get("path")
-        tracked = asset_info.get("tracked", False)
-        exists = asset_exists(path)
+            logger.info(f"  {status} {path_str} {tracked_str}")
 
-        status = "[OK]" if exists else "[MISSING]"
-        tracked_str = "(tracked)" if tracked else "(gitignored)"
-        logger.info(f"  {status} {path} {tracked_str}")
+            if not exists and tracked:
+                all_present = False
+            elif exists and not integrity_ok:
+                # Existence is fine, but integrity failed
+                pass
 
-        if not exists and tracked:
-            all_present = False
-
-    if all_present:
+    if all_present and all_valid:
         logger.info("All assets verified successfully")
+        return True
     else:
-        logger.warning("Some tracked assets are missing")
-
-    return all_present
+        if not all_present:
+            logger.warning("Some tracked assets are missing")
+        if not all_valid:
+            logger.warning("Some assets failed integrity verification")
+        return False
 
 
 def restore_assets(logger: logging.Logger, dry_run: bool = False, confirm: bool = True) -> bool:
