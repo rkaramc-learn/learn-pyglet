@@ -45,10 +45,10 @@ See [docs/SETUP.md](docs/SETUP.md) for installation and execution instructions.
      ```
 
    - **Save Work:** Use `jj commit -m "message"` as the primary way to save changes. It is more efficient than `jj describe` followed by `jj new` as it performs both in one tool call.
-   - **Export to Git:** Use `jj git export` to write jj commits to the underlying Git repository (needed for beads sync).
    - **Untracking Files:** Use `jj file untrack <path>` to stop tracking a file without deleting it.
    - **Listing Files:** Use `jj file list` (add `--no-pager` for full output in non-interactive shells).
    - **Note:** Large binary files (>1MB) are strictly ignored via `.gitignore`.
+   - **CRITICAL:** Do **NOT** use `jj new` to "start" a commit or session. This creates an empty child commit and leaves your actual changes in an orphaned parent. ALWAYS use `jj commit -m "..."` to save your work. `jj new` is ONLY for advanced branch manipulation or merging (e.g., in the push workflow).
 
 2. **Running:**
    - `uv run chaser`
@@ -139,10 +139,10 @@ See [docs/SETUP.md](docs/SETUP.md) for installation and execution instructions.
    jj commit -m "type(scope): description"
    ```
 
-4. **Export jj changes to Git** (required for external tools like beads)
+4. **Verify** - Confirm all changes are committed
 
    ```bash
-   jj git export
+   jj status  # MUST show "The working copy has no changes."
    ```
 
 5. **Update issue status** - Close completed issues:
@@ -151,12 +151,6 @@ See [docs/SETUP.md](docs/SETUP.md) for installation and execution instructions.
 
    ```bash
    bd close <id> --reason "Done" --json
-   ```
-
-6. **Verify** - Confirm all changes are committed
-
-   ```bash
-   jj status  # MUST show "The working copy has no changes."
    ```
 
 ### Push to remote
