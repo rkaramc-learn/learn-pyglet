@@ -24,6 +24,7 @@ def main(capture_screenshots: bool = False) -> None:
 
     logger.info("Creating game window")
     window: WindowProtocol = pyglet.window.Window()
+    window.switch_to()  # Ensure GL context is current before initializing PBOs
     logger.info(f"Window created: {window.width}x{window.height}")
 
     # Initialize screen manager

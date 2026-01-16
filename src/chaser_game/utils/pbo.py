@@ -8,6 +8,7 @@ import ctypes
 import logging
 from typing import Optional
 
+import pyglet
 from pyglet.gl import (
     GL_PIXEL_PACK_BUFFER,
     GL_READ_ONLY,
@@ -15,6 +16,7 @@ from pyglet.gl import (
     GL_STREAM_READ,
     GL_UNSIGNED_BYTE,
     GLsizeiptr,
+    gl_info,
     glBindBuffer,
     glBufferData,
     glGenBuffers,
@@ -22,7 +24,6 @@ from pyglet.gl import (
     glReadPixels,
     glUnmapBuffer,
 )
-from pyglet.gl.gl_info import GLInfo
 
 logger = logging.getLogger(__name__)
 
@@ -51,11 +52,15 @@ class PBOManager:
     def _init_buffers(self) -> None:
         """Initialize OpenGL buffers."""
         try:
-            # Check for PBO support
-            info = GLInfo()
-            if not info.have_extension("GL_ARB_pixel_buffer_object") and not info.have_version(
-                2, 1
-            ):
+            # Check for active context first
+            if not pyglet.gl.current_context:
+                logger.warning("No active GL context. PBO initialization skipped.")
+                return
+
+            # Check for PBO support via global gl_info
+            if not gl_info.have_extension(
+                "GL_ARB_pixel_buffer_object"
+            ) and not gl_info.have_version(2, 1):
                 logger.warning("PBO extension not supported. Asynchronous capture unavailable.")
                 return
 
