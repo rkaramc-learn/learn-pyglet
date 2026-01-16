@@ -9,7 +9,7 @@ import logging
 import os
 import time
 from multiprocessing.shared_memory import SharedMemory
-from typing import Optional
+from typing import Any, Optional
 
 import pyglet
 from PIL import Image
@@ -207,6 +207,7 @@ class ScreenManager:
         """Transition to a different screen.
 
         Calls on_exit() on the current screen and on_enter() on the new screen.
+        Also manages the window event handler stack.
 
         Args:
             name: Name of the screen to activate
@@ -225,11 +226,18 @@ class ScreenManager:
                 self._capture_screenshot(self.active_screen_name, "exit")
             self.active_screen.on_exit()
 
+            # Remove screen from event stack
+            self.window.remove_handlers(self.active_screen)
+
         # Enter new screen
         self.active_screen = self.screens[name]
         self.active_screen_name = name
         logger.info(f"Transitioning to screen: {name}")
         if self.active_screen:
+            # Push new screen to event stack
+            # This allows it to receive inputs directly (on_key_press, etc.)
+            self.window.push_handlers(self.active_screen)
+
             self.active_screen.on_enter()
             # Queue capture for the next frame (when it's drawn)
             if self.capture_screenshots:
@@ -320,8 +328,8 @@ class ScreenManager:
         if self.fps_display:
             self.fps_display.draw()
 
-    def on_key_press(self, symbol: int, modifiers: int) -> None:
-        """Route key press to active screen.
+    def on_key_press(self, symbol: int, modifiers: int) -> Any:
+        """Handle global key press events.
 
         Args:
             symbol: Key symbol
@@ -331,12 +339,21 @@ class ScreenManager:
         if symbol == pyglet.window.key.INSERT:
             logger.info("Manual screenshot key press detected (INSERT)")
             self._capture_screenshot(self.active_screen_name or "global", "manual")
+            return pyglet.event.EVENT_HANDLED
 
-        if self.active_screen:
-            self.active_screen.on_key_press(symbol, modifiers)
+        # We no longer strictly route to active_screen here;
+        # active_screen is pushed to the stack and receives events directly.
+        # However, if we want to ensure global keys are handled BEFORE the screen,
+        # ScreenManager should be pushed AFTER the screen?
+        # Typically ScreenManager is pushed once at startup.
+        # Then Screens are pushed on top.
+        # So Screens receive events FIRST.
+        # If Screen consumes event (returns True), ScreenManager never sees it.
+        # If Screen passes (returns None/False), ScreenManager handles it.
+        # This means INSERT works globally unless a Screen consumes it. Proper behavior.
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> None:
-        """Route mouse press to active screen.
+        """Handle global mouse press events.
 
         Args:
             x: Mouse x coordinate
@@ -344,5 +361,6 @@ class ScreenManager:
             button: Mouse button
             modifiers: Modifier keys
         """
-        if self.active_screen:
-            self.active_screen.on_mouse_press(x, y, button, modifiers)
+        # Currently no global mouse handling needed.
+        # Active screen receives events directly via stack.
+        pass

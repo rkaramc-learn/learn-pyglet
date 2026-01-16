@@ -7,7 +7,7 @@ import logging
 from typing import Any
 
 import pyglet
-from pyglet.window import key, mouse
+from pyglet.window import key
 
 from ..assets import get_loader
 from ..config import CONFIG
@@ -162,10 +162,14 @@ class GameRunningScreen(ScreenProtocol):
     def on_enter(self) -> None:
         """Called when game running screen becomes active."""
         logger.info("Game running screen started")
-        self.window.push_handlers(self.keys)
-        self.window.push_handlers(
-            on_key_press=self._on_key_press, on_mouse_press=self._on_mouse_press
-        )
+
+        # NOTE: self.window.push_handlers(self) is handled by ScreenManager now
+
+        # Push entities to event stack so they can handle input directly
+        # Pushing mouse LAST makes it FIRST in the stack (Top)
+        # Order: [Mouse, Screen, ScreenManager]
+        self.window.push_handlers(self.mouse)
+
         self.music_player.play()
 
         # Reset entities
@@ -191,19 +195,30 @@ class GameRunningScreen(ScreenProtocol):
         """Called when game running screen is left."""
         logger.debug("Game running screen exited")
         self.music_player.pause()
+
+        # Remove entity handlers
+        self.window.remove_handlers(self.mouse)
+
         # unschedule is available on pyglet.clock module
         pyglet.clock.unschedule(self.update)
 
-    def _on_key_press(self, symbol: int, _modifiers: int) -> None:
+    def on_key_press(self, symbol: int, modifiers: int) -> bool:
         """Handle key press events.
 
         Args:
             symbol: Key symbol from pyglet.window.key
-            _modifiers: Modifier keys (unused)
+            modifiers: Modifier keys
+
+        Returns:
+            True if event handled, False otherwise.
         """
+        # Global Game Control Keys (Quit, Reset)
+        # Note: Movement keys are now handled by self.mouse directly via event stack
+
         if symbol == key.Q:
             logger.info("Quitting game")
             self.window.close()
+            return True
         elif symbol == key.R:
             # Reset Game State
             logger.info("Resetting game")
@@ -218,67 +233,12 @@ class GameRunningScreen(ScreenProtocol):
             self.elapsed_time = 0.0
             self.state_manager.reset()
             logger.debug("Game state reset complete")
+            return True
 
-        if self.state_manager.is_game_over():
-            return
-
-        # Manual Movement Control (Sets Velocity)
-        base_speed = self.window.width / CONFIG.WINDOW_TRAVERSAL_TIME
-        if symbol == key.UP:
-            self.mouse.velocity_x = 0.0
-            self.mouse.velocity_y = base_speed
-        elif symbol == key.DOWN:
-            self.mouse.velocity_x = 0.0
-            self.mouse.velocity_y = -base_speed
-        elif symbol == key.LEFT:
-            self.mouse.velocity_x = -base_speed
-            self.mouse.velocity_y = 0.0
-        elif symbol == key.RIGHT:
-            self.mouse.velocity_x = base_speed
-            self.mouse.velocity_y = 0.0
-        # Diagonals
-        elif symbol == key.HOME:  # Up-Left
-            self.mouse.velocity_x = -base_speed * CONFIG.DIAGONAL_MOVEMENT_FACTOR
-            self.mouse.velocity_y = base_speed * CONFIG.DIAGONAL_MOVEMENT_FACTOR
-        elif symbol == key.PAGEUP:  # Up-Right
-            self.mouse.velocity_x = base_speed * CONFIG.DIAGONAL_MOVEMENT_FACTOR
-            self.mouse.velocity_y = base_speed * CONFIG.DIAGONAL_MOVEMENT_FACTOR
-        elif symbol == key.END:  # Down-Left
-            self.mouse.velocity_x = -base_speed * CONFIG.DIAGONAL_MOVEMENT_FACTOR
-            self.mouse.velocity_y = -base_speed * CONFIG.DIAGONAL_MOVEMENT_FACTOR
-        elif symbol == key.PAGEDOWN:  # Down-Right
-            self.mouse.velocity_x = base_speed * CONFIG.DIAGONAL_MOVEMENT_FACTOR
-            self.mouse.velocity_y = -base_speed * CONFIG.DIAGONAL_MOVEMENT_FACTOR
-        elif symbol == key.SPACE:  # Stop
-            self.mouse.velocity_x = 0.0
-            self.mouse.velocity_y = 0.0
-
-    def _on_mouse_press(self, x: int, y: int, button: int, _modifiers: int) -> None:
-        """Handle mouse press events.
-
-        Args:
-            x: Mouse x coordinate
-            y: Mouse y coordinate
-            button: Mouse button from pyglet.window.mouse
-            _modifiers: Modifier keys (unused)
-        """
-        if self.state_manager.is_game_over():
-            return
-
-        if button == mouse.LEFT:
-            self.mouse.set_velocity_to_target(float(x), float(y))
-
-    def on_key_press(self, symbol: int, modifiers: int) -> None:
-        """Handle key press events (Screen base class interface).
-
-        Args:
-            symbol: Key symbol
-            modifiers: Modifier keys
-        """
-        self._on_key_press(symbol, modifiers)
+        return False
 
     def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> None:
-        """Handle mouse press events (Screen base class interface).
+        """Handle mouse press events.
 
         Args:
             x: Mouse x coordinate
@@ -286,7 +246,8 @@ class GameRunningScreen(ScreenProtocol):
             button: Mouse button
             modifiers: Modifier keys
         """
-        self._on_mouse_press(x, y, button, modifiers)
+        # Mouse movement logic moved to self.mouse.on_mouse_press
+        pass
 
     def _update_entities(self, dt: float) -> float:
         """Update mouse and kitten positions.

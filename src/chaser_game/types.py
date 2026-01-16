@@ -31,6 +31,9 @@ class WindowProtocol(Protocol):
     def pop_handlers(self) -> None:
         """Pop event handlers from the window stack."""
 
+    def remove_handlers(self, *args: Any, **kwargs: Any) -> None:
+        """Remove event handlers from the event stack."""
+
     def clear(self) -> None:
         """Clear the window (fill with background color)."""
 

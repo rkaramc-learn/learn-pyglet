@@ -243,6 +243,82 @@ class Mouse(Character):
             self.velocity_x = 0.0
             self.velocity_y = 0.0
 
+    def on_key_press(self, symbol: int, modifiers: int) -> bool:
+        """Handle key press events for movement.
+
+        Args:
+            symbol: Key symbol from pyglet.window.key.
+            modifiers: Modifier keys (unused).
+
+        Returns:
+            True if event was handled (consumed), False otherwise.
+        """
+        from pyglet.window import key
+
+        # Calculate base speed using configured window width
+        # (Consistent with pre-refactor logic using window.width, assuming non-resizable or config-based logic)
+        base_speed = CONFIG.WINDOW_WIDTH / CONFIG.WINDOW_TRAVERSAL_TIME
+
+        if symbol == key.UP:
+            self.velocity_x = 0.0
+            self.velocity_y = base_speed
+            return True
+        elif symbol == key.DOWN:
+            self.velocity_x = 0.0
+            self.velocity_y = -base_speed
+            return True
+        elif symbol == key.LEFT:
+            self.velocity_x = -base_speed
+            self.velocity_y = 0.0
+            return True
+        elif symbol == key.RIGHT:
+            self.velocity_x = base_speed
+            self.velocity_y = 0.0
+            return True
+        # Diagonals
+        elif symbol == key.HOME:  # Up-Left
+            self.velocity_x = -base_speed * CONFIG.DIAGONAL_MOVEMENT_FACTOR
+            self.velocity_y = base_speed * CONFIG.DIAGONAL_MOVEMENT_FACTOR
+            return True
+        elif symbol == key.PAGEUP:  # Up-Right
+            self.velocity_x = base_speed * CONFIG.DIAGONAL_MOVEMENT_FACTOR
+            self.velocity_y = base_speed * CONFIG.DIAGONAL_MOVEMENT_FACTOR
+            return True
+        elif symbol == key.END:  # Down-Left
+            self.velocity_x = -base_speed * CONFIG.DIAGONAL_MOVEMENT_FACTOR
+            self.velocity_y = -base_speed * CONFIG.DIAGONAL_MOVEMENT_FACTOR
+            return True
+        elif symbol == key.PAGEDOWN:  # Down-Right
+            self.velocity_x = base_speed * CONFIG.DIAGONAL_MOVEMENT_FACTOR
+            self.velocity_y = -base_speed * CONFIG.DIAGONAL_MOVEMENT_FACTOR
+            return True
+        elif symbol == key.SPACE:  # Stop
+            self.velocity_x = 0.0
+            self.velocity_y = 0.0
+            return True
+
+        return False
+
+    def on_mouse_press(self, x: int, y: int, button: int, modifiers: int) -> bool:
+        """Handle mouse press events for click-to-move.
+
+        Args:
+            x: Mouse x coordinate.
+            y: Mouse y coordinate.
+            button: Mouse button from pyglet.window.mouse.
+            modifiers: Modifier keys.
+
+        Returns:
+            True if event was handled, False otherwise.
+        """
+        from pyglet.window import mouse
+
+        if button == mouse.LEFT:
+            self.set_velocity_to_target(float(x), float(y))
+            return True
+
+        return False
+
     def draw(self) -> None:
         """Render mouse sprite centered at center position."""
         # Adjust sprite position for center-based rendering
