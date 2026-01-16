@@ -20,6 +20,7 @@ class GameConfig:
     WINDOW_WIDTH: int = 800
     WINDOW_HEIGHT: int = 600
     TARGET_FPS: float = 60.0
+    FRAME_DROP_THRESHOLD: float = 0.03  # 30ms - frame drop warning threshold
 
     # Sprite Configuration
     KITTEN_SCALE: float = 0.1

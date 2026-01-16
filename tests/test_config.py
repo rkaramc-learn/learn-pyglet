@@ -23,6 +23,11 @@ class TestGameConfig(unittest.TestCase):
         self.assertAlmostEqual(config.DIAGONAL_MOVEMENT_FACTOR, 0.7071, places=4)
         self.assertEqual(config.MOVEMENT_DISTANCE_THRESHOLD, 2.0)
 
+    def test_config_frame_drop_threshold(self) -> None:
+        """Test frame drop warning threshold constant."""
+        config = GameConfig()
+        self.assertEqual(config.FRAME_DROP_THRESHOLD, 0.03)
+
     def test_config_health_constants(self) -> None:
         """Test health and stamina constants."""
         config = GameConfig()

@@ -14,6 +14,7 @@ from typing import Any, Optional
 import pyglet
 from PIL import Image
 
+from .config import CONFIG
 from .screens import ScreenName
 from .screens.base import ScreenProtocol
 from .types import WindowProtocol
@@ -249,8 +250,8 @@ class ScreenManager:
         Args:
             dt: Time elapsed since last update in seconds
         """
-        # Detect frame drops (>20ms = significant stutter beyond 60 FPS variance)
-        if dt > 0.020:
+        # Detect frame drops (exceeds configured threshold)
+        if dt > CONFIG.FRAME_DROP_THRESHOLD:
             logger.warning(f"Frame drop detected: dt = {dt * 1000:.2f} ms")
 
         if self.active_screen:
