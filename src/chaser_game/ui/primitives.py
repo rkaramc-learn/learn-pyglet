@@ -8,6 +8,7 @@ from typing import Callable, Optional
 
 import pyglet
 
+from ..colors import Color
 from ..config import CONFIG
 
 
@@ -20,9 +21,9 @@ class Panel:
         y: float,
         width: float,
         height: float,
-        color: tuple[int, int, int] = CONFIG.COLOR_BACKGROUND,
+        color: Color = CONFIG.COLOR_BACKGROUND,
         opacity: int = 255,
-        border_color: Optional[tuple[int, int, int]] = None,
+        border_color: Optional[Color] = None,
         border_width: int = 2,
     ) -> None:
         """Initialize panel.
@@ -89,7 +90,12 @@ class StyledLabel(pyglet.text.Label):
         text: str,
         font_size: int = CONFIG.FONT_SIZE_BODY,
         font_name: str = CONFIG.FONT_NAME,
-        color: tuple[int, int, int, int] = (*CONFIG.COLOR_TEXT, 255),
+        color: tuple[int, int, int, int] = (
+            CONFIG.COLOR_TEXT.r,
+            CONFIG.COLOR_TEXT.g,
+            CONFIG.COLOR_TEXT.b,
+            255,
+        ),
         **kwargs,
     ) -> None:
         """Initialize styled label.
@@ -115,9 +121,9 @@ class Button:
         height: float,
         text: str,
         on_click: Optional[Callable[[], None]] = None,
-        base_color: tuple[int, int, int] = CONFIG.COLOR_ACCENT,
-        hover_color: tuple[int, int, int] = CONFIG.COLOR_PLAYER,
-        text_color: tuple[int, int, int] = CONFIG.COLOR_TEXT,
+        base_color: Color = CONFIG.COLOR_ACCENT,
+        hover_color: Color = CONFIG.COLOR_PLAYER,
+        text_color: Color = CONFIG.COLOR_TEXT,
     ) -> None:
         """Initialize button.
 
@@ -154,7 +160,7 @@ class Button:
             y=y,
             anchor_x="center",
             anchor_y="center",
-            color=(*text_color, 255),
+            color=(text_color.r, text_color.g, text_color.b, 255),
         )
 
     def check_hit(self, x: float, y: float) -> bool:

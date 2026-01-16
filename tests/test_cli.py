@@ -14,9 +14,7 @@ def runner() -> CliRunner:
 
 @patch("chaser_game.cli.init_logging")
 @patch("chaser_game.cli.main")
-def test_play_defaults(
-    mock_main: MagicMock, mock_init_logging: MagicMock, runner: CliRunner
-) -> None:
+def test_play_defaults(mock_main: MagicMock, mock_init_logging: MagicMock, runner: CliRunner) -> None:
     """Test play command with default arguments."""
     result = runner.invoke(cli, ["play"])
 
@@ -53,9 +51,7 @@ def test_play_verbose_2(
 
 @patch("chaser_game.cli.init_logging")
 @patch("chaser_game.cli.main")
-def test_play_log_file(
-    mock_main: MagicMock, mock_init_logging: MagicMock, runner: CliRunner
-) -> None:
+def test_play_log_file(mock_main: MagicMock, mock_init_logging: MagicMock, runner: CliRunner) -> None:
     """Test play command with --log-file."""
     from pathlib import Path
 

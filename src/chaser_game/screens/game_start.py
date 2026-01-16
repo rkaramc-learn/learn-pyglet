@@ -7,6 +7,7 @@ import logging
 
 from pyglet.window import key
 
+from ..colors import Color
 from ..config import CONFIG
 from ..types import WindowProtocol
 from ..ui.primitives import Panel, StyledLabel
@@ -50,7 +51,12 @@ class GameStartScreen(ScreenProtocol):
         self.subtitle = StyledLabel(
             "survive the hunt",
             font_size=CONFIG.FONT_SIZE_HEADER,
-            color=(*CONFIG.COLOR_TEXT_SECONDARY, 255),
+            color=(
+                CONFIG.COLOR_TEXT_SECONDARY.r,
+                CONFIG.COLOR_TEXT_SECONDARY.g,
+                CONFIG.COLOR_TEXT_SECONDARY.b,
+                255,
+            ),
             x=window.width // 2,
             y=window.height - 180,
             anchor_x="center",
@@ -63,7 +69,7 @@ class GameStartScreen(ScreenProtocol):
         self.instruction_label = StyledLabel(
             instructions_text,
             font_size=CONFIG.FONT_SIZE_BODY,
-            color=(*CONFIG.COLOR_TEXT, 255),
+            color=(CONFIG.COLOR_TEXT.r, CONFIG.COLOR_TEXT.g, CONFIG.COLOR_TEXT.b, 255),
             x=window.width // 2,
             y=window.height // 2,
             anchor_x="center",
@@ -75,13 +81,18 @@ class GameStartScreen(ScreenProtocol):
 
         # We perform a trick to keep the reference but not draw the panel if we don't want it,
         # or we just make it invisible.
-        self.instructions_panel = Panel(x=0, y=0, width=0, height=0, color=(0, 0, 0), opacity=0)
+        self.instructions_panel = Panel(x=0, y=0, width=0, height=0, color=Color(0, 0, 0), opacity=0)
 
         # Start prompt
         self.start_prompt = StyledLabel(
             "press space to start",
             font_size=CONFIG.FONT_SIZE_TITLE,
-            color=(*CONFIG.COLOR_GREEN_ACCENT, 255),
+            color=(
+                CONFIG.COLOR_GREEN_ACCENT.r,
+                CONFIG.COLOR_GREEN_ACCENT.g,
+                CONFIG.COLOR_GREEN_ACCENT.b,
+                255,
+            ),
             x=window.width // 2,
             y=150,
             anchor_x="center",
@@ -92,7 +103,12 @@ class GameStartScreen(ScreenProtocol):
         self.quit_hint = StyledLabel(
             "q to quit",
             font_size=CONFIG.FONT_SIZE_LABEL,
-            color=(*CONFIG.COLOR_TEXT_SECONDARY, 150),
+            color=(
+                CONFIG.COLOR_TEXT_SECONDARY.r,
+                CONFIG.COLOR_TEXT_SECONDARY.g,
+                CONFIG.COLOR_TEXT_SECONDARY.b,
+                150,
+            ),
             x=window.width // 2,
             y=50,
             anchor_x="center",

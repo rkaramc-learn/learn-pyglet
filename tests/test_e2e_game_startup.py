@@ -263,7 +263,7 @@ class TestGameStartup(unittest.TestCase):
             from chaser_game import hello_world
 
             self.assertIsNotNone(hello_world)
-            self.assertTrue(hasattr(hello_world, "run_hello_world"))
+            self.assertTrue(hasattr(hello_world, "main"))
         except ImportError as e:
             self.fail(f"Failed to import hello_world module: {e}")
 

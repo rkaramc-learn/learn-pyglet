@@ -54,7 +54,7 @@ def test_game_startup() -> None:
     logger.info("Testing game startup...")
 
     import pyglet
-    from chaser_game.hello_world import run_hello_world
+    from chaser_game.hello_world import main as run_hello_world
 
     # Mock the run to prevent actual window creation
     original_run = pyglet.app.run

@@ -62,7 +62,7 @@ class GameEndScreen(ScreenProtocol):
         self.stats_label = StyledLabel(
             "",
             font_size=14,
-            color=(*CONFIG.COLOR_TEXT, 200),
+            color=(CONFIG.COLOR_TEXT.r, CONFIG.COLOR_TEXT.g, CONFIG.COLOR_TEXT.b, 200),
             x=window.width // 2,
             y=window.height // 2 - 20,
             anchor_x="center",
@@ -76,7 +76,12 @@ class GameEndScreen(ScreenProtocol):
         self.replay_label = StyledLabel(
             "press space to play again",
             font_size=CONFIG.FONT_SIZE_TITLE,
-            color=(*CONFIG.COLOR_GREEN_ACCENT, 255),
+            color=(
+                CONFIG.COLOR_GREEN_ACCENT.r,
+                CONFIG.COLOR_GREEN_ACCENT.g,
+                CONFIG.COLOR_GREEN_ACCENT.b,
+                255,
+            ),
             x=window.width // 2,
             y=100,
             anchor_x="center",
@@ -87,7 +92,12 @@ class GameEndScreen(ScreenProtocol):
         self.quit_label = StyledLabel(
             "q to quit",
             font_size=CONFIG.FONT_SIZE_LABEL,
-            color=(*CONFIG.COLOR_TEXT_SECONDARY, 150),
+            color=(
+                CONFIG.COLOR_TEXT_SECONDARY.r,
+                CONFIG.COLOR_TEXT_SECONDARY.g,
+                CONFIG.COLOR_TEXT_SECONDARY.b,
+                150,
+            ),
             x=window.width // 2,
             y=50,
             anchor_x="center",

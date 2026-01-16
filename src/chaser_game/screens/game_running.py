@@ -139,7 +139,7 @@ class GameRunningScreen(ScreenProtocol):
         self.time_label = StyledLabel(
             "time: 0s",
             font_size=12,  # Tiny text
-            color=(*CONFIG.COLOR_TEXT, 200),
+            color=(CONFIG.COLOR_TEXT.r, CONFIG.COLOR_TEXT.g, CONFIG.COLOR_TEXT.b, 200),
             x=window.width - 150,  # Increased spacing from 120
             y=window.height - 20,
             anchor_x="left",
@@ -149,7 +149,7 @@ class GameRunningScreen(ScreenProtocol):
         self.distance_label = StyledLabel(
             "dist: 0px",
             font_size=12,
-            color=(*CONFIG.COLOR_TEXT, 200),
+            color=(CONFIG.COLOR_TEXT.r, CONFIG.COLOR_TEXT.g, CONFIG.COLOR_TEXT.b, 200),
             x=window.width - 20,
             y=window.height - 20,
             anchor_x="right",

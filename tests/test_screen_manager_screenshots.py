@@ -11,7 +11,7 @@ class TestScreenManagerScreenshots(unittest.TestCase):
 
     def setUp(self) -> None:
         self.mock_window = MagicMock()
-        self.manager = ScreenManager(self.mock_window)
+        self.manager = ScreenManager(self.mock_window, capture_screenshots=True)
 
         # Create mock screens
         self.screen_a = MagicMock(spec=ScreenProtocol)

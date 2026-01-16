@@ -6,6 +6,8 @@ to enable easy testing, configuration management, and entity system integration.
 
 from dataclasses import dataclass
 
+from .colors import Color
+
 
 @dataclass(frozen=True)
 class GameConfig:
@@ -50,26 +52,26 @@ class GameConfig:
 
     # Palette (Minimalist Dark Theme)
     # RGB tuples (0-255)
-    COLOR_BACKGROUND: tuple[int, int, int] = (15, 23, 42)  # Matte Slate
-    COLOR_PLAYER: tuple[int, int, int] = (255, 255, 255)  # White (Minimalist)
-    COLOR_ENEMY: tuple[int, int, int] = (231, 76, 60)  # Alizarin (Red)
-    COLOR_TEXT: tuple[int, int, int] = (255, 255, 255)  # White
-    COLOR_TEXT_SECONDARY: tuple[int, int, int] = (148, 163, 184)  # Slate Grey
-    COLOR_ACCENT: tuple[int, int, int] = (52, 152, 219)  # Peter River (Blue)
+    COLOR_BACKGROUND: Color = Color(15, 23, 42)  # Matte Slate
+    COLOR_PLAYER: Color = Color(255, 255, 255)  # White (Minimalist)
+    COLOR_ENEMY: Color = Color(231, 76, 60)  # Alizarin (Red)
+    COLOR_TEXT: Color = Color(255, 255, 255)  # White
+    COLOR_TEXT_SECONDARY: Color = Color(148, 163, 184)  # Slate Grey
+    COLOR_ACCENT: Color = Color(52, 152, 219)  # Peter River (Blue)
 
     # Minimalist Accents
-    COLOR_GREEN_ACCENT: tuple[int, int, int] = (46, 204, 113)  # Emerald
-    COLOR_RED_ACCENT: tuple[int, int, int] = (231, 76, 60)  # Alizarin
+    COLOR_GREEN_ACCENT: Color = Color(46, 204, 113)  # Emerald
+    COLOR_RED_ACCENT: Color = Color(231, 76, 60)  # Alizarin
 
     # Semantic Colors
-    COLOR_HEALTH_GOOD: tuple[int, int, int] = (46, 204, 113)  # Emerald
-    COLOR_HEALTH_LOW: tuple[int, int, int] = (243, 156, 18)  # Orange
-    COLOR_HEALTH_CRITICAL: tuple[int, int, int] = (231, 76, 60)  # Alizarin
+    COLOR_HEALTH_GOOD: Color = Color(46, 204, 113)  # Emerald
+    COLOR_HEALTH_LOW: Color = Color(243, 156, 18)  # Orange
+    COLOR_HEALTH_CRITICAL: Color = Color(231, 76, 60)  # Alizarin
 
     # Backward Compatibility (Deprecate if possible)
-    COLOR_DARK_GRAY: tuple[int, int, int] = (50, 50, 50)  # Alias or keep for debug
-    COLOR_GREEN: tuple[int, int, int] = (46, 204, 113)
-    COLOR_RED: tuple[int, int, int] = (231, 76, 60)
+    COLOR_DARK_GRAY: Color = Color(50, 50, 50)  # Alias or keep for debug
+    COLOR_GREEN: Color = Color(46, 204, 113)
+    COLOR_RED: Color = Color(231, 76, 60)
 
     # Typography
     FONT_NAME: str = "Arial"
