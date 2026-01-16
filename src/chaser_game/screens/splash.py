@@ -9,6 +9,7 @@ import pyglet
 from pyglet.math import Vec2
 
 from ..config import CONFIG
+from ..movement import smooth_step
 from ..types import WindowProtocol
 from .base import ScreenProtocol
 
@@ -51,10 +52,6 @@ class SplashScreen(ScreenProtocol):
         # Start invisible
         self.logo.update_opacity(0)
 
-    def _smooth_step(self, t: float) -> float:
-        """Smooth step easing (t * t * (3 - 2 * t))."""
-        return t * t * (3 - 2 * t)
-
     def on_enter(self) -> None:
         """Called when splash screen becomes active."""
         self.elapsed_time = 0.0
@@ -86,7 +83,7 @@ class SplashScreen(ScreenProtocol):
         # Phase 1: Fade In (0.0s - 1.0s)
         if self.elapsed_time <= 1.0:
             fade_progress = self.elapsed_time / 1.0
-            opacity = int(self._smooth_step(fade_progress) * 255)
+            opacity = int(smooth_step(fade_progress) * 255)
             self.logo.update_opacity(opacity)
             self.logo.update_position(self.start_pos.x, self.start_pos.y)
 
@@ -101,7 +98,7 @@ class SplashScreen(ScreenProtocol):
             # Normalize time for this phase (0.0 to 1.0 over 1 second)
             slide_progress = (self.elapsed_time - 1.5) / 1.0
             # Ease the progress
-            t = self._smooth_step(slide_progress)
+            t = smooth_step(slide_progress)
             # Lerp position
             self.current_pos = self.start_pos.lerp(self.target_pos, t)
             self.logo.update_position(self.current_pos.x, self.current_pos.y)

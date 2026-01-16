@@ -274,3 +274,18 @@ def is_moving(
         True if distance > threshold, False otherwise.
     """
     return distance(current_x, current_y, target_x, target_y) > distance_threshold
+
+
+def smooth_step(t: float) -> float:
+    """Smooth step easing function.
+
+    Standard smoothstep: 3t² - 2t³ for smooth interpolation.
+    Maps input [0, 1] to a smooth S-curve output [0, 1].
+
+    Args:
+        t: Input value, typically in range [0, 1].
+
+    Returns:
+        Smoothed output value.
+    """
+    return t * t * (3 - 2 * t)
