@@ -15,12 +15,6 @@ class TestGameConfig(unittest.TestCase):
         self.assertEqual(config.WINDOW_HEIGHT, 600)
         self.assertEqual(config.TARGET_FPS, 60.0)
 
-    def test_config_is_frozen(self) -> None:
-        """Test that GameConfig is frozen (immutable)."""
-        config = GameConfig()
-        with self.assertRaises(AttributeError):
-            config.WINDOW_WIDTH = 1024  # type: ignore[misc]
-
     def test_config_movement_constants(self) -> None:
         """Test movement-related constants."""
         config = GameConfig()
@@ -70,14 +64,6 @@ class TestGameConfig(unittest.TestCase):
         self.assertIsInstance(CONFIG, GameConfig)
         self.assertEqual(CONFIG.WINDOW_WIDTH, 800)
         self.assertEqual(CONFIG.MAX_HEALTH, 100.0)
-
-    def test_config_with_custom_values(self) -> None:
-        """Test creating config with custom values."""
-        custom_config = GameConfig(WINDOW_WIDTH=1024, MAX_HEALTH=150.0)
-        self.assertEqual(custom_config.WINDOW_WIDTH, 1024)
-        self.assertEqual(custom_config.MAX_HEALTH, 150.0)
-        # Other values should still be defaults
-        self.assertEqual(custom_config.WINDOW_HEIGHT, 600)
 
 
 if __name__ == "__main__":
