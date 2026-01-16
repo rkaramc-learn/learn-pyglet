@@ -6,6 +6,7 @@ the transfer to happen via DMA without stalling the CPU.
 
 import ctypes
 import logging
+import time
 from typing import Optional
 
 import pyglet
@@ -46,6 +47,8 @@ class PBOManager:
         self.current_index = 0
         self.row_stride = width * 4  # RGBA = 4 bytes
         self.buffer_size = self.row_stride * height
+        self.last_capture_duration_us: float = 0.0
+        self._pending_read_index: int = -1  # Track which PBO to read from
 
         self._init_buffers()
 
@@ -101,23 +104,56 @@ class PBOManager:
     def capture(self) -> Optional[bytes]:
         """Trigger a capture and return data from the PREVIOUS capture if ready.
 
-        Returns:
-            bytes: Raw RGBA data from a previous frame, or None if not ready.
+        DEPRECATED: Use start_capture() and end_capture() for better control.
+        """
+        self.start_capture()
+        # This will return None on the first call, which is why we're refactoring
+        return self.end_capture()
+
+    def start_capture(self) -> None:
+        """Initiate asynchronous capture of the current frame.
+
+        This writes to the NEXT buffer in the cycle. The previously used buffer
+        becomes available for reading in end_capture().
         """
         if not self.buffers:
+            return
+
+        # Remember which buffer we're about to write to (for reading next frame)
+        write_index = (self.current_index + 1) % self.count
+        write_pbo = self.buffers[write_index]
+
+        start = time.perf_counter()
+
+        # Trigger read for CURRENT frame into write_pbo
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, write_pbo)
+        glReadPixels(0, 0, self.width, self.height, GL_RGBA, GL_UNSIGNED_BYTE, 0)
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, 0)
+
+        end = time.perf_counter()
+        duration = (end - start) * 1_000_000
+        logger.debug(f"PBO start_capture (glReadPixels execution): {duration:.2f} us")
+
+        # Schedule THIS buffer for reading on the NEXT end_capture call
+        self._pending_read_index = write_index
+        # Advance the cycle
+        self.current_index = write_index
+
+    def end_capture(self) -> Optional[bytes]:
+        """Finalize capture and retrieve data.
+
+        Reads from the buffer that was written to in the PREVIOUS start_capture call.
+        This ensures the GPU has had time to complete the DMA transfer.
+        """
+        if not self.buffers or self._pending_read_index < 0:
             return None
 
-        # Cycle index
-        next_index = (self.current_index + 1) % self.count
-        next_pbo = self.buffers[next_index]
-        current_pbo = self.buffers[self.current_index]
+        read_pbo = self.buffers[self._pending_read_index]
+        self._pending_read_index = -1  # Clear pending
 
-        # 1. Trigger read for CURRENT frame into next_pbo
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, next_pbo)
-        glReadPixels(0, 0, self.width, self.height, GL_RGBA, GL_UNSIGNED_BYTE, 0)
+        start = time.perf_counter()
 
-        # 2. Process PREVIOUS frame from current_pbo
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, current_pbo)
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, read_pbo)
         ptr = glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY)
 
         data = None
@@ -128,7 +164,7 @@ class PBOManager:
 
         glBindBuffer(GL_PIXEL_PACK_BUFFER, 0)
 
-        # Advance index
-        self.current_index = next_index
+        end = time.perf_counter()
+        self.last_capture_duration_us = (end - start) * 1_000_000
 
         return data
