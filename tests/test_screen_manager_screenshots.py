@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
+import pyglet
 from chaser_game.screen_manager import ScreenManager
 from chaser_game.screens import ScreenName
 from chaser_game.screens.base import ScreenProtocol
@@ -69,4 +70,24 @@ class TestScreenManagerScreenshots(unittest.TestCase):
         # Should capture enter B
         mock_buffer.save.assert_called_with(
             f"{self.manager._screenshot_dir}\\TIMESTAMP_456_game_running_enter.png"
+        )
+
+    @patch("chaser_game.screen_manager.pyglet.image.get_buffer_manager")
+    @patch("chaser_game.screen_manager.datetime")
+    def test_manual_screenshot_trigger(self, mock_datetime, mock_get_buffer_manager) -> None:
+        """Test that INSERT key triggers manual screenshot."""
+        # Setup mocks
+        mock_buffer = MagicMock()
+        mock_get_buffer_manager.return_value.get_color_buffer.return_value = mock_buffer
+        mock_datetime.datetime.now.return_value.strftime.return_value = "TIMESTAMP"
+        mock_datetime.datetime.now.return_value.microsecond = 123000
+
+        self.manager.set_active_screen(ScreenName.GAME_START)
+
+        # Simulate INSERT key press
+        self.manager.on_key_press(pyglet.window.key.INSERT, 0)
+
+        # Should capture with 'manual' event
+        mock_buffer.save.assert_called_with(
+            f"{self.manager._screenshot_dir}\\TIMESTAMP_123_game_start_manual.png"
         )

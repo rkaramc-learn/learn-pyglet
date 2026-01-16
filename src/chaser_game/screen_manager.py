@@ -135,6 +135,10 @@ class ScreenManager:
             symbol: Key symbol
             modifiers: Modifier keys
         """
+        # Global hotkeys
+        if symbol == pyglet.window.key.INSERT:
+            self._capture_screenshot(self.active_screen_name or "global", "manual")
+
         if self.active_screen:
             self.active_screen.on_key_press(symbol, modifiers)
 
